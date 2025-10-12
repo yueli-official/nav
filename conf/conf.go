@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"nav/models"
 
@@ -37,11 +38,32 @@ func LoadNavConfig(path string) ([]models.CategoryData, error) {
 	return config, nil
 }
 
-// SaveNavConfig 保存导航配置到YAML文件
+// SaveNavConfig 保存导航配置到 YAML 文件，并自动备份旧文件
 func SaveNavConfig(path string, data []models.CategoryData) error {
+	// 如果目标文件存在，则先备份一份历史文件
+	if _, err := os.Stat(path); err == nil {
+		backupDir := filepath.Join(filepath.Dir(path), "backup")
+
+		// 创建 backup 目录（若不存在）
+		if err := os.MkdirAll(backupDir, 0755); err != nil {
+			return fmt.Errorf("创建备份目录失败: %v", err)
+		}
+
+		// 生成带时间戳的备份文件名，例如 config_20251012_143000.yaml
+		timestamp := time.Now().Format("20060102_150405")
+		backupFile := filepath.Join(backupDir,
+			fmt.Sprintf("%s_%s.yaml", filepath.Base(path), timestamp))
+
+		// 复制原文件
+		if err := copyFile(path, backupFile); err != nil {
+			return fmt.Errorf("备份文件失败: %v", err)
+		}
+	}
+
+	// 创建或覆盖目标文件
 	file, err := os.Create(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("创建配置文件失败: %v", err)
 	}
 	defer file.Close()
 
@@ -49,8 +71,29 @@ func SaveNavConfig(path string, data []models.CategoryData) error {
 	encoder.SetIndent(2)
 
 	if err := encoder.Encode(data); err != nil {
-		return err
+		return fmt.Errorf("写入配置文件失败: %v", err)
 	}
 
 	return nil
+}
+
+// copyFile 简单的文件复制函数
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	if _, err := out.ReadFrom(in); err != nil {
+		return err
+	}
+
+	return out.Sync()
 }
