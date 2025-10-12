@@ -24,8 +24,8 @@ importers:
         specifier: ^1.0.19
         version: 1.0.19(rolldown-vite@7.1.16(@types/node@22.18.8)(jiti@2.6.1))
       '@yuelioi/ui':
-        specifier: ^1.0.14
-        version: 1.0.14(rolldown-vite@7.1.16(@types/node@22.18.8)(jiti@2.6.1))(vue@3.5.22(typescript@5.8.3))
+        specifier: ^1.0.16
+        version: 1.0.16(rolldown-vite@7.1.16(@types/node@22.18.8)(jiti@2.6.1))(vue@3.5.22(typescript@5.8.3))
       '@yuelioi/utils':
         specifier: ^1.0.8
         version: 1.0.8
@@ -1321,8 +1321,8 @@ packages:
   '@yuelioi/toast@1.0.19':
     resolution: {integrity: sha512-Lsl+lwtNkTDplmVpDwjOKl9YVNpKww7/yftIasYOPbPRbnmLuiKuKiWigyHyxXoJABM364cpjayI3/xNn9rZLA==, tarball: https://npm.pkg.github.com/download/@yuelioi/toast/1.0.19/5547e40a849cab8a19dfe1e130f51b190bcea543}
 
-  '@yuelioi/ui@1.0.14':
-    resolution: {integrity: sha512-VK/Slo32b1izbMmhBgcYmIpblWk7/9yK9Ml7WTnAJzuvit7Pt0QUyQhr7tIX34hY/iqjvRFog6QHqxDGkkO+8g==, tarball: https://npm.pkg.github.com/download/@yuelioi/ui/1.0.14/a295537eace93c8d09549c2dabee313d6b083e32}
+  '@yuelioi/ui@1.0.16':
+    resolution: {integrity: sha512-Q2zI8ykg8ApBo7jMFQn9N2j8DoS9F4R9mteMhj5HDbAxPsfBDD2JOXAssBfUqBUF6iT7dUwtBp3VHBEllVsFyA==, tarball: https://npm.pkg.github.com/download/@yuelioi/ui/1.0.16/22010c8aab7d94cb8fb6a6ec701828d87ee98263}
     peerDependencies:
       vue: ^3.3.0
 
@@ -4861,7 +4861,7 @@ snapshots:
     transitivePeerDependencies:
       - vite
 
-  '@yuelioi/ui@1.0.14(rolldown-vite@7.1.16(@types/node@22.18.8)(jiti@2.6.1))(vue@3.5.22(typescript@5.8.3))':
+  '@yuelioi/ui@1.0.16(rolldown-vite@7.1.16(@types/node@22.18.8)(jiti@2.6.1))(vue@3.5.22(typescript@5.8.3))':
     dependencies:
       '@tailwindcss/vite': 4.1.14(rolldown-vite@7.1.16(@types/node@22.18.8)(jiti@2.6.1))
       vue: 3.5.22(typescript@5.8.3)

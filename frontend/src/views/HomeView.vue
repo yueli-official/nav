@@ -1,89 +1,49 @@
 <template>
   <div class="h-screen flex flex-col bg-background text-foreground">
-    <MobileHeader
-      :categories="categories"
-      v-model:selectedCategory="selectedCategory"></MobileHeader>
+    <MobileHeader :categories="categories" v-model:selectedCategory="selectedCategory"></MobileHeader>
 
     <div class="flex overflow-hidden h-full">
       <!-- Desktop Sidebar -->
       <aside class="hidden lg:flex flex-col w-48 border-r border-border bg-card z-10">
         <nav class="flex-1 p-4 space-y-2 flex flex-col">
-          <div
-            v-for="cat in categories"
-            :key="cat.cid"
-            @click="selectCategory(cat)"
-            :class="[
-              'text-left btn-lg btn btn-wide group',
-              selectedCategory === cat
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'hover:bg-secondary/80',
-            ]">
+          <div v-for="cat in categories" :key="cat.cid" @click="selectCategory(cat)" :class="[
+            'text-left btn-lg btn btn-wide group',
+            selectedCategory === cat
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'hover:bg-secondary/80',
+          ]">
             <span class="w-full"> {{ cat.title }}</span>
 
-            <div
-              v-if="isLogin"
-              class="hidden group-hover:block"
+            <div v-if="isLogin" class="hidden group-hover:block"
               @click="modifyGroupRef?.openCreate(selectedCategory.cid)">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="size-4 hidden group-hover:block"
-                width="24"
-                height="24"
+              <svg xmlns="http://www.w3.org/2000/svg" class="size-4 hidden group-hover:block" width="24" height="24"
                 viewBox="0 0 24 24">
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M5 12h14m-7-7v14" />
               </svg>
             </div>
 
-            <svg
-              v-if="isLogin"
-              xmlns="http://www.w3.org/2000/svg"
-              @click.stop="modifyCateRef?.openEdit(cat)"
-              class="size-4 hidden group-hover:block"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24">
-              <path
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
+            <svg v-if="isLogin" xmlns="http://www.w3.org/2000/svg" @click.stop="modifyCateRef?.openEdit(cat)"
+              class="size-4 hidden group-hover:block" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497zM15 5l4 4" />
             </svg>
           </div>
 
           <button v-if="isLogin" class="mt-auto btn btn-secondary btn-lg btn-wide" @click="addCate">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="size-4 mr-3"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24">
-              <path
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 12h14m-7-7v14" /></svg
-            ><span>添加分类</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4 mr-3" width="24" height="24" viewBox="0 0 24 24">
+              <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 12h14m-7-7v14" />
+            </svg><span>添加分类</span>
           </button>
         </nav>
       </aside>
 
       <!-- Main Content -->
-      <main class="flex-1 overflow-y-auto">
+      <main class="flex-1 overflow-y-auto" id="main">
         <div class="max-w-6xl mx-auto p-4 lg:p-8">
           <!-- Search Bar -->
-          <SearchInput
-            v-model:search="searchQuery"
-            class="my-12 bg-background/50 mx-auto max-w-2xl"></SearchInput>
+          <SearchInput v-model:search="searchQuery" class="my-12 bg-background/50 mx-auto max-w-2xl"></SearchInput>
 
           <div v-if="searchQuery" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <template v-for="c in filteredCollections" :key="c.link">
@@ -94,10 +54,7 @@
           <div class="flex items-center justify-between">
             <!-- Tags Filter -->
             <div v-if="allGroups.length > 0 && !searchQuery" class="flex flex-wrap gap-2 mb-6">
-              <button
-                v-for="group in allGroups"
-                :key="group.gid"
-                @click="jumpGroup(group)"
+              <button v-for="group in allGroups" :key="group.gid" @click="jumpGroup(group)"
                 class="badge badge-primary badge-lg font-semibold rounded-full transition-all">
                 {{ group.title }}
               </button>
@@ -113,29 +70,17 @@
                 <h2 class="">{{ groupData.group.title }}</h2>
 
                 <div class="flex items-center gap-2 absolute right-0">
-                  <button
-                    v-if="isLogin"
-                    @click="modifyGroupRef?.openEdit(selectedCategory.cid, groupData.group)"
+                  <button v-if="isLogin" @click="modifyGroupRef?.openEdit(selectedCategory.cid, groupData.group)"
                     class="btn btn-sm btn-icon btn-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24">
-                      <path
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                      <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="2"
                         d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497zM15 5l4 4" />
                     </svg>
                   </button>
-                  <button
-                    @click="
-                      modifyCollectionRef?.openCreate(selectedCategory.cid, groupData.group.gid)
-                    "
-                    class="btn btn-sm btn-icon btn-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button @click="
+                    modifyCollectionRef?.openCreate(selectedCategory.cid, groupData.group.gid)
+                    " class="btn btn-sm btn-icon btn-primary opacity-0 group-hover:opacity-100 transition-opacity">
                     +
                   </button>
                 </div>
@@ -144,9 +89,8 @@
               <!-- Collections Grid -->
               <div class="grid grid-cols-1 md:grid-cols-2 group lg:grid-cols-3 gap-4">
                 <template v-for="(item, idx) in groupData.collections" :key="idx">
-                  <CollectionCard
-                    :item="item"
-                    @open-edit="openCollectionEdit(item, groupData.group.gid)"></CollectionCard>
+                  <CollectionCard :item="item" @open-edit="openCollectionEdit(item, groupData.group.gid)">
+                  </CollectionCard>
                 </template>
               </div>
             </section>
@@ -164,11 +108,15 @@
   <ModifyCategory ref="modifyCateRef"></ModifyCategory>
   <ModifyCollection ref="modifyCollectionRef"></ModifyCollection>
   <ModifyGroup ref="modifyGroupRef"></ModifyGroup>
+
+  <BackToTop class="right-12 bottom-12" target="#main"></BackToTop>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { SearchInput } from '@yuelioi/ui'
+import { BackToTop } from '@yuelioi/ui'
+
 import type ModifyCollection from '@/components/ModifyCollection.vue'
 import type ModifyCategory from '@/components/ModifyCategory.vue'
 import type ModifyGroup from '@/components/ModifyGroup.vue'

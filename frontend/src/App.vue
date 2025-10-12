@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { BackToTop } from '@yuelioi/ui';
-import { ToastContainer } from '@yuelioi/toast';
+import { ToastContainer } from '@yuelioi/toast'
 
-import "@yuelioi/toast/dist/toast.css"
-
+import '@yuelioi/toast/dist/toast.css'
 </script>
 
 <template>
@@ -13,5 +11,4 @@ import "@yuelioi/toast/dist/toast.css"
       <component :is="Component" />
     </keep-alive>
   </RouterView>
-  <BackToTop class="right-3 bottom-6"></BackToTop>
 </template>
