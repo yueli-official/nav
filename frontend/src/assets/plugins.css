@@ -1,0 +1,4 @@
+@reference '@yuelioi/yami/src/index.css';
+
+@source "../../node_modules/@yuelioi/ui/src/**/*.vue";
+@source "../../node_modules/@yuelioi/yui/src/**/*.vue";

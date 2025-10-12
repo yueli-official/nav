@@ -1,0 +1,10 @@
+services:
+  nav:
+    image: ghcr.io/yozya-official/nav:latest
+    container_name: nav
+    platform: linux/amd64
+    ports:
+      - "9000:9000"
+    volumes:
+      # 挂载Api配置
+      - ./data:/app/data
