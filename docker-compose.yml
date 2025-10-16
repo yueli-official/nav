@@ -1,6 +1,6 @@
 services:
   nav:
-    image: ghcr.io/yozya-official/nav:latest
+    image: ghcr.io/yueli-official/nav:latest
     container_name: nav
     platform: linux/amd64
     ports:
