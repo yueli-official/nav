@@ -37,10 +37,11 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_IMAGE_NAME }}
-          build-args: |
-            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          secrets: |
+            "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}"
+
 
       # 5️⃣ 输出镜像信息
       - name: Image digest
