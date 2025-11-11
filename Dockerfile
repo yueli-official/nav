@@ -6,6 +6,9 @@
 FROM node:20-alpine AS frontend-builder
 WORKDIR /frontend
 
+# 先复制依赖清单文件
+COPY frontend/package.json frontend/pnpm-lock.yaml ./
+
 # 使用 BuildKit Secret 传递 GH_TOKEN（不会进入镜像层）
 RUN --mount=type=secret,id=GH_TOKEN \
   GH_TOKEN=$(cat /run/secrets/GH_TOKEN) && \
@@ -17,13 +20,14 @@ RUN --mount=type=secret,id=GH_TOKEN \
   pnpm store prune && \
   rm -f .npmrc
 
-# 复制源码并构建
+# 然后再复制完整源码
 COPY frontend/ ./
+
+# 构建
 RUN pnpm build
 
 # 清理开发文件，只保留 dist
 RUN rm -rf src node_modules public package.json pnpm-lock.yaml vite.config.ts tsconfig*.json eslint.config.ts env.d.ts
-
 
 # ----------------------
 # 后端构建阶段 (Go)
