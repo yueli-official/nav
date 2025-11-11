@@ -9,13 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
     env:
-      DOCKER_IMAGE_NAME: ghcr.io/${{ github.repository }}
-      VERSION: ${{ github.sha }}
+      DOCKER_IMAGE_NAME: ghcr.io/${{ github.repository }}:latest
 
     steps:
       # 1️⃣ 拉取代码
@@ -32,7 +27,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_TOKEN }}
 
       # 4️⃣ 构建并推送 Docker 镜像
       - name: Build and push Docker image
@@ -40,9 +35,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: |
-            ${{ env.DOCKER_IMAGE_NAME }}:latest
-            ${{ env.DOCKER_IMAGE_NAME }}:${{ env.VERSION }}
+          tags: ${{ env.DOCKER_IMAGE_NAME }}
           build-args: |
             GH_TOKEN=${{ secrets.GH_TOKEN }}
           cache-from: type=gha
@@ -51,6 +44,4 @@ jobs:
       # 5️⃣ 输出镜像信息
       - name: Image digest
         run: |
-          echo "✅ Image pushed:"
-          echo " - $DOCKER_IMAGE_NAME:latest"
-          echo " - $DOCKER_IMAGE_NAME:$VERSION"
+          echo "✅ Full-stack image: $DOCKER_IMAGE_NAME"
