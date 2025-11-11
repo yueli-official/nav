@@ -28,7 +28,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GH_TOKEN }}
 
       # 4️⃣ 构建并推送 Docker 镜像
       - name: Build and push Docker image
@@ -37,11 +37,10 @@ jobs:
           context: .
           push: true
           tags: ${{ env.DOCKER_IMAGE_NAME }}
+          build-args: |
+            GH_TOKEN=${{ secrets.GH_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          secrets: |
-            "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}"
-
 
       # 5️⃣ 输出镜像信息
       - name: Image digest
