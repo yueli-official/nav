@@ -1,13 +1,13 @@
 <template>
   <!-- Mobile Header -->
-  <header class="sticky top-0 z-50 bg-card/50 backdrop-blur-lg border-b border-border">
+  <header class="sticky top-0 z-50 bg-card/60 glass border-b border-border/50">
     <div class="flex items-center justify-between px-4 py-3">
       <div class="flex items-center gap-2">
         <div
-          class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-chart-2 flex items-center justify-center">
-          <span class="text-white font-bold text-sm">Y</span>
+          class="w-8 h-8 rounded-lg bg-foreground flex items-center justify-center shadow-md">
+          <span class="text-background font-bold text-sm">Y</span>
         </div>
-        <h1 class="text-lg font-bold">月离导航</h1>
+        <h1 class="text-lg font-bold tracking-tight">月离导航</h1>
       </div>
 
       <div class="flex items-center gap-2">
@@ -72,18 +72,18 @@
     </div>
 
     <!-- Mobile Menu -->
-    <div v-show="mobileMenuOpen" class="border-t border-border px-4 py-3 space-y-2">
+    <div v-show="mobileMenuOpen" class="border-t border-border/50 px-4 py-3 space-y-2">
       <button
         v-for="cat in categories"
         :key="cat.cid"
         @click="selectCategory(cat)"
         :class="[
-          'w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all',
+          'w-full text-left px-4 py-2.5 rounded-lg font-medium transition-all duration-200',
           selectedCategory.cid === cat.cid
-            ? 'bg-primary text-primary-foreground shadow-sm'
-            : 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+            ? 'bg-foreground/10 text-foreground border border-border/50 hover:bg-foreground/20'
+            : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10',
         ]">
-        {{ cat.title }} {{ cat.cid }}
+        {{ cat.title }}
       </button>
     </div>
   </header>

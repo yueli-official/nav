@@ -1,16 +1,55 @@
 <template>
-  <div class="h-screen flex flex-col bg-background text-foreground">
+  <div class="h-screen flex flex-col bg-background text-foreground relative">
+    <!-- 背景装饰层 -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+      <!-- 网格点阵 -->
+      <div class="absolute inset-0 bg-grid-pattern"></div>
+
+      <!-- 光晕 1：左上角 -->
+      <div class="glow-halo w-[600px] h-[600px] -top-[200px] -left-[100px]"
+        style="background: radial-gradient(circle, rgba(180,180,180,0.1) 0%, transparent 70%);"></div>
+
+      <!-- 光晕 2：右侧中部 -->
+      <div class="glow-halo glow-halo-slow w-[550px] h-[550px] top-[25%] -right-[80px]"
+        style="background: radial-gradient(circle, rgba(200,200,200,0.08) 0%, transparent 70%); animation-delay: -4s;"></div>
+
+      <!-- 光晕 3：左下 -->
+      <div class="glow-halo w-[500px] h-[500px] bottom-[5%] -left-[60px]"
+        style="background: radial-gradient(circle, rgba(160,160,160,0.09) 0%, transparent 65%); animation-delay: -2s;"></div>
+
+      <!-- 光晕 4：右上角 -->
+      <div class="glow-halo glow-halo-pulse w-[450px] h-[450px] -top-[100px] right-[15%]"
+        style="background: radial-gradient(circle, rgba(220,220,220,0.07) 0%, transparent 70%); animation-delay: -6s;"></div>
+
+      <!-- 光晕 5：中部偏下 -->
+      <div class="glow-halo glow-halo-slow w-[500px] h-[500px] top-[55%] left-[35%]"
+        style="background: radial-gradient(circle, rgba(190,190,190,0.06) 0%, transparent 65%); animation-delay: -8s;"></div>
+
+      <!-- 光晕 6：底部右侧 -->
+      <div class="glow-halo w-[400px] h-[400px] bottom-[-80px] right-[5%]"
+        style="background: radial-gradient(circle, rgba(170,170,170,0.08) 0%, transparent 70%); animation-delay: -3s;"></div>
+    </div>
+
     <MobileHeader :categories="categories" v-model:selectedCategory="selectedCategory"></MobileHeader>
 
-    <div class="flex overflow-hidden h-full">
+    <div class="flex overflow-hidden h-full relative z-10">
       <!-- Desktop Sidebar -->
-      <aside class="hidden lg:flex flex-col w-48 border-r border-border bg-card z-10">
-        <nav class="flex-1 p-4 space-y-2 flex flex-col">
+      <aside class="hidden lg:flex flex-col w-48 border-r border-border/50 bg-card/60 glass z-10 relative overflow-hidden">
+        <!-- 侧边栏背景装饰 -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+          <div class="absolute -bottom-24 -left-24 w-[250px] h-[250px] rounded-full"
+            style="background: radial-gradient(circle, rgba(180,180,180,0.08) 0%, transparent 70%);"></div>
+          <div class="absolute -top-20 -right-20 w-[200px] h-[200px] rounded-full"
+            style="background: radial-gradient(circle, rgba(200,200,200,0.06) 0%, transparent 70%);"></div>
+          <div class="absolute inset-0 bg-grid-pattern" style="opacity: 0.5;"></div>
+        </div>
+
+        <nav class="relative z-10 flex-1 p-4 space-y-1.5 flex flex-col">
           <div v-for="cat in categories" :key="cat.cid" @click="selectCategory(cat)" :class="[
-            'text-left btn-lg btn btn-wide group',
+            'text-left btn-lg btn btn-wide group transition-all duration-200',
             selectedCategory === cat
-              ? 'bg-primary text-primary-foreground shadow-sm'
-              : 'hover:bg-secondary/80',
+              ? 'bg-foreground/10 text-foreground font-medium border border-border/50 hover:bg-foreground/20'
+              : 'text-muted-foreground hover:text-foreground hover:bg-foreground/10',
           ]">
             <span class="w-full"> {{ cat.title }}</span>
 
@@ -55,7 +94,7 @@
             <!-- Tags Filter -->
             <div v-if="allGroups.length > 0 && !searchQuery" class="flex flex-wrap gap-2 mb-6">
               <button v-for="group in allGroups" :key="group.gid" @click="jumpGroup(group)"
-                class="badge badge-primary badge-lg font-semibold rounded-full transition-all">
+                class="px-3.5 py-1.5 text-sm font-medium rounded-full border border-border/50 text-muted-foreground bg-foreground/[0.03] hover:bg-foreground/10 hover:text-foreground hover:border-foreground/20 hover:shadow-md transition-all duration-200">
                 {{ group.title }}
               </button>
             </div>

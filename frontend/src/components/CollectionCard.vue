@@ -1,11 +1,11 @@
 <template>
   <div class="relative group/card">
-    <!-- 链接提示框 - 优化样式 -->
+    <!-- 链接提示框 -->
     <div
-      class="absolute z-10 bg-popover text-popover-foreground px-3 py-2 rounded-md shadow-lg border border-border -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap max-w-xs truncate text-sm">
+      class="absolute z-10 bg-popover/95 glass text-popover-foreground px-3 py-2 rounded-md shadow-lg border border-border/50 -top-14 left-1/2 -translate-x-1/2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap max-w-xs truncate text-sm">
       <div class="flex items-center gap-2">
         <svg
-          class="w-3.5 h-3.5 flex-shrink-0"
+          class="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24">
@@ -19,7 +19,7 @@
       </div>
       <!-- 小三角形 -->
       <div
-        class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-popover border-r border-b border-border rotate-45"></div>
+        class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-popover/95 border-r border-b border-border/50 rotate-45"></div>
     </div>
 
     <!-- 卡片主体 -->
@@ -27,24 +27,30 @@
       :href="item.link"
       target="_blank"
       rel="noopener noreferrer"
-      class="block relative h-48 overflow-hidden p-6 bg-card border border-border rounded-xl shadow-sm group-hover/card:shadow-xl hover:border-primary/50 hover:-translate-y-2 transition-all duration-300 group">
-      <!-- 背景渐变效果 -->
+      class="card-light-sweep block relative h-48 overflow-hidden p-6 bg-card/80 border border-border/60 rounded-xl shadow-sm group-hover/card:shadow-xl hover:border-foreground/15 hover:-translate-y-[3px] transition-all duration-350 group"
+      style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
+      <!-- 背景装饰 -->
       <div
-        class="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent group-hover/card:from-primary/15 transition-opacity duration-300"></div>
+        class="absolute inset-0 bg-gradient-to-br from-foreground/[0.02] via-transparent to-transparent group-hover/card:from-foreground/[0.05] transition-opacity duration-300"></div>
+      <!-- 右上角装饰圆弧 -->
+      <div
+        class="absolute -top-16 -right-16 w-40 h-40 rounded-full border border-foreground/[0.06] group-hover/card:border-foreground/[0.12] transition-all duration-500"></div>
+      <div
+        class="absolute -top-20 -right-20 w-52 h-52 rounded-full border border-foreground/[0.04] group-hover/card:border-foreground/[0.08] transition-all duration-500"></div>
 
       <!-- 内容区域 -->
       <div class="relative z-10 h-full flex flex-col">
         <!-- 标题和图标 -->
         <div class="flex items-start gap-3 mb-3">
           <h3
-            class="font-semibold text-lg line-clamp-1 text-card-foreground group-hover/card:text-primary transition-colors duration-200">
+            class="font-semibold text-lg line-clamp-1 text-card-foreground group-hover/card:text-foreground transition-colors duration-200">
             {{ item.title }}
           </h3>
           <div class="ml-auto"></div>
           <div
             v-if="store.isLogin"
             @click.stop.prevent="openCollectionEdit"
-            class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/50 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-200">
+            class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/50 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-200 hover:bg-accent">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="size-4"
@@ -64,8 +70,8 @@
             </svg>
           </div>
           <div
-            class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/50 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-200 group-hover/card:rotate-45">
-            <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/50 flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-all duration-200 group-hover/card:rotate-45 hover:bg-accent">
+            <svg class="w-4 h-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -102,7 +108,7 @@
 
       <!-- 装饰性光效 -->
       <div
-        class="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-3xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
+        class="absolute -right-8 -top-8 w-32 h-32 bg-foreground/[0.04] rounded-full blur-3xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500"></div>
     </a>
   </div>
 </template>
