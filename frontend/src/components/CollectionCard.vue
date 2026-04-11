@@ -27,11 +27,13 @@
       :href="item.link"
       target="_blank"
       rel="noopener noreferrer"
-      class="card-light-sweep block relative h-48 overflow-hidden p-6 bg-card/80 border border-border/60 rounded-xl shadow-sm group-hover/card:shadow-xl hover:border-foreground/15 hover:-translate-y-[3px] transition-all duration-350 group"
+      class="card-light-sweep card-top-accent block relative h-48 overflow-hidden p-6 bg-card/80 border border-border/60 rounded-xl shadow-sm group-hover/card:shadow-xl hover:border-foreground/15 hover:-translate-y-[3px] transition-all duration-350 group"
       style="transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);">
       <!-- 背景装饰 -->
       <div
         class="absolute inset-0 bg-gradient-to-br from-foreground/[0.02] via-transparent to-transparent group-hover/card:from-foreground/[0.05] transition-opacity duration-300"></div>
+      <!-- Hover 辉光覆盖 -->
+      <div class="card-glow-overlay group-hover/card:opacity-100 rounded-xl" aria-hidden="true"></div>
       <!-- 右上角装饰圆弧 -->
       <div
         class="absolute -top-16 -right-16 w-40 h-40 rounded-full border border-foreground/[0.06] group-hover/card:border-foreground/[0.12] transition-all duration-500"></div>

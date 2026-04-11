@@ -5,29 +5,13 @@
       <!-- 网格点阵 -->
       <div class="absolute inset-0 bg-grid-pattern"></div>
 
-      <!-- 光晕 1：左上角 -->
+      <!-- 光晕 1：左上角，蓝灰调 -->
       <div class="glow-halo w-[600px] h-[600px] -top-[200px] -left-[100px]"
         style="background: radial-gradient(circle, rgba(180,180,180,0.1) 0%, transparent 70%);"></div>
 
-      <!-- 光晕 2：右侧中部 -->
-      <div class="glow-halo glow-halo-slow w-[550px] h-[550px] top-[25%] -right-[80px]"
+      <!-- 光晕 2：右下角 -->
+      <div class="glow-halo glow-halo-slow w-[500px] h-[500px] bottom-[-100px] -right-[50px]"
         style="background: radial-gradient(circle, rgba(200,200,200,0.08) 0%, transparent 70%); animation-delay: -4s;"></div>
-
-      <!-- 光晕 3：左下 -->
-      <div class="glow-halo w-[500px] h-[500px] bottom-[5%] -left-[60px]"
-        style="background: radial-gradient(circle, rgba(160,160,160,0.09) 0%, transparent 65%); animation-delay: -2s;"></div>
-
-      <!-- 光晕 4：右上角 -->
-      <div class="glow-halo glow-halo-pulse w-[450px] h-[450px] -top-[100px] right-[15%]"
-        style="background: radial-gradient(circle, rgba(220,220,220,0.07) 0%, transparent 70%); animation-delay: -6s;"></div>
-
-      <!-- 光晕 5：中部偏下 -->
-      <div class="glow-halo glow-halo-slow w-[500px] h-[500px] top-[55%] left-[35%]"
-        style="background: radial-gradient(circle, rgba(190,190,190,0.06) 0%, transparent 65%); animation-delay: -8s;"></div>
-
-      <!-- 光晕 6：底部右侧 -->
-      <div class="glow-halo w-[400px] h-[400px] bottom-[-80px] right-[5%]"
-        style="background: radial-gradient(circle, rgba(170,170,170,0.08) 0%, transparent 70%); animation-delay: -3s;"></div>
     </div>
 
     <MobileHeader :categories="categories" v-model:selectedCategory="selectedCategory"></MobileHeader>
@@ -39,8 +23,6 @@
         <div class="absolute inset-0 pointer-events-none overflow-hidden">
           <div class="absolute -bottom-24 -left-24 w-[250px] h-[250px] rounded-full"
             style="background: radial-gradient(circle, rgba(180,180,180,0.08) 0%, transparent 70%);"></div>
-          <div class="absolute -top-20 -right-20 w-[200px] h-[200px] rounded-full"
-            style="background: radial-gradient(circle, rgba(200,200,200,0.06) 0%, transparent 70%);"></div>
           <div class="absolute inset-0 bg-grid-pattern" style="opacity: 0.5;"></div>
         </div>
 
@@ -90,7 +72,7 @@
             </template>
           </div>
 
-          <div class="flex items-center justify-between">
+          <div class="flex items-center justify-between animate-slide-up" style="animation-delay: 0.1s;">
             <!-- Tags Filter -->
             <div v-if="allGroups.length > 0 && !searchQuery" class="flex flex-wrap gap-2 mb-6">
               <button v-for="group in allGroups" :key="group.gid" @click="jumpGroup(group)"
@@ -105,8 +87,9 @@
             <section v-for="groupData in filteredGroups" :key="groupData.group.gid" class="group">
               <!-- Group Title -->
 
-              <div class="title-deco relative mb-4 flex" :id="groupData.group.gid">
-                <h2 class="">{{ groupData.group.title }}</h2>
+              <div class="title-deco relative mb-4 flex items-center gap-3" :id="groupData.group.gid">
+                <h2 class="gradient-text">{{ groupData.group.title }}</h2>
+                <div class="section-line flex-1" aria-hidden="true"></div>
 
                 <div class="flex items-center gap-2 absolute right-0">
                   <button v-if="isLogin" @click="modifyGroupRef?.openEdit(selectedCategory.cid, groupData.group)"
