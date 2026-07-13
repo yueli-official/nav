@@ -1,0 +1,84 @@
+export type NavigationItemKind =
+  | "official"
+  | "tool"
+  | "community"
+  | "learning"
+  | "resource"
+  | "reference"
+  | "research";
+
+export interface NavigationItem {
+  id: string;
+  title: string;
+  url: string;
+  description: string;
+  tags: string[];
+  keywords?: string[];
+  kind: NavigationItemKind;
+  featured: boolean;
+}
+
+export interface NavigationGroup {
+  id: string;
+  title: string;
+  description: string;
+  items: NavigationItem[];
+}
+
+export interface NavigationCategory {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  groups: NavigationGroup[];
+}
+
+export interface NavigationSiteCopy {
+  name: string;
+  title: string;
+  description: string;
+  searchPlaceholder: string;
+}
+
+export interface NavigationCatalog {
+  version: 1;
+  site: NavigationSiteCopy;
+  categories: NavigationCategory[];
+}
+
+export interface NavigationStats {
+  categoryCount: number;
+  groupCount: number;
+  linkCount: number;
+}
+
+export interface NavigationResponse extends NavigationCatalog {
+  stats: NavigationStats;
+}
+
+export interface NavigationResult {
+  item: NavigationItem;
+  categoryId: string;
+  categoryTitle: string;
+  categoryIcon: string;
+  groupId: string;
+  groupTitle: string;
+  domain: string;
+  searchText: string;
+}
+
+export type NavigationStatus = "published" | "draft" | "archived";
+
+export interface AdminNavigationLink extends NavigationItem {
+  categoryId: string;
+  groupId: string;
+  status: NavigationStatus;
+  sortOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AdminNavigationResponse {
+  links: AdminNavigationLink[];
+  categories: NavigationCategory[];
+}

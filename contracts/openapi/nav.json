@@ -1,0 +1,690 @@
+{
+  "components": {
+    "schemas": {
+      "platform.products.nav.api.api.v1.AdminCreateLinkReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "published",
+              "draft",
+              "archived"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "groupId",
+          "title",
+          "url",
+          "description",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateLinkRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteLinkReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteLinkRes": {
+        "properties": {
+          "deleted": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListLinksReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListLinksRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "links": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateLinkReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "published",
+              "draft",
+              "archived"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "groupId",
+          "title",
+          "url",
+          "description",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateLinkRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CategoryView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "groups": {
+            "format": "[]v1.GroupView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetCatalogReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetCatalogRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "site": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "description": ""
+          },
+          "stats": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.StatsView",
+            "description": ""
+          },
+          "version": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GroupView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.LinkView": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "createdAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SiteView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "type": "string"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.StatsView": {
+        "properties": {
+          "categoryCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "groupCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/admin/nav/links": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "categoryId",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "groupId",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListLinksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List navigation links",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateLinkReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create a navigation link",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Delete a navigation link",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "categoryId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "featured": {
+                    "format": "bool",
+                    "type": "boolean"
+                  },
+                  "groupId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "keywords": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "kind": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "type": "integer"
+                  },
+                  "status": {
+                    "enum": [
+                      "published",
+                      "draft",
+                      "archived"
+                    ],
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "tags": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "url": {
+                    "format": "string",
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "categoryId",
+                  "groupId",
+                  "title",
+                  "url",
+                  "description",
+                  "kind"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Update a navigation link",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/catalog": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetCatalogRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get the published navigation catalog",
+        "tags": [
+          "Nav"
+        ]
+      }
+    }
+  }
+}
