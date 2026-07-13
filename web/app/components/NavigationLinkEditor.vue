@@ -14,7 +14,10 @@ const { categories, link } = defineProps<{
   categories: NavigationCategory[];
   link?: AdminNavigationLink;
 }>();
-const emit = defineEmits<{ saved: [link: AdminNavigationLink] }>();
+const emit = defineEmits<{
+  saved: [link: AdminNavigationLink];
+  deleted: [id: string];
+}>();
 const open = defineModel<boolean>("open", { required: true });
 const { call } = useApi();
 const toast = createPlatformNotifier(useToast());
@@ -67,6 +70,9 @@ const schema = z.object({
   description: z.string().trim().min(1, "请输入简介").max(500),
 });
 const saveError = ref("");
+const deleteOpen = ref(false);
+const deleting = ref(false);
+const deleteError = ref("");
 const {
   status: saveStatus,
   pending: markSaving,
@@ -137,15 +143,42 @@ async function save() {
     });
   }
 }
+
+async function remove() {
+  if (!link || deleting.value) return;
+  deleting.value = true;
+  deleteError.value = "";
+  try {
+    await call(`/api/v1/admin/nav/links/${link.id}`, { method: "DELETE" });
+    emit("deleted", link.id);
+    deleteOpen.value = false;
+    open.value = false;
+  } catch (error) {
+    const apiError = error as { data?: { message?: string } };
+    deleteError.value = apiError.data?.message || "删除失败，请稍后重试。";
+  } finally {
+    deleting.value = false;
+  }
+}
+
+function openDelete() {
+  deleteError.value = "";
+  deleteOpen.value = true;
+}
+
+function closeDelete() {
+  deleteOpen.value = false;
+}
 </script>
 
 <template>
-  <UModal
-    v-model:open="open"
-    :title="link ? '编辑站点' : '添加站点'"
-    description="修改后会直接写入导航站数据库。"
-    :ui="{ content: 'sm:max-w-2xl', footer: 'justify-end' }"
-  >
+  <div class="contents">
+    <UModal
+      v-model:open="open"
+      :title="link ? '编辑站点' : '添加站点'"
+      description="修改后会直接写入导航站数据库。"
+      :ui="{ content: 'sm:max-w-2xl', footer: 'justify-end' }"
+    >
     <template #body>
       <UForm :schema="schema" :state="form" class="space-y-5" @submit="save">
         <div class="grid gap-4 sm:grid-cols-2">
@@ -244,7 +277,20 @@ async function save() {
           :description="saveError"
         />
 
-        <div class="flex justify-end gap-2 border-t border-default pt-5">
+        <div
+          class="flex flex-col-reverse gap-2 border-t border-default pt-5 sm:flex-row sm:items-center"
+        >
+          <UButton
+            v-if="link"
+            type="button"
+            label="删除站点"
+            icon="i-tabler-trash"
+            color="error"
+            variant="ghost"
+            :disabled="saving"
+            @click="openDelete"
+          />
+          <div class="ml-auto flex justify-end gap-2">
           <UButton
             label="取消"
             color="neutral"
@@ -264,8 +310,51 @@ async function save() {
             :success-label="link ? '已更新' : '已添加'"
             error-label="重试保存"
           />
+          </div>
         </div>
       </UForm>
     </template>
-  </UModal>
+    </UModal>
+
+    <UModal
+      v-model:open="deleteOpen"
+      title="删除站点"
+      description="删除后会立即从公开导航中移除，且无法撤销。"
+    >
+      <template #body>
+        <p class="text-sm leading-6 text-toned">
+          确定删除
+          <strong class="text-highlighted">{{ link?.title }}</strong>
+          吗？
+        </p>
+        <UAlert
+          v-if="deleteError"
+          class="mt-4"
+          color="error"
+          icon="i-tabler-alert-circle"
+          title="未能删除站点"
+          :description="deleteError"
+          role="alert"
+        />
+      </template>
+      <template #footer>
+        <div class="flex w-full justify-end gap-2">
+          <UButton
+            label="取消"
+            color="neutral"
+            variant="outline"
+            :disabled="deleting"
+            @click="closeDelete"
+          />
+          <UButton
+            label="确认删除"
+            icon="i-tabler-trash"
+            color="error"
+            :loading="deleting"
+            @click="remove"
+          />
+        </div>
+      </template>
+    </UModal>
+  </div>
 </template>

@@ -27,6 +27,7 @@ type LinkFilter struct {
 	Tag        string
 	Health     string
 	Sort       string
+	Direction  string
 	Page       int
 	Size       int
 }
@@ -91,6 +92,7 @@ type linkMutation struct {
 	Featured    bool        `orm:"featured"`
 	Status      string      `orm:"status"`
 	SortOrder   int         `orm:"sort_order"`
+	PublishedAt any         `orm:"published_at,omitempty"`
 	UpdatedAt   *gtime.Time `orm:"updated_at,omitempty"`
 }
 
@@ -107,6 +109,7 @@ type linkInsertMutation struct {
 	Featured    bool        `orm:"featured"`
 	Status      string      `orm:"status"`
 	SortOrder   int         `orm:"sort_order"`
+	PublishedAt *gtime.Time `orm:"published_at,omitempty"`
 	UpdatedAt   *gtime.Time `orm:"updated_at,omitempty"`
 }
 
@@ -137,14 +140,8 @@ func (p *PG) Links(ctx context.Context, filter LinkFilter) ([]*model.Link, error
 		query = query.Limit((page-1)*filter.Size, filter.Size)
 	}
 	var links []*model.Link
-	if filter.Sort == "popular" {
-		query = query.OrderDesc("click_count").OrderDesc("featured")
-	} else if filter.Sort == "health" {
-		query = query.OrderAsc("last_checked_at").OrderAsc("title")
-	} else {
-		query = query.OrderDesc("featured").OrderAsc("sort_order")
-	}
-	err := query.OrderAsc("title").Scan(&links)
+	query = query.Order(linkOrder(filter.Sort, filter.Direction))
+	err := query.Scan(&links)
 	return links, gerror.Wrap(err, "list navigation links")
 }
 
@@ -372,7 +369,11 @@ func (p *PG) DeleteLink(ctx context.Context, id string) (bool, error) {
 }
 
 func (p *PG) BulkUpdateLinks(ctx context.Context, ids []string, status string) (int, error) {
-	result, err := p.db.Model(tLinks).Ctx(ctx).WhereIn("id", ids).Data(linkStatusMutation{Status: status, UpdatedAt: gtime.Now()}).Update()
+	data := linkStatusMutation{Status: status, UpdatedAt: gtime.Now()}
+	if status == "published" {
+		data.PublishedAt = gdb.Raw("COALESCE(published_at, NOW())")
+	}
+	result, err := p.db.Model(tLinks).Ctx(ctx).WhereIn("id", ids).Data(data).Update()
 	if err != nil {
 		return 0, gerror.Wrap(err, "bulk update navigation links")
 	}
@@ -390,8 +391,9 @@ func (p *PG) BulkDeleteLinks(ctx context.Context, ids []string) (int, error) {
 }
 
 type linkStatusMutation struct {
-	Status    string      `orm:"status"`
-	UpdatedAt *gtime.Time `orm:"updated_at"`
+	Status      string      `orm:"status"`
+	PublishedAt any         `orm:"published_at,omitempty"`
+	UpdatedAt   *gtime.Time `orm:"updated_at"`
 }
 
 func (p *PG) InsertCategory(ctx context.Context, category *model.Category) error {
@@ -498,7 +500,7 @@ func groupData(group *model.Group) groupMutation {
 func mutation(link *model.Link) linkMutation {
 	tags, _ := json.Marshal(link.Tags)
 	keywords, _ := json.Marshal(link.Keywords)
-	return linkMutation{
+	data := linkMutation{
 		CategoryID:  link.CategoryID,
 		GroupID:     link.GroupID,
 		Title:       link.Title,
@@ -512,15 +514,44 @@ func mutation(link *model.Link) linkMutation {
 		SortOrder:   link.SortOrder,
 		UpdatedAt:   gtime.Now(),
 	}
+	if link.Status == "published" {
+		data.PublishedAt = gdb.Raw("COALESCE(published_at, NOW())")
+	}
+	return data
 }
 
 func insertMutation(link *model.Link) linkInsertMutation {
 	data := mutation(link)
-	return linkInsertMutation{
+	insert := linkInsertMutation{
 		ID: link.ID, CategoryID: data.CategoryID, GroupID: data.GroupID,
 		Title: data.Title, URL: data.URL, Description: data.Description,
 		Tags: data.Tags, Keywords: data.Keywords, Kind: data.Kind,
 		Featured: data.Featured, Status: data.Status, SortOrder: data.SortOrder,
 		UpdatedAt: data.UpdatedAt,
+	}
+	if link.Status == "published" {
+		insert.PublishedAt = gtime.Now()
+	}
+	return insert
+}
+
+func linkOrder(sort, direction string) string {
+	orderDirection := "ASC"
+	if direction == "desc" {
+		orderDirection = "DESC"
+	}
+	switch sort {
+	case "popular":
+		return "click_count DESC, featured DESC, title ASC"
+	case "health":
+		return "last_checked_at ASC, title ASC"
+	case "updated":
+		return "updated_at " + orderDirection + ", title ASC"
+	case "title":
+		return "title " + orderDirection
+	case "published":
+		return "published_at " + orderDirection + " NULLS LAST, title ASC"
+	default:
+		return "featured DESC, sort_order " + orderDirection + ", title " + orderDirection
 	}
 }

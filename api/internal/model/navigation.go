@@ -51,6 +51,7 @@ type Link struct {
 	HealthHTTPStatus int         `json:"healthHttpStatus" orm:"health_http_status"`
 	HealthLatencyMS  int         `json:"healthLatencyMs" orm:"health_latency_ms"`
 	HealthError      string      `json:"healthError" orm:"health_error"`
+	PublishedAt      *gtime.Time `json:"publishedAt" orm:"published_at"`
 	CreatedAt        *gtime.Time `json:"createdAt" orm:"created_at"`
 	UpdatedAt        *gtime.Time `json:"updatedAt" orm:"updated_at"`
 }

@@ -7,6 +7,7 @@ const accountUrl = computed(
   () => useRuntimeConfig().public.accountUrl || "http://localhost:3000",
 );
 const route = useRoute();
+const showBackToTop = computed(() => route.path === "/manage/settings");
 const contextLabel = computed(() => {
   if (route.path.startsWith("/manage/categories")) return "分类与主题";
   if (route.path.startsWith("/manage/tags")) return "标签管理";
@@ -23,6 +24,7 @@ const contextLabel = computed(() => {
     home-to="/manage"
     storage-key="nav-manage"
     shell-class="platform-app-shell"
+    :show-back-to-top="showBackToTop"
   >
     <template #sidebar>
       <ManageSidebar />

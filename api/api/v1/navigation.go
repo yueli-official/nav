@@ -30,6 +30,7 @@ type LinkView struct {
 	HealthHTTPStatus int      `json:"healthHttpStatus,omitempty"`
 	HealthLatencyMS  int      `json:"healthLatencyMs,omitempty"`
 	HealthError      string   `json:"healthError,omitempty"`
+	PublishedAt      string   `json:"publishedAt,omitempty"`
 	CreatedAt        string   `json:"createdAt,omitempty"`
 	UpdatedAt        string   `json:"updatedAt,omitempty"`
 }
@@ -127,6 +128,8 @@ type AdminListLinksReq struct {
 	GroupID    string `p:"groupId"`
 	Status     string `p:"status"`
 	Tag        string `p:"tag"`
+	Sort       string `p:"sort" d:"updated" v:"in:default,updated,title,published"`
+	Direction  string `p:"direction" d:"desc" v:"in:asc,desc"`
 	Page       int    `p:"page" d:"1" v:"min:1"`
 	Size       int    `p:"size" d:"20" v:"min:1|max:100"`
 }

@@ -8,6 +8,7 @@ import {
   ManageLifecycleTabs,
   ManagePageSelection,
   ManageRowShell,
+  ManageSortDirectionButton,
   ManageTaxonomyChips,
   SkeletonList,
 } from "@platform/manage/components";
@@ -40,12 +41,12 @@ const collectionDefinition = {
   resourceKind: "navigation-link",
   statuses: ["", "published", "draft", "archived"],
   views: ["list"],
-  sortKeys: ["default"],
+  sortKeys: ["updated", "title", "published", "default"],
   pageSizes: [15, 30, 60],
   defaultStatus: "",
   defaultView: "list",
-  defaultSort: "default",
-  defaultDirection: "asc",
+  defaultSort: "updated",
+  defaultDirection: "desc",
   defaultPageSize: 15,
   pagination: "server",
   selection: "page",
@@ -64,6 +65,8 @@ const {
   q,
   page,
   size,
+  sort,
+  direction,
   state: collectionState,
   filterModel,
 } = useManageCollectionState({
@@ -77,11 +80,6 @@ const groupId = filterModel("group", ALL);
 const tag = filterModel("tag", ALL);
 const editorOpen = ref(false);
 const editingLink = ref<AdminNavigationLink>();
-const deleteOpen = ref(false);
-const deleteTarget = ref<AdminNavigationLink>();
-const deleting = ref(false);
-const deleteError = ref("");
-
 const { data, pending, error, refresh } = await useAsyncData(
   "admin-navigation-links",
   () =>
@@ -92,13 +90,15 @@ const { data, pending, error, refresh } = await useAsyncData(
         categoryId: categoryId.value === ALL ? undefined : categoryId.value,
         groupId: groupId.value === ALL ? undefined : groupId.value,
         tag: tag.value === ALL ? undefined : tag.value,
+        sort: sort.value,
+        direction: direction.value,
         page: page.value,
         size: size.value,
       },
     }),
   {
     server: false,
-    watch: [q, status, categoryId, groupId, tag, page, size],
+    watch: [q, status, categoryId, groupId, tag, sort, direction, page, size],
     default: () => ({
       links: [],
       categories: [],
@@ -141,6 +141,12 @@ const tagItems = computed(() => [
     value: item.name,
   })),
 ]);
+const sortItems = [
+  { label: "最近更新", value: "updated" },
+  { label: "标题", value: "title" },
+  { label: "发布日期", value: "published" },
+  { label: "手动顺序", value: "default" },
+];
 const tabs = computed(() => [
   { key: "", label: "全部", count: counts.value.all },
   { key: "published", label: "已发布", count: counts.value.published },
@@ -204,30 +210,6 @@ function openEdit(link: AdminNavigationLink) {
   editingLink.value = link;
   editorOpen.value = true;
 }
-function confirmDelete(link: AdminNavigationLink) {
-  if (!isAdmin.value) return;
-  deleteTarget.value = link;
-  deleteError.value = "";
-  deleteOpen.value = true;
-}
-async function removeLink() {
-  if (!deleteTarget.value || deleting.value) return;
-  deleting.value = true;
-  deleteError.value = "";
-  try {
-    await call(`/api/v1/admin/nav/links/${deleteTarget.value.id}`, {
-      method: "DELETE",
-    });
-    deleteOpen.value = false;
-    await refresh();
-  } catch (failure) {
-    const apiError = failure as { data?: { message?: string } };
-    deleteError.value = apiError.data?.message || "删除失败，请稍后重试。";
-  } finally {
-    deleting.value = false;
-  }
-}
-
 const selectionResetKey = computed(() =>
   manageCollectionQueryFingerprint(
     serializeManageCollectionQuery(collectionState.value, collectionDefinition),
@@ -365,6 +347,15 @@ async function executeBatch() {
             size="sm"
             aria-label="筛选标签"
           />
+          <USelect
+            v-model="sort"
+            :items="sortItems"
+            value-key="value"
+            icon="i-tabler-arrows-sort"
+            size="sm"
+            aria-label="排序字段"
+          />
+          <ManageSortDirectionButton v-model="direction" />
         </template>
       </ManageCollectionToolbar>
 
@@ -454,14 +445,20 @@ async function executeBatch() {
           </div>
           <template #meta>
             <div class="text-xs md:w-36 md:text-right">
-              <p class="font-mono text-muted">排序 {{ link.sortOrder }}</p>
               <ClientOnly>
-                <p class="mt-1 text-dimmed">
+                <p class="text-muted">
                   {{
                     link.updatedAt ? `更新 ${abs(link.updatedAt)}` : "尚未更新"
                   }}
                 </p>
-                <template #fallback><p class="mt-1 text-dimmed">…</p></template>
+                <p class="mt-1 text-dimmed">
+                  {{
+                    link.publishedAt
+                      ? `发布 ${abs(link.publishedAt)}`
+                      : "尚未发布"
+                  }}
+                </p>
+                <template #fallback><p class="text-dimmed">…</p></template>
               </ClientOnly>
             </div>
           </template>
@@ -489,17 +486,6 @@ async function executeBatch() {
                 :disabled="!isAdmin"
                 @click="openEdit(link)"
             /></UTooltip>
-            <UTooltip text="删除"
-              ><UButton
-                icon="i-tabler-trash"
-                color="error"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`删除 ${link.title}`"
-                :disabled="!isAdmin"
-                @click="confirmDelete(link)"
-            /></UTooltip>
           </template>
         </ManageRowShell>
       </div>
@@ -510,6 +496,7 @@ async function executeBatch() {
         v-model:size="size"
         :total="total"
         :total-pages="totalPages"
+        :page-size-options="[15, 30, 60]"
         label="站点选择、批量操作与分页"
       >
         <template #selection>
@@ -565,51 +552,8 @@ async function executeBatch() {
       :categories="categories"
       :link="editingLink"
       @saved="() => refresh()"
+      @deleted="() => refresh()"
     />
-
-    <UModal
-      v-model:open="deleteOpen"
-      title="删除站点"
-      description="删除后会立即从公开导航中移除。"
-    >
-      <template #body>
-        <p class="text-sm leading-6 text-toned">
-          确定删除
-          <strong class="text-highlighted">{{ deleteTarget?.title }}</strong>
-          吗？这个操作不能撤销。
-        </p>
-        <UAlert
-          v-if="deleteError"
-          class="mt-4"
-          color="error"
-          icon="i-tabler-alert-circle"
-          title="未能删除站点"
-          :description="deleteError"
-        />
-      </template>
-      <template #footer>
-        <div class="flex w-full justify-end gap-2">
-          <UButton
-            label="取消"
-            color="neutral"
-            variant="outline"
-            :disabled="deleting"
-            @click="
-              () => {
-                deleteOpen = false;
-              }
-            "
-          />
-          <UButton
-            label="确认删除"
-            icon="i-tabler-trash"
-            color="error"
-            :loading="deleting"
-            @click="removeLink"
-          />
-        </div>
-      </template>
-    </UModal>
 
     <UModal
       v-model:open="batchDeleteOpen"

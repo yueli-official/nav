@@ -377,6 +377,15 @@
             "format": "string",
             "type": "string"
           },
+          "direction": {
+            "default": "desc",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "format": "string",
+            "type": "string"
+          },
           "groupId": {
             "format": "string",
             "type": "string"
@@ -397,6 +406,17 @@
             "maximum": 100,
             "minimum": 1,
             "type": "integer"
+          },
+          "sort": {
+            "default": "updated",
+            "enum": [
+              "default",
+              "updated",
+              "title",
+              "published"
+            ],
+            "format": "string",
+            "type": "string"
           },
           "status": {
             "format": "string",
@@ -1091,6 +1111,10 @@
             "format": "string",
             "type": "string"
           },
+          "publishedAt": {
+            "format": "string",
+            "type": "string"
+          },
           "sortOrder": {
             "format": "int",
             "type": "integer"
@@ -1600,6 +1624,34 @@
             "in": "query",
             "name": "tag",
             "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "updated",
+              "enum": [
+                "default",
+                "updated",
+                "title",
+                "published"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
               "format": "string",
               "type": "string"
             }

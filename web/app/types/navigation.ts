@@ -81,6 +81,7 @@ export interface AdminNavigationLink extends NavigationItem {
   groupId: string;
   status: NavigationStatus;
   sortOrder: number;
+  publishedAt?: string;
   createdAt?: string;
   updatedAt?: string;
   healthStatus?: NavigationHealthStatus;

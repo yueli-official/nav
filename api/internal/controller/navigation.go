@@ -84,7 +84,7 @@ func (c *Admin) AdminListLinks(ctx context.Context, req *v1.AdminListLinksReq) (
 	}
 	page, err := c.service.AdminLinks(ctx, dao.LinkFilter{
 		Query: req.Q, CategoryID: req.CategoryID, GroupID: req.GroupID, Status: req.Status,
-		Tag: req.Tag, Page: req.Page, Size: req.Size,
+		Tag: req.Tag, Sort: req.Sort, Direction: req.Direction, Page: req.Page, Size: req.Size,
 	})
 	if err != nil {
 		return nil, err
@@ -442,6 +442,9 @@ func linkView(link *model.Link, admin bool) v1.LinkView {
 		}
 		if link.CreatedAt != nil {
 			view.CreatedAt = link.CreatedAt.Time.UTC().Format(time.RFC3339)
+		}
+		if link.PublishedAt != nil {
+			view.PublishedAt = link.PublishedAt.Time.UTC().Format(time.RFC3339)
 		}
 		if link.UpdatedAt != nil {
 			view.UpdatedAt = link.UpdatedAt.Time.UTC().Format(time.RFC3339)
