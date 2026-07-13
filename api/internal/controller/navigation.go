@@ -38,8 +38,9 @@ func (c *Admin) AdminListLinks(ctx context.Context, req *v1.AdminListLinksReq) (
 	if err := requireAdmin(ctx); err != nil {
 		return nil, err
 	}
-	links, err := c.service.AdminLinks(ctx, dao.LinkFilter{
+	page, err := c.service.AdminLinks(ctx, dao.LinkFilter{
 		Query: req.Q, CategoryID: req.CategoryID, GroupID: req.GroupID, Status: req.Status,
+		Tag: req.Tag, Page: req.Page, Size: req.Size,
 	})
 	if err != nil {
 		return nil, err
@@ -48,11 +49,164 @@ func (c *Admin) AdminListLinks(ctx context.Context, req *v1.AdminListLinksReq) (
 	if err != nil {
 		return nil, err
 	}
-	views := make([]v1.LinkView, 0, len(links))
-	for _, link := range links {
+	views := make([]v1.LinkView, 0, len(page.Links))
+	for _, link := range page.Links {
 		views = append(views, linkView(link, true))
 	}
-	return &v1.AdminListLinksRes{Links: views, Categories: categoryViews(structure, false)}, nil
+	tags := make([]v1.TagView, 0, len(page.Tags))
+	for _, tag := range page.Tags {
+		tags = append(tags, v1.TagView{Name: tag.Name, LinkCount: tag.LinkCount})
+	}
+	return &v1.AdminListLinksRes{
+		Links: views, Categories: categoryViews(structure, false), Tags: tags,
+		Counts: v1.LifecycleCountsView{All: page.Counts["all"], Published: page.Counts["published"], Draft: page.Counts["draft"], Archived: page.Counts["archived"]},
+		Total:  page.Total, Page: req.Page, Size: req.Size,
+	}, nil
+}
+
+func (c *Admin) AdminBulkLinks(ctx context.Context, req *v1.AdminBulkLinksReq) (*v1.AdminBulkLinksRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	result, err := c.service.BulkLinks(ctx, req.IDs, req.Action)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminBulkLinksRes{Changed: result.Changed, FailedIDs: result.FailedIDs}, nil
+}
+
+func (c *Admin) AdminListStructure(ctx context.Context, _ *v1.AdminListStructureReq) (*v1.AdminListStructureRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	structure, err := c.service.AdminStructure(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminListStructureRes{Categories: categoryViews(structure, false)}, nil
+}
+
+func (c *Admin) AdminCreateCategory(ctx context.Context, req *v1.AdminCreateCategoryReq) (*v1.AdminCreateCategoryRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	category, err := c.service.CreateCategory(ctx, categoryInput(req.CategoryInput))
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminCreateCategoryRes{Category: categoryView(category)}, nil
+}
+
+func (c *Admin) AdminUpdateCategory(ctx context.Context, req *v1.AdminUpdateCategoryReq) (*v1.AdminUpdateCategoryRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	category, err := c.service.UpdateCategory(ctx, req.ID, categoryInput(req.CategoryInput))
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminUpdateCategoryRes{Category: categoryView(category)}, nil
+}
+
+func (c *Admin) AdminDeleteCategory(ctx context.Context, req *v1.AdminDeleteCategoryReq) (*v1.AdminDeleteCategoryRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	if err := c.service.DeleteCategory(ctx, req.ID); err != nil {
+		return nil, err
+	}
+	return &v1.AdminDeleteCategoryRes{Deleted: true}, nil
+}
+
+func (c *Admin) AdminCreateGroup(ctx context.Context, req *v1.AdminCreateGroupReq) (*v1.AdminCreateGroupRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	group, err := c.service.CreateGroup(ctx, groupInput(req.GroupInput))
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminCreateGroupRes{Group: groupView(group)}, nil
+}
+
+func (c *Admin) AdminUpdateGroup(ctx context.Context, req *v1.AdminUpdateGroupReq) (*v1.AdminUpdateGroupRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	group, err := c.service.UpdateGroup(ctx, req.ID, groupInput(req.GroupInput))
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminUpdateGroupRes{Group: groupView(group)}, nil
+}
+
+func (c *Admin) AdminDeleteGroup(ctx context.Context, req *v1.AdminDeleteGroupReq) (*v1.AdminDeleteGroupRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	if err := c.service.DeleteGroup(ctx, req.ID); err != nil {
+		return nil, err
+	}
+	return &v1.AdminDeleteGroupRes{Deleted: true}, nil
+}
+
+func (c *Admin) AdminListTags(ctx context.Context, req *v1.AdminListTagsReq) (*v1.AdminListTagsRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	tags, err := c.service.Tags(ctx, req.Q)
+	if err != nil {
+		return nil, err
+	}
+	views := make([]v1.TagView, 0, len(tags))
+	for _, tag := range tags {
+		views = append(views, v1.TagView{Name: tag.Name, LinkCount: tag.LinkCount})
+	}
+	return &v1.AdminListTagsRes{Tags: views}, nil
+}
+
+func (c *Admin) AdminRenameTag(ctx context.Context, req *v1.AdminRenameTagReq) (*v1.AdminRenameTagRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	changed, err := c.service.RenameTag(ctx, req.Source, req.Target)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminRenameTagRes{Changed: changed}, nil
+}
+
+func (c *Admin) AdminDeleteTag(ctx context.Context, req *v1.AdminDeleteTagReq) (*v1.AdminDeleteTagRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	changed, err := c.service.DeleteTag(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminDeleteTagRes{Changed: changed}, nil
+}
+
+func (c *Admin) AdminGetSettings(ctx context.Context, _ *v1.AdminGetSettingsReq) (*v1.AdminGetSettingsRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	settings, err := c.service.Settings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminGetSettingsRes{Settings: settingsView(settings)}, nil
+}
+
+func (c *Admin) AdminUpdateSettings(ctx context.Context, req *v1.AdminUpdateSettingsReq) (*v1.AdminUpdateSettingsRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	settings, err := c.service.UpdateSettings(ctx, model.SiteSettings{Name: req.Name, Title: req.Title, Description: req.Description, SearchPlaceholder: req.SearchPlaceholder, FooterTagline: req.FooterTagline})
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminUpdateSettingsRes{Settings: settingsView(settings)}, nil
 }
 
 func (c *Admin) AdminCreateLink(ctx context.Context, req *v1.AdminCreateLinkReq) (*v1.AdminCreateLinkRes, error) {
@@ -111,6 +265,7 @@ func catalogResponse(value *catalog.Catalog) *v1.GetCatalogRes {
 			Title:             value.Site.Title,
 			Description:       value.Site.Description,
 			SearchPlaceholder: value.Site.SearchPlaceholder,
+			FooterTagline:     value.Site.FooterTagline,
 		},
 		Categories: categoryViews(value, true),
 		Stats: v1.StatsView{
@@ -121,10 +276,32 @@ func catalogResponse(value *catalog.Catalog) *v1.GetCatalogRes {
 	}
 }
 
+func categoryInput(value v1.CategoryInput) model.Category {
+	return model.Category{Title: value.Title, Description: value.Description, Icon: value.Icon, SortOrder: value.SortOrder}
+}
+
+func groupInput(value v1.GroupInput) model.Group {
+	return model.Group{CategoryID: value.CategoryID, Title: value.Title, Description: value.Description, SortOrder: value.SortOrder}
+}
+
+func categoryView(category *model.Category) v1.CategoryView {
+	return v1.CategoryView{ID: category.ID, Title: category.Title, Description: category.Description, Icon: category.Icon, SortOrder: category.SortOrder, Groups: []v1.GroupView{}}
+}
+
+func groupView(group *model.Group) v1.GroupView {
+	return v1.GroupView{ID: group.ID, CategoryID: group.CategoryID, Title: group.Title, Description: group.Description, SortOrder: group.SortOrder, Items: []v1.LinkView{}}
+}
+
+func settingsView(settings *model.SiteSettings) v1.SiteView {
+	return v1.SiteView{Name: settings.Name, Title: settings.Title, Description: settings.Description, SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline}
+}
+
 func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView {
 	linksByGroup := make(map[string][]v1.LinkView, len(value.Groups))
-	if includeLinks {
-		for _, link := range value.Links {
+	linkCountsByGroup := make(map[string]int, len(value.Groups))
+	for _, link := range value.Links {
+		linkCountsByGroup[link.GroupID]++
+		if includeLinks {
 			linksByGroup[link.GroupID] = append(linksByGroup[link.GroupID], linkView(link, false))
 		}
 	}
@@ -132,8 +309,11 @@ func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView 
 	for _, group := range value.Groups {
 		groupsByCategory[group.CategoryID] = append(groupsByCategory[group.CategoryID], v1.GroupView{
 			ID:          group.ID,
+			CategoryID:  group.CategoryID,
 			Title:       group.Title,
 			Description: group.Description,
+			SortOrder:   group.SortOrder,
+			LinkCount:   linkCountsByGroup[group.ID],
 			Items:       linksByGroup[group.ID],
 		})
 	}
@@ -144,6 +324,7 @@ func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView 
 			Title:       category.Title,
 			Description: category.Description,
 			Icon:        category.Icon,
+			SortOrder:   category.SortOrder,
 			Groups:      groupsByCategory[category.ID],
 		})
 	}

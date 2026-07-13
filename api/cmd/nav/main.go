@@ -58,5 +58,6 @@ func siteMeta(brand string) catalog.Site {
 		Title:             "把常用互联网，整理成工作台",
 		Description:       "为创作者与开发者整理的精选互联网入口，按任务浏览，也可以直接搜索名称、标签和域名。",
 		SearchPlaceholder: "搜索工具、文档、社区或关键词",
+		FooterTagline:     "月离导航，持续整理值得回访的互联网入口。",
 	}
 }

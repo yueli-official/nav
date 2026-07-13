@@ -20,8 +20,11 @@ export interface NavigationItem {
 
 export interface NavigationGroup {
   id: string;
+  categoryId?: string;
   title: string;
   description: string;
+  sortOrder: number;
+  linkCount: number;
   items: NavigationItem[];
 }
 
@@ -30,6 +33,7 @@ export interface NavigationCategory {
   title: string;
   description: string;
   icon: string;
+  sortOrder: number;
   groups: NavigationGroup[];
 }
 
@@ -38,6 +42,7 @@ export interface NavigationSiteCopy {
   title: string;
   description: string;
   searchPlaceholder: string;
+  footerTagline: string;
 }
 
 export interface NavigationCatalog {
@@ -81,4 +86,33 @@ export interface AdminNavigationLink extends NavigationItem {
 export interface AdminNavigationResponse {
   links: AdminNavigationLink[];
   categories: NavigationCategory[];
+  tags: NavigationTag[];
+  counts: NavigationLifecycleCounts;
+  total: number;
+  page: number;
+  size: number;
+}
+
+export interface NavigationTag {
+  name: string;
+  linkCount: number;
+}
+
+export interface NavigationLifecycleCounts {
+  all: number;
+  published: number;
+  draft: number;
+  archived: number;
+}
+
+export interface NavigationStructureResponse {
+  categories: NavigationCategory[];
+}
+
+export interface NavigationTagsResponse {
+  tags: NavigationTag[];
+}
+
+export interface NavigationSettingsResponse {
+  settings: NavigationSiteCopy;
 }

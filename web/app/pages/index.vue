@@ -21,12 +21,9 @@ const searchQuery = ref(queryValue(route.query.q));
 const selectedCategoryId = ref(queryValue(route.query.category));
 const selectedGroupId = ref(queryValue(route.query.group) || ALL_GROUPS);
 const visibleSearchCount = ref(SEARCH_PAGE_SIZE);
-
 const { data, error, status, refresh } = await useFetch<NavigationResponse>(
   "/api/navigation",
-  {
-    key: "navigation-catalog",
-  },
+  { key: "navigation-catalog" },
 );
 
 const categories = computed(() => data.value?.categories ?? []);
@@ -42,9 +39,6 @@ const selectedCategory = computed(
       (category) => category.id === selectedCategoryId.value,
     ) ?? categories.value[0],
 );
-const featuredEntries = computed(() =>
-  allEntries.value.filter((entry) => entry.item.featured).slice(0, 5),
-);
 const searchResults = computed(() =>
   searchNavigation(allEntries.value, searchQuery.value),
 );
@@ -54,77 +48,58 @@ const visibleSearchResults = computed(() =>
 const visibleGroups = computed(() => {
   const category = selectedCategory.value;
   if (!category) return [];
-  if (selectedGroupId.value === ALL_GROUPS) return category.groups;
-  return category.groups.filter((group) => group.id === selectedGroupId.value);
+  return selectedGroupId.value === ALL_GROUPS
+    ? category.groups
+    : category.groups.filter((group) => group.id === selectedGroupId.value);
 });
 
 watch(
   categories,
-  (nextCategories) => {
-    if (!nextCategories.length) return;
+  (next) => {
     if (
-      !nextCategories.some(
-        (category) => category.id === selectedCategoryId.value,
-      )
-    ) {
-      selectedCategoryId.value = nextCategories[0]!.id;
-    }
+      next.length &&
+      !next.some((category) => category.id === selectedCategoryId.value)
+    )
+      selectedCategoryId.value = next[0]!.id;
   },
   { immediate: true },
 );
-
 watch(selectedCategoryId, () => {
-  const groupExists = selectedCategory.value?.groups.some(
-    (group) => group.id === selectedGroupId.value,
-  );
-  if (!groupExists) selectedGroupId.value = ALL_GROUPS;
+  if (
+    !selectedCategory.value?.groups.some(
+      (group) => group.id === selectedGroupId.value,
+    )
+  )
+    selectedGroupId.value = ALL_GROUPS;
 });
-
 watch(searchQuery, () => {
   visibleSearchCount.value = SEARCH_PAGE_SIZE;
 });
-
 watch(
   () => route.fullPath,
   () => {
     const nextQuery = queryValue(route.query.q);
-    const nextCategory = queryValue(route.query.category);
+    const nextCategory =
+      queryValue(route.query.category) || categories.value[0]?.id || "";
     const nextGroup = queryValue(route.query.group) || ALL_GROUPS;
-    const resolvedCategory = nextCategory || categories.value[0]?.id || "";
     if (searchQuery.value !== nextQuery) searchQuery.value = nextQuery;
-    if (selectedCategoryId.value !== resolvedCategory)
-      selectedCategoryId.value = resolvedCategory;
+    if (selectedCategoryId.value !== nextCategory)
+      selectedCategoryId.value = nextCategory;
     if (selectedGroupId.value !== nextGroup) selectedGroupId.value = nextGroup;
   },
 );
-
 watch([searchQuery, selectedCategoryId, selectedGroupId], async () => {
   if (!import.meta.client) return;
-
-  const nextQuery: Record<string, string> = {};
-  if (searchQuery.value.trim()) nextQuery.q = searchQuery.value.trim();
+  const query: Record<string, string> = {};
+  if (searchQuery.value.trim()) query.q = searchQuery.value.trim();
   if (
     selectedCategoryId.value &&
     selectedCategoryId.value !== categories.value[0]?.id
-  ) {
-    nextQuery.category = selectedCategoryId.value;
-  }
-  if (selectedGroupId.value !== ALL_GROUPS)
-    nextQuery.group = selectedGroupId.value;
-
-  const currentQuery = {
-    q: queryValue(route.query.q),
-    category: queryValue(route.query.category),
-    group: queryValue(route.query.group),
-  };
-  if (
-    currentQuery.q === (nextQuery.q ?? "") &&
-    currentQuery.category === (nextQuery.category ?? "") &&
-    currentQuery.group === (nextQuery.group ?? "")
   )
-    return;
-
-  await router.replace({ query: nextQuery });
+    query.category = selectedCategoryId.value;
+  if (selectedGroupId.value !== ALL_GROUPS) query.group = selectedGroupId.value;
+  if (JSON.stringify(query) !== JSON.stringify(route.query))
+    await router.replace({ query });
 });
 
 function entryFor(item: NavigationItem): NavigationResult {
@@ -132,178 +107,220 @@ function entryFor(item: NavigationItem): NavigationResult {
   if (!entry) throw new Error(`Missing navigation entry: ${item.id}`);
   return entry;
 }
-
-function loadMoreSearchResults() {
+function selectCategory(id: string) {
+  selectedCategoryId.value = id;
+  selectedGroupId.value = ALL_GROUPS;
+}
+function clearSearch() {
+  searchQuery.value = "";
+}
+function loadMore() {
   visibleSearchCount.value += SEARCH_PAGE_SIZE;
 }
-
 async function retryLoad() {
   await refresh();
 }
 
-function clearFilters() {
-  searchQuery.value = "";
-  selectedGroupId.value = ALL_GROUPS;
-}
-
 useSeoMeta({
-  title: () => data.value?.site.name ?? "月离导航",
-  description: () => data.value?.site.description ?? "精选互联网工作台",
-  ogTitle: () => data.value?.site.title ?? "月离导航",
-  ogDescription: () => data.value?.site.description ?? "精选互联网工作台",
+  title: () => data.value?.site.name,
+  description: () => data.value?.site.description,
+  ogTitle: () => data.value?.site.title,
+  ogDescription: () => data.value?.site.description,
 });
 </script>
 
 <template>
-  <div class="min-w-0 space-y-12 overflow-x-hidden">
-    <section
-      class="nav-hero-surface overflow-hidden rounded-2xl border border-default px-5 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12"
-    >
+  <div class="min-w-0 space-y-7 overflow-x-hidden">
+    <header id="search" class="scroll-mt-24 border-b border-default pb-7">
       <div
-        class="grid min-w-0 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.72fr)] lg:items-end"
+        class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.72fr)] lg:items-end"
       >
         <div class="min-w-0">
           <p
-            class="mb-3 inline-flex items-center gap-2 text-sm font-medium text-primary"
+            class="mb-2 flex items-center gap-2 text-sm font-medium text-primary"
           >
-            <UIcon name="i-tabler-compass" class="size-4" />
-            面向创作与开发的精选索引
+            <UIcon name="i-tabler-compass" class="size-4" />精选互联网入口
           </p>
           <h1
-            class="font-display max-w-3xl text-balance text-4xl font-bold leading-[1.08] tracking-tight text-highlighted sm:text-5xl lg:text-6xl"
+            class="font-display text-balance text-3xl font-bold tracking-tight text-highlighted sm:text-4xl"
           >
-            {{ data?.site.title ?? "把常用互联网，整理成工作台" }}
+            {{ data?.site.title }}
           </h1>
           <p
-            class="mt-4 max-w-[64ch] text-base leading-7 text-toned sm:text-lg"
+            class="mt-3 max-w-[66ch] text-sm leading-6 text-muted sm:text-base"
           >
-            {{
-              data?.site.description ??
-              "按任务浏览，也可以直接搜索名称、标签和域名。"
-            }}
+            {{ data?.site.description }}
           </p>
         </div>
-
-        <dl
-          v-if="data"
-          class="grid grid-cols-3 divide-x divide-default rounded-xl border border-default bg-default/82 py-4 backdrop-blur"
-        >
-          <div class="px-3 text-center sm:px-5">
-            <dt class="text-xs text-muted">分类</dt>
-            <dd
-              class="font-display mt-1 text-2xl font-semibold text-highlighted"
-            >
-              {{ data.stats.categoryCount }}
-            </dd>
-          </div>
-          <div class="px-3 text-center sm:px-5">
-            <dt class="text-xs text-muted">主题</dt>
-            <dd
-              class="font-display mt-1 text-2xl font-semibold text-highlighted"
-            >
-              {{ data.stats.groupCount }}
-            </dd>
-          </div>
-          <div class="px-3 text-center sm:px-5">
-            <dt class="text-xs text-muted">站点</dt>
-            <dd
-              class="font-display mt-1 text-2xl font-semibold text-highlighted"
-            >
-              {{ data.stats.linkCount }}
-            </dd>
-          </div>
-        </dl>
-      </div>
-
-      <div class="mt-8 max-w-4xl">
         <NavigationSearch
           v-model="searchQuery"
-          :placeholder="
-            data?.site.searchPlaceholder ?? '搜索工具、文档、社区或关键词'
-          "
+          :placeholder="data?.site.searchPlaceholder ?? ''"
           :result-count="searchQuery ? searchResults.length : undefined"
         />
       </div>
-    </section>
+    </header>
 
-    <section
-      v-if="featuredEntries.length && !searchQuery"
-      id="featured"
-      class="scroll-mt-24 space-y-5"
-      aria-labelledby="featured-title"
+    <div
+      v-if="error"
+      class="rounded-xl border border-error/35 bg-error/5 p-6"
+      role="alert"
     >
-      <div>
-        <h2
-          id="featured-title"
-          class="font-display text-2xl font-semibold tracking-tight text-highlighted"
-        >
-          常用精选
-        </h2>
-        <p class="mt-1 text-sm leading-6 text-muted">
-          跨分类保留少量高频入口，减少重复查找。
-        </p>
-      </div>
-      <div class="grid gap-3 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1.95fr)]">
-        <NavigationLinkCard
-          v-if="featuredEntries[0]"
-          :entry="featuredEntries[0]"
-        />
-        <div class="grid gap-3 sm:grid-cols-2">
-          <NavigationLinkCard
-            v-for="entry in featuredEntries.slice(1)"
-            :key="entry.item.id"
-            :entry="entry"
+      <div class="flex items-start gap-4">
+        <span
+          class="grid size-10 shrink-0 place-items-center rounded-lg bg-error/10 text-error"
+          ><UIcon name="i-tabler-alert-triangle" class="size-5"
+        /></span>
+        <div>
+          <h2 class="font-display text-lg font-semibold text-highlighted">
+            导航数据加载失败
+          </h2>
+          <p class="mt-1 text-sm text-muted">
+            请稍后重试，或检查 Nav API 与数据库状态。
+          </p>
+          <UButton
+            class="mt-4"
+            color="neutral"
+            variant="soft"
+            icon="i-tabler-refresh"
+            label="重新加载"
+            @click="retryLoad"
           />
         </div>
       </div>
-    </section>
+    </div>
+    <NavigationSkeleton v-else-if="status === 'pending'" />
 
-    <section id="catalog" class="scroll-mt-24 space-y-8">
-      <div
-        v-if="error"
-        class="rounded-2xl border border-error/35 bg-error/5 p-6"
-        role="alert"
+    <div
+      v-else-if="data"
+      id="catalog"
+      class="grid min-w-0 scroll-mt-24 gap-7 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)]"
+    >
+      <aside
+        class="min-w-0 lg:sticky lg:top-23 lg:self-start"
+        aria-label="导航分类"
       >
-        <div class="flex items-start gap-4">
-          <span
-            class="grid size-10 shrink-0 place-items-center rounded-lg bg-error/10 text-error"
-          >
-            <UIcon name="i-tabler-alert-triangle" class="size-5" />
-          </span>
-          <div class="min-w-0">
-            <h2 class="font-display text-lg font-semibold text-highlighted">
-              导航数据加载失败
-            </h2>
-            <p class="mt-1 text-sm leading-6 text-muted">
-              请稍后重试。如果问题持续存在，需要检查导航数据格式。
-            </p>
-            <UButton
-              class="mt-4"
-              color="neutral"
-              variant="soft"
-              icon="i-tabler-refresh"
-              label="重新加载"
-              @click="retryLoad"
-            />
-          </div>
+        <div class="lg:hidden">
+          <USelectMenu
+            v-model="selectedCategoryId"
+            :items="
+              categories.map((category) => ({
+                label: category.title,
+                value: category.id,
+                icon: category.icon,
+              }))
+            "
+            value-key="value"
+            :search-input="false"
+            class="w-full"
+            aria-label="选择分类"
+          />
         </div>
-      </div>
 
-      <NavigationSkeleton v-else-if="status === 'pending'" />
+        <div
+          class="hidden overflow-hidden rounded-xl border border-default bg-default lg:block"
+        >
+          <div class="border-b border-default px-4 py-3">
+            <p
+              class="text-xs font-semibold uppercase tracking-[0.12em] text-dimmed"
+            >
+              分类
+            </p>
+          </div>
+          <nav class="p-2">
+            <button
+              v-for="category in categories"
+              :key="category.id"
+              type="button"
+              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition focus-visible:outline-2 focus-visible:outline-primary"
+              :class="
+                selectedCategory?.id === category.id
+                  ? 'bg-primary/10 font-medium text-primary'
+                  : 'text-muted hover:bg-elevated hover:text-default'
+              "
+              :aria-current="
+                selectedCategory?.id === category.id ? 'page' : undefined
+              "
+              @click="selectCategory(category.id)"
+            >
+              <UIcon :name="category.icon" class="size-5 shrink-0" /><span
+                class="min-w-0 flex-1 truncate"
+                >{{ category.title }}</span
+              ><span class="text-xs tabular-nums text-dimmed">{{
+                category.groups.reduce(
+                  (sum, group) => sum + group.items.length,
+                  0,
+                )
+              }}</span>
+            </button>
+          </nav>
+          <template v-if="selectedCategory?.groups.length">
+            <div class="border-t border-default px-4 py-3">
+              <p
+                class="text-xs font-semibold uppercase tracking-[0.12em] text-dimmed"
+              >
+                当前主题
+              </p>
+            </div>
+            <nav class="space-y-0.5 p-2 pt-0">
+              <button
+                type="button"
+                class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs"
+                :class="
+                  selectedGroupId === ALL_GROUPS
+                    ? 'bg-elevated font-medium text-default'
+                    : 'text-muted hover:text-default'
+                "
+                @click="selectedGroupId = ALL_GROUPS"
+              >
+                <span>全部主题</span
+                ><span>{{
+                  selectedCategory.groups.reduce(
+                    (sum, group) => sum + group.items.length,
+                    0,
+                  )
+                }}</span>
+              </button>
+              <button
+                v-for="group in selectedCategory.groups"
+                :key="group.id"
+                type="button"
+                class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs"
+                :class="
+                  selectedGroupId === group.id
+                    ? 'bg-elevated font-medium text-default'
+                    : 'text-muted hover:text-default'
+                "
+                @click="selectedGroupId = group.id"
+              >
+                <span class="truncate">{{ group.title }}</span
+                ><span class="ml-2 tabular-nums text-dimmed">{{
+                  group.items.length
+                }}</span>
+              </button>
+            </nav>
+          </template>
+        </div>
+      </aside>
 
-      <template v-else-if="data">
-        <div v-if="searchQuery" class="space-y-6">
+      <div class="min-w-0">
+        <section
+          v-if="searchQuery"
+          class="space-y-5"
+          aria-labelledby="search-results-title"
+        >
           <div
             class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
           >
             <div>
               <h2
-                class="font-display text-2xl font-semibold tracking-tight text-highlighted"
+                id="search-results-title"
+                class="font-display text-2xl font-semibold text-highlighted"
               >
                 搜索结果
               </h2>
               <p class="mt-1 text-sm text-muted">
-                同时检索名称、描述、标签、域名和所属分类。
+                检索名称、描述、域名、分类与标签，共
+                {{ searchResults.length }} 个结果。
               </p>
             </div>
             <UButton
@@ -311,13 +328,12 @@ useSeoMeta({
               variant="ghost"
               icon="i-tabler-x"
               label="清空搜索"
-              @click="clearFilters"
+              @click="clearSearch"
             />
           </div>
-
           <div
             v-if="visibleSearchResults.length"
-            class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+            class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3"
           >
             <NavigationLinkCard
               v-for="entry in visibleSearchResults"
@@ -326,33 +342,30 @@ useSeoMeta({
               show-context
             />
           </div>
-
           <div
             v-else
-            class="rounded-2xl border border-dashed border-default bg-elevated/35 px-6 py-12 text-center"
+            class="rounded-xl border border-dashed border-default bg-elevated/35 px-6 py-12 text-center"
           >
-            <span
-              class="mx-auto grid size-12 place-items-center rounded-xl bg-default text-muted ring-1 ring-default"
-            >
-              <UIcon name="i-tabler-search-off" class="size-6" />
-            </span>
-            <h2
-              class="font-display mt-4 text-xl font-semibold text-highlighted"
+            <UIcon
+              name="i-tabler-search-off"
+              class="mx-auto size-8 text-dimmed"
+            />
+            <h3
+              class="mt-3 font-display text-lg font-semibold text-highlighted"
             >
               没有找到匹配站点
-            </h2>
-            <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted">
-              试试更短的关键词、英文名称，或者清空搜索后按分类浏览。
+            </h3>
+            <p class="mt-1 text-sm text-muted">
+              试试更短的关键词、英文名称或域名。
             </p>
             <UButton
-              class="mt-5"
+              class="mt-4"
               color="neutral"
               variant="soft"
-              label="返回分类"
-              @click="clearFilters"
+              label="清空搜索"
+              @click="clearSearch"
             />
           </div>
-
           <div
             v-if="visibleSearchCount < searchResults.length"
             class="flex justify-center"
@@ -362,108 +375,97 @@ useSeoMeta({
               variant="soft"
               icon="i-tabler-arrow-down"
               label="加载更多"
-              @click="loadMoreSearchResults"
+              @click="loadMore"
             />
           </div>
-        </div>
+        </section>
 
-        <div v-else class="space-y-8">
-          <CategoryRail v-model="selectedCategoryId" :categories="categories" />
-
-          <template v-if="selectedCategory">
-            <div
-              class="grid gap-5 border-b border-default pb-7 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)] lg:items-end"
-            >
-              <div class="min-w-0">
-                <div class="flex items-center gap-3">
-                  <span
-                    class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
-                  >
-                    <UIcon :name="selectedCategory.icon" class="size-6" />
-                  </span>
-                  <h2
-                    class="font-display text-3xl font-semibold tracking-tight text-highlighted"
-                  >
-                    {{ selectedCategory.title }}
-                  </h2>
-                </div>
-                <p class="mt-3 max-w-[62ch] text-base leading-7 text-muted">
-                  {{ selectedCategory.description }}
-                </p>
-              </div>
-
-              <div
-                class="min-w-0 overflow-x-auto overflow-y-hidden pb-1 lg:justify-self-end"
+        <section
+          v-else-if="selectedCategory"
+          class="space-y-7"
+          :aria-labelledby="`${selectedCategory.id}-title`"
+        >
+          <div
+            class="flex min-w-0 items-start gap-3 border-b border-default pb-5"
+          >
+            <span
+              class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
+              ><UIcon :name="selectedCategory.icon" class="size-6"
+            /></span>
+            <div class="min-w-0">
+              <h2
+                :id="`${selectedCategory.id}-title`"
+                class="font-display text-2xl font-semibold tracking-tight text-highlighted"
               >
-                <div class="flex min-w-max gap-2">
-                  <UButton
-                    :color="
-                      selectedGroupId === ALL_GROUPS ? 'primary' : 'neutral'
-                    "
-                    :variant="selectedGroupId === ALL_GROUPS ? 'soft' : 'ghost'"
-                    label="全部主题"
-                    @click="
-                      () => {
-                        selectedGroupId = ALL_GROUPS;
-                      }
-                    "
-                  />
-                  <UButton
-                    v-for="group in selectedCategory.groups"
-                    :key="group.id"
-                    :color="
-                      selectedGroupId === group.id ? 'primary' : 'neutral'
-                    "
-                    :variant="selectedGroupId === group.id ? 'soft' : 'ghost'"
-                    :label="group.title"
-                    @click="
-                      () => {
-                        selectedGroupId = group.id;
-                      }
-                    "
-                  />
-                </div>
-              </div>
+                {{ selectedCategory.title }}
+              </h2>
+              <p class="mt-1 max-w-[66ch] text-sm leading-6 text-muted">
+                {{ selectedCategory.description }}
+              </p>
             </div>
+          </div>
 
-            <div class="space-y-12">
-              <section
-                v-for="group in visibleGroups"
+          <div class="min-w-0 overflow-x-auto overflow-y-hidden pb-1 lg:hidden">
+            <div class="flex min-w-max gap-2">
+              <UButton
+                :color="selectedGroupId === ALL_GROUPS ? 'primary' : 'neutral'"
+                :variant="selectedGroupId === ALL_GROUPS ? 'soft' : 'ghost'"
+                label="全部主题"
+                @click="
+                  () => {
+                    selectedGroupId = ALL_GROUPS;
+                  }
+                "
+              /><UButton
+                v-for="group in selectedCategory.groups"
                 :key="group.id"
-                :id="group.id"
-                class="scroll-mt-24 space-y-4"
-                :aria-labelledby="`${group.id}-title`"
+                :color="selectedGroupId === group.id ? 'primary' : 'neutral'"
+                :variant="selectedGroupId === group.id ? 'soft' : 'ghost'"
+                :label="group.title"
+                @click="
+                  () => {
+                    selectedGroupId = group.id;
+                  }
+                "
+              />
+            </div>
+          </div>
+
+          <div class="space-y-9">
+            <section
+              v-for="group in visibleGroups"
+              :key="group.id"
+              :id="group.id"
+              class="scroll-mt-24 space-y-3"
+            >
+              <div
+                class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"
               >
                 <div>
-                  <div class="flex items-center gap-3">
-                    <h3
-                      :id="`${group.id}-title`"
-                      class="font-display text-xl font-semibold text-highlighted"
-                    >
-                      {{ group.title }}
-                    </h3>
-                    <span class="text-sm text-muted"
-                      >{{ group.items.length }} 个站点</span
-                    >
-                  </div>
-                  <p class="mt-1 max-w-[62ch] text-sm leading-6 text-muted">
+                  <h3
+                    class="font-display text-lg font-semibold text-highlighted"
+                  >
+                    {{ group.title }}
+                  </h3>
+                  <p class="mt-0.5 text-sm text-muted">
                     {{ group.description }}
                   </p>
                 </div>
-                <div
-                  class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+                <span class="shrink-0 text-xs text-dimmed"
+                  >{{ group.items.length }} 个站点</span
                 >
-                  <NavigationLinkCard
-                    v-for="item in group.items"
-                    :key="item.id"
-                    :entry="entryFor(item)"
-                  />
-                </div>
-              </section>
-            </div>
-          </template>
-        </div>
-      </template>
-    </section>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+                <NavigationLinkCard
+                  v-for="item in group.items"
+                  :key="item.id"
+                  :entry="entryFor(item)"
+                />
+              </div>
+            </section>
+          </div>
+        </section>
+      </div>
+    </div>
   </div>
 </template>

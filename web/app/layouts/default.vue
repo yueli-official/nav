@@ -1,14 +1,23 @@
 <script setup lang="ts">
+import type { NavigationResponse } from "~/types/navigation";
+
 const route = useRoute();
 const mainWidth = computed(
   () =>
     PAGE_WIDTHS[(route.meta.width as PageWidth) ?? "full"] ?? PAGE_WIDTHS.full,
 );
+const { data } = await useFetch<NavigationResponse>("/api/navigation", {
+  key: "navigation-catalog",
+});
 </script>
 
 <template>
   <div class="platform-app-shell flex min-h-dvh flex-col text-default">
-    <AppHeader :width-class="mainWidth" />
+    <AppHeader
+      :width-class="mainWidth"
+      :brand-name="data?.site.name"
+      :brand-tagline="data?.site.title"
+    />
     <main
       id="public-main"
       tabindex="-1"
@@ -22,7 +31,7 @@ const mainWidth = computed(
         class="mx-auto flex w-full flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
         :class="mainWidth"
       >
-        <p>月离导航，持续整理值得回访的互联网入口。</p>
+        <p>{{ data?.site.footerTagline }}</p>
         <p>内容以公开链接为准，请遵循目标站点的使用规则。</p>
       </div>
     </footer>

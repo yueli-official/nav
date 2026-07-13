@@ -1,6 +1,33 @@
 <script setup lang="ts">
-const { widthClass } = defineProps<{ widthClass: string }>();
-const { brand } = useSiteRuntime();
+import { PlatformUserMenu } from "@platform/ui/components";
+import type { PlatformUserMenuAction } from "@platform/ui/components";
+
+const { widthClass, brandName, brandTagline } = defineProps<{
+  widthClass: string;
+  brandName?: string;
+  brandTagline?: string;
+}>();
+const { user, loggedIn, isAdmin, login, logout } = useAuth();
+const accountUrl = computed(
+  () => useRuntimeConfig().public.accountUrl || "http://localhost:3000",
+);
+const contextActions = computed<PlatformUserMenuAction[]>(() =>
+  isAdmin.value
+    ? [{ label: "控制台", icon: "i-tabler-layout-dashboard", to: "/manage" }]
+    : [],
+);
+const utilityActions = computed<PlatformUserMenuAction[]>(() => [
+  {
+    label: "用户设置",
+    icon: "i-tabler-user-cog",
+    onSelect: async () => {
+      await navigateTo(accountUrl.value, { external: true });
+    },
+  },
+]);
+async function handleLogin() {
+  await login();
+}
 </script>
 
 <template>
@@ -23,11 +50,11 @@ const { brand } = useSiteRuntime();
         <span class="min-w-0">
           <span
             class="font-display block truncate text-base font-semibold tracking-tight text-highlighted"
-            >{{ brand }}</span
+            >{{ brandName }}</span
           >
-          <span class="hidden text-xs text-muted sm:block"
-            >精选互联网工作台</span
-          >
+          <span class="hidden text-xs text-muted sm:block">{{
+            brandTagline
+          }}</span>
         </span>
       </NuxtLink>
 
@@ -35,18 +62,16 @@ const { brand } = useSiteRuntime();
         class="ml-auto hidden items-center gap-1 md:flex"
         aria-label="页面导航"
       >
-        <UButton to="#featured" color="neutral" variant="ghost" label="精选" />
-        <UButton to="#catalog" color="neutral" variant="ghost" label="分类" />
+        <UButton to="#search" color="neutral" variant="ghost" label="搜索" />
+        <UButton
+          to="#catalog"
+          color="neutral"
+          variant="ghost"
+          label="分类目录"
+        />
       </nav>
 
       <div class="ml-auto flex items-center gap-1 md:ml-2">
-        <UButton
-          to="/manage"
-          color="neutral"
-          variant="ghost"
-          icon="i-tabler-settings"
-          label="管理"
-        />
         <UTooltip text="切换颜色模式">
           <UColorModeButton
             color="neutral"
@@ -54,6 +79,22 @@ const { brand } = useSiteRuntime();
             aria-label="切换颜色模式"
           />
         </UTooltip>
+        <PlatformUserMenu
+          v-if="loggedIn"
+          :name="user?.name"
+          :email="user?.email"
+          :context-actions="contextActions"
+          :utility-actions="utilityActions"
+          :logout
+        />
+        <UButton
+          v-else
+          color="neutral"
+          variant="ghost"
+          icon="i-tabler-login-2"
+          label="登录"
+          @click="handleLogin"
+        />
       </div>
     </div>
   </header>

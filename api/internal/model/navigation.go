@@ -10,6 +10,19 @@ type Category struct {
 	SortOrder   int    `json:"sortOrder" orm:"sort_order"`
 }
 
+type Tag struct {
+	Name      string `json:"name"`
+	LinkCount int    `json:"linkCount"`
+}
+
+type SiteSettings struct {
+	Name              string `json:"name" orm:"name"`
+	Title             string `json:"title" orm:"title"`
+	Description       string `json:"description" orm:"description"`
+	SearchPlaceholder string `json:"searchPlaceholder" orm:"search_placeholder"`
+	FooterTagline     string `json:"footerTagline" orm:"footer_tagline"`
+}
+
 type Group struct {
 	ID          string `json:"id" orm:"id"`
 	CategoryID  string `json:"categoryId" orm:"category_id"`

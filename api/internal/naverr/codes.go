@@ -8,9 +8,10 @@ import (
 )
 
 var (
-	CodeNotFound  = errs.Register("nav.not_found", http.StatusNotFound)
-	CodeForbidden = errs.Register("nav.forbidden", http.StatusForbidden)
-	CodeConflict  = errs.Register("nav.conflict", http.StatusConflict)
+	CodeNotFound       = errs.Register("nav.not_found", http.StatusNotFound)
+	CodeForbidden      = errs.Register("nav.forbidden", http.StatusForbidden)
+	CodeConflict       = errs.Register("nav.conflict", http.StatusConflict)
+	CodeNotInitialized = errs.Register("nav.not_initialized", 503)
 )
 
 func NotFound(id string) *errs.Coded {
@@ -28,5 +29,9 @@ func Validation(field, code string, params map[string]any) *errs.Coded {
 }
 
 func Conflict(id string) *errs.Coded {
-	return errs.New(CodeConflict, "navigation link already exists", map[string]any{"id": id})
+	return errs.New(CodeConflict, "navigation resource conflicts with existing or referenced data", map[string]any{"id": id})
+}
+
+func NotInitialized(resource string) *errs.Coded {
+	return errs.New(CodeNotInitialized, "navigation site configuration is not initialized", map[string]any{"resource": resource})
 }

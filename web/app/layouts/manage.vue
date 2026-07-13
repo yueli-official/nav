@@ -6,12 +6,19 @@ const { brand } = useSiteRuntime();
 const accountUrl = computed(
   () => useRuntimeConfig().public.accountUrl || "http://localhost:3000",
 );
+const route = useRoute();
+const contextLabel = computed(() => {
+  if (route.path.startsWith("/manage/categories")) return "分类与主题";
+  if (route.path.startsWith("/manage/tags")) return "标签管理";
+  if (route.path.startsWith("/manage/settings")) return "站点设置";
+  return "站点管理";
+});
 </script>
 
 <template>
   <ManageShell
     :site-name="brand"
-    context-label="站点管理"
+    :context-label="contextLabel"
     home-to="/manage"
     storage-key="nav-manage"
     shell-class="platform-app-shell"
