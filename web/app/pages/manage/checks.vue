@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  ManageClientBoundary,
   ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
@@ -178,6 +179,7 @@ async function runChecks() {
       </template>
     </ManageHeader>
 
+    <ManageClientBoundary :rows="8">
     <ManageTabs v-model="health" :items="tabs" />
     <ManageCollectionToolbar
       v-model:search="search"
@@ -301,5 +303,6 @@ async function runChecks() {
         }}</span>
       </template>
     </ManageCollectionFooter>
+    </ManageClientBoundary>
   </div>
 </template>

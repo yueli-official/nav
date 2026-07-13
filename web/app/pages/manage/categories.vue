@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  ManageClientBoundary,
   ManageCollectionToolbar,
   ManageEmpty,
   ManageHeader,
@@ -205,6 +206,7 @@ async function remove() {
       description="分类与主题对当前账号只读。"
     />
 
+    <ManageClientBoundary :rows="6">
     <ManageCollectionToolbar
       v-model:search="search"
       search-placeholder="搜索分类、主题或描述…"
@@ -341,6 +343,7 @@ async function remove() {
         </p>
       </section>
     </div>
+    </ManageClientBoundary>
 
     <USlideover
       v-model:open="panelOpen"

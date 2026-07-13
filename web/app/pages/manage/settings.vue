@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  ManageClientBoundary,
   ManageSaveDock,
   ManageSettingCard,
   ManageSettingsLayout,
@@ -129,6 +130,7 @@ function discard() {
     class="contents"
     @submit="save"
   >
+    <ManageClientBoundary :rows="4">
     <ManageSettingsLayout
       v-model:active-section="section"
       :title="
@@ -223,5 +225,6 @@ function discard() {
         @save="submitSettings"
       />
     </ManageSettingsLayout>
+    </ManageClientBoundary>
   </UForm>
 </template>

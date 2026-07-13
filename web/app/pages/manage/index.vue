@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   ManageActiveFilters,
+  ManageClientBoundary,
   ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
@@ -311,6 +312,7 @@ async function executeBatch() {
       description="仅 Nav 管理员可以修改站点内容。"
     />
 
+    <ManageClientBoundary :rows="6">
     <div class="space-y-5" :inert="batchBusy" :aria-busy="batchBusy">
       <ManageLifecycleTabs v-model="status" :items="tabs" />
 
@@ -546,6 +548,7 @@ async function executeBatch() {
         </template>
       </ManageCollectionFooter>
     </div>
+    </ManageClientBoundary>
 
     <NavigationLinkEditor
       v-model:open="editorOpen"

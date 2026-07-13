@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  ManageClientBoundary,
   ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
@@ -139,6 +140,7 @@ async function remove() {
       description="标签对当前账号只读。"
     />
 
+    <ManageClientBoundary :rows="6">
     <ManageCollectionToolbar
       v-model:search="search"
       search-placeholder="搜索标签名称…"
@@ -224,6 +226,7 @@ async function remove() {
         ><span class="text-xs">共 {{ tags.length }} 个标签</span></template
       >
     </ManageCollectionFooter>
+    </ManageClientBoundary>
 
     <USlideover v-model:open="panelOpen" title="重命名或合并标签">
       <template #body>
