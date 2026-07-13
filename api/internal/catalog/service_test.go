@@ -33,12 +33,13 @@ func (c *countingChecker) Check(context.Context, string) model.LinkHealth {
 }
 
 type fakeStore struct {
-	links    []*model.Link
-	existing map[string]bool
-	settings *model.SiteSettings
-	health   map[string]model.LinkHealth
-	healthMu sync.Mutex
-	clicks   map[string]int
+	links          []*model.Link
+	lastLinkFilter dao.LinkFilter
+	existing       map[string]bool
+	settings       *model.SiteSettings
+	health         map[string]model.LinkHealth
+	healthMu       sync.Mutex
+	clicks         map[string]int
 }
 
 func (f *fakeStore) Categories(context.Context) ([]*model.Category, error) {
@@ -49,7 +50,8 @@ func (f *fakeStore) Groups(context.Context) ([]*model.Group, error) {
 	return []*model.Group{{ID: "references", CategoryID: "develop", Title: "文档与规范"}}, nil
 }
 
-func (f *fakeStore) Links(context.Context, dao.LinkFilter) ([]*model.Link, error) {
+func (f *fakeStore) Links(_ context.Context, filter dao.LinkFilter) ([]*model.Link, error) {
+	f.lastLinkFilter = filter
 	return f.links, nil
 }
 
@@ -178,6 +180,40 @@ func TestRunChecksCapsConcurrency(t *testing.T) {
 	}
 	if len(results) != len(ids) || checker.maximum < 2 || checker.maximum > 12 {
 		t.Fatalf("results=%d maximum=%d, want 20 results and concurrency 2..12", len(results), checker.maximum)
+	}
+}
+
+func TestRunChecksRejectsMoreThanFiftySelectedIDs(t *testing.T) {
+	ids := make([]string, 51)
+	for index := range ids {
+		ids[index] = fmt.Sprintf("link-%02d", index)
+	}
+
+	_, err := New(&fakeStore{}, Site{}).RunChecks(context.Background(), ids)
+	if err == nil {
+		t.Fatal("expected more than 50 selected ids to be rejected")
+	}
+}
+
+func TestRunFilteredChecksChecksEveryMatchingLink(t *testing.T) {
+	store := &fakeStore{}
+	for index := range 72 {
+		store.links = append(store.links, &model.Link{ID: fmt.Sprintf("link-%02d", index), URL: "https://example.com"})
+	}
+	service := New(store, Site{})
+	service.checker = &countingChecker{}
+
+	results, err := service.RunFilteredChecks(context.Background(), dao.LinkFilter{
+		Query: "docs", Health: "unchecked", Page: 3, Size: 15,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(results) != 72 {
+		t.Fatalf("results = %d, want all 72 filtered links", len(results))
+	}
+	if store.lastLinkFilter.Query != "docs" || store.lastLinkFilter.Health != "unchecked" || store.lastLinkFilter.Page != 0 || store.lastLinkFilter.Size != 0 {
+		t.Fatalf("unexpected filter: %#v", store.lastLinkFilter)
 	}
 }
 

@@ -135,7 +135,15 @@ func (c *Admin) AdminRunChecks(ctx context.Context, req *v1.AdminRunChecksReq) (
 	if err := requireAdmin(ctx); err != nil {
 		return nil, err
 	}
-	results, err := c.service.RunChecks(ctx, req.IDs)
+	var (
+		results []*model.Link
+		err     error
+	)
+	if req.Scope == "filtered" {
+		results, err = c.service.RunFilteredChecks(ctx, dao.LinkFilter{Query: req.Q, Health: req.Health})
+	} else {
+		results, err = c.service.RunChecks(ctx, req.IDs)
+	}
 	if err != nil {
 		return nil, err
 	}

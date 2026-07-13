@@ -170,6 +170,7 @@ async function remove() {
       { method: "DELETE" },
     );
     deleteOpen.value = false;
+    panelOpen.value = false;
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
@@ -207,142 +208,122 @@ async function remove() {
     />
 
     <ManageClientBoundary :rows="6">
-    <ManageCollectionToolbar
-      v-model:search="search"
-      search-placeholder="搜索分类、主题或描述…"
-    />
-    <UAlert
-      v-if="error"
-      color="error"
-      icon="i-tabler-alert-circle"
-      title="分类结构加载失败"
-      description="请检查 Nav API 与数据库状态。"
-    />
-    <SkeletonList v-else-if="pending" :rows="6" />
-    <ManageEmpty
-      v-else-if="!visibleCategories.length"
-      icon="i-tabler-folders-off"
-      :text="search ? '没有匹配的分类或主题' : '还没有分类'"
-    />
+      <ManageCollectionToolbar
+        v-model:search="search"
+        search-placeholder="搜索分类、主题或描述…"
+      />
+      <UAlert
+        v-if="error"
+        color="error"
+        icon="i-tabler-alert-circle"
+        title="分类结构加载失败"
+        description="请检查 Nav API 与数据库状态。"
+      />
+      <SkeletonList v-else-if="pending" :rows="6" />
+      <ManageEmpty
+        v-else-if="!visibleCategories.length"
+        icon="i-tabler-folders-off"
+        :text="search ? '没有匹配的分类或主题' : '还没有分类'"
+      />
 
-    <div v-else class="space-y-4">
-      <section
-        v-for="category in visibleCategories"
-        :key="category.id"
-        class="overflow-hidden rounded-xl border border-default bg-default"
-      >
-        <header
-          class="grid gap-3 border-b border-default bg-elevated/35 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+      <div v-else class="space-y-4">
+        <section
+          v-for="category in visibleCategories"
+          :key="category.id"
+          class="overflow-hidden rounded-xl border border-default bg-default"
         >
-          <div class="flex min-w-0 items-center gap-3">
-            <span
-              class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"
-              ><UIcon :name="category.icon" class="size-5"
-            /></span>
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <h2 class="font-medium text-highlighted">
-                  {{ category.title }}
-                </h2>
-                <UBadge
-                  :label="`${category.groups.length} 个主题`"
-                  color="neutral"
-                  variant="soft"
-                  size="sm"
-                />
-              </div>
-              <p class="mt-0.5 line-clamp-1 text-xs text-muted">
-                {{ category.description || "未填写描述" }}
-              </p>
-            </div>
-          </div>
-          <div class="flex items-center justify-end gap-1">
-            <UButton
-              icon="i-tabler-plus"
-              label="添加主题"
-              color="neutral"
-              variant="soft"
-              size="sm"
-              :disabled="!isAdmin"
-              @click="openGroup(category)"
-            />
-            <UTooltip text="编辑分类"
-              ><UButton
-                icon="i-tabler-pencil"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`编辑分类：${category.title}`"
-                :disabled="!isAdmin"
-                @click="openCategory(category)"
-            /></UTooltip>
-            <UTooltip text="删除分类"
-              ><UButton
-                icon="i-tabler-trash"
-                color="error"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`删除分类：${category.title}`"
-                :disabled="!isAdmin"
-                @click="confirmDelete('category', category.id, category.title)"
-            /></UTooltip>
-          </div>
-        </header>
-
-        <div v-if="category.groups.length" class="divide-y divide-default">
-          <article
-            v-for="group in category.groups"
-            :key="group.id"
-            class="grid gap-3 px-4 py-3 pl-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+          <header
+            class="grid gap-3 border-b border-default bg-elevated/35 px-4 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
           >
-            <div class="flex min-w-0 items-start gap-3">
-              <UIcon
-                name="i-tabler-corner-down-right"
-                class="mt-2 size-4 shrink-0 text-dimmed"
-              />
+            <div class="flex min-w-0 items-center gap-3">
+              <span
+                class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"
+                ><UIcon :name="category.icon" class="size-5"
+              /></span>
               <div class="min-w-0">
-                <p class="text-sm font-medium text-highlighted">
-                  {{ group.title }}
-                </p>
+                <div class="flex flex-wrap items-center gap-2">
+                  <h2 class="font-medium text-highlighted">
+                    {{ category.title }}
+                  </h2>
+                  <UBadge
+                    :label="`${category.groups.length} 个主题`"
+                    color="neutral"
+                    variant="soft"
+                    size="sm"
+                  />
+                </div>
                 <p class="mt-0.5 line-clamp-1 text-xs text-muted">
-                  {{ group.description || "未填写描述" }}
+                  {{ category.description || "未填写描述" }}
                 </p>
               </div>
             </div>
             <div class="flex items-center justify-end gap-1">
-              <span class="mr-2 text-xs text-muted"
-                >{{ group.linkCount }} 个站点 · 排序 {{ group.sortOrder }}</span
-              >
               <UButton
-                icon="i-tabler-pencil"
+                icon="i-tabler-plus"
+                label="添加主题"
                 color="neutral"
-                variant="ghost"
+                variant="soft"
                 size="sm"
-                square
-                :aria-label="`编辑主题：${group.title}`"
                 :disabled="!isAdmin"
-                @click="openGroup(category, group)"
+                @click="openGroup(category)"
               />
-              <UButton
-                icon="i-tabler-trash"
-                color="error"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`删除主题：${group.title}`"
-                :disabled="!isAdmin"
-                @click="confirmDelete('group', group.id, group.title)"
-              />
+              <UTooltip text="编辑分类"
+                ><UButton
+                  icon="i-tabler-pencil"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  square
+                  :aria-label="`编辑分类：${category.title}`"
+                  :disabled="!isAdmin"
+                  @click="openCategory(category)"
+              /></UTooltip>
             </div>
-          </article>
-        </div>
-        <p v-else class="px-4 py-5 text-center text-sm text-muted">
-          还没有主题，添加后才能创建站点。
-        </p>
-      </section>
-    </div>
+          </header>
+
+          <div v-if="category.groups.length" class="divide-y divide-default">
+            <article
+              v-for="group in category.groups"
+              :key="group.id"
+              class="grid gap-3 px-4 py-3 pl-8 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+            >
+              <div class="flex min-w-0 items-start gap-3">
+                <UIcon
+                  name="i-tabler-corner-down-right"
+                  class="mt-2 size-4 shrink-0 text-dimmed"
+                />
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-highlighted">
+                    {{ group.title }}
+                  </p>
+                  <p class="mt-0.5 line-clamp-1 text-xs text-muted">
+                    {{ group.description || "未填写描述" }}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center justify-end gap-1">
+                <span class="mr-2 text-xs text-muted"
+                  >{{ group.linkCount }} 个站点 · 排序
+                  {{ group.sortOrder }}</span
+                >
+                <UButton
+                  icon="i-tabler-pencil"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  square
+                  :aria-label="`编辑主题：${group.title}`"
+                  :disabled="!isAdmin"
+                  @click="openGroup(category, group)"
+                />
+              </div>
+            </article>
+          </div>
+          <p v-else class="px-4 py-5 text-center text-sm text-muted">
+            还没有主题，添加后才能创建站点。
+          </p>
+        </section>
+      </div>
     </ManageClientBoundary>
 
     <USlideover
@@ -396,6 +377,25 @@ async function remove() {
             :loading="saving"
           />
         </UForm>
+        <div v-if="currentId" class="mt-8 border-t border-default pt-5">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-highlighted">危险操作</p>
+              <p class="mt-1 text-xs text-muted">
+                仅在不再使用时删除；有关联内容时系统会阻止操作。
+              </p>
+            </div>
+            <UButton
+              type="button"
+              :label="`删除${entityKind === 'category' ? '分类' : '主题'}`"
+              icon="i-tabler-trash"
+              color="error"
+              variant="soft"
+              :disabled="!isAdmin"
+              @click="confirmDelete(entityKind, currentId, form.title)"
+            />
+          </div>
+        </div>
       </template>
     </USlideover>
 

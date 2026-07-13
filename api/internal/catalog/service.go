@@ -212,7 +212,10 @@ func (s *Service) AdminChecks(ctx context.Context, filter dao.LinkFilter) (*Admi
 }
 
 func (s *Service) RunChecks(ctx context.Context, ids []string) ([]*model.Link, error) {
-	ids = normalize(ids, 50)
+	if len(ids) > 50 {
+		return nil, naverr.Validation("ids", "maximum", map[string]any{"max": 50})
+	}
+	ids = normalize(ids, max(len(ids), 1))
 	if len(ids) == 0 {
 		return nil, naverr.Validation("ids", "required", nil)
 	}
@@ -222,6 +225,24 @@ func (s *Service) RunChecks(ctx context.Context, ids []string) ([]*model.Link, e
 	}
 	if len(links) != len(ids) {
 		return nil, naverr.NotFound("one_or_more_links")
+	}
+	return s.runLinkChecks(ctx, links)
+}
+
+func (s *Service) RunFilteredChecks(ctx context.Context, filter dao.LinkFilter) ([]*model.Link, error) {
+	filter.Page = 0
+	filter.Size = 0
+	filter.Sort = "health"
+	links, err := s.store.Links(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	return s.runLinkChecks(ctx, links)
+}
+
+func (s *Service) runLinkChecks(ctx context.Context, links []*model.Link) ([]*model.Link, error) {
+	if len(links) == 0 {
+		return []*model.Link{}, nil
 	}
 	results := make([]*model.Link, len(links))
 	jobs := make(chan int)
@@ -339,7 +360,10 @@ type BulkResult struct {
 }
 
 func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (BulkResult, error) {
-	ids = normalize(ids, 100)
+	if len(ids) > 100 {
+		return BulkResult{}, naverr.Validation("ids", "maximum", map[string]any{"max": 100})
+	}
+	ids = normalize(ids, max(len(ids), 1))
 	if len(ids) == 0 {
 		return BulkResult{}, naverr.Validation("ids", "required", nil)
 	}

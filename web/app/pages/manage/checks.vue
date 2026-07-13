@@ -108,6 +108,11 @@ const isPageIndeterminate = computed(
     !isPageSelected.value && pageIds.value.some((id) => selected.value.has(id)),
 );
 const selectedCount = computed(() => selected.value.size);
+const checkButtonLabel = computed(() =>
+  selectedCount.value
+    ? `检查已选 ${selectedCount.value} 项`
+    : `检查全部 ${total.value} 项`,
+);
 
 const healthMeta = {
   unchecked: {
@@ -141,14 +146,22 @@ function toggle(id: string, value: boolean) {
   selected.value = next;
 }
 async function runChecks() {
-  const ids = selectedCount.value ? [...selected.value] : pageIds.value;
-  if (!isAdmin.value || !ids.length || checking.value) return;
+  if (!isAdmin.value || !total.value || checking.value) return;
   checking.value = true;
   checkMessage.value = "";
   try {
     const result = await call<{ checked: number }>(
       "/api/v1/admin/nav/checks/run",
-      { method: "POST", body: { ids } },
+      {
+        method: "POST",
+        body: selectedCount.value
+          ? { scope: "selected", ids: [...selected.value] }
+          : {
+              scope: "filtered",
+              q: q.value || undefined,
+              health: health.value || undefined,
+            },
+      },
     );
     checkMessage.value = `已完成 ${result.checked} 个站点检查`;
     selected.value = new Set();
@@ -171,138 +184,140 @@ async function runChecks() {
       <template #actions>
         <UButton
           icon="i-tabler-heartbeat"
-          :label="selectedCount ? `检查已选 ${selectedCount} 项` : '检查当前页'"
+          :label="checkButtonLabel"
           :loading="checking"
-          :disabled="!isAdmin || !links.length"
+          :disabled="!isAdmin || !total"
           @click="runChecks"
         />
       </template>
     </ManageHeader>
 
     <ManageClientBoundary :rows="8">
-    <ManageTabs v-model="health" :items="tabs" />
-    <ManageCollectionToolbar
-      v-model:search="search"
-      search-placeholder="搜索站点名称、地址或描述…"
-    >
-      <template #actions
-        ><UButton
-          icon="i-tabler-refresh"
-          color="neutral"
-          variant="outline"
-          aria-label="刷新检查结果"
-          @click="refresh()"
-      /></template>
-    </ManageCollectionToolbar>
-    <UAlert
-      v-if="checkMessage"
-      color="neutral"
-      variant="subtle"
-      icon="i-tabler-info-circle"
-      :description="checkMessage"
-    />
-    <UAlert
-      v-if="error"
-      color="error"
-      icon="i-tabler-alert-circle"
-      title="检查列表加载失败"
-      description="请检查 Nav API 与数据库状态。"
-    />
-    <SkeletonList v-else-if="pending" :rows="8" />
-    <ManageEmpty
-      v-else-if="!links.length"
-      icon="i-tabler-heartbeat"
-      :text="q || health ? '没有匹配的检查结果' : '还没有可检查的站点'"
-    />
-
-    <div
-      v-else
-      class="overflow-hidden rounded-xl border border-default bg-default divide-y divide-default"
-    >
-      <article
-        v-for="link in links"
-        :key="link.id"
-        class="grid gap-3 px-4 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
+      <ManageTabs v-model="health" :items="tabs" />
+      <ManageCollectionToolbar
+        v-model:search="search"
+        search-placeholder="搜索站点名称、地址或描述…"
       >
-        <UCheckbox
-          :model-value="selected.has(link.id)"
-          :aria-label="`选择 ${link.title}`"
-          @update:model-value="toggle(link.id, Boolean($event))"
-        />
-        <div class="min-w-0">
-          <div class="flex min-w-0 items-center gap-2">
-            <span
-              class="grid size-6 shrink-0 place-items-center overflow-hidden rounded bg-primary/10 text-primary"
-            >
-              <NavigationFavicon
-                :id="link.id"
-                :title="link.title"
-                image-class="size-5"
-              />
-            </span>
-            <p class="truncate text-sm font-medium text-highlighted">
-              {{ link.title }}
-            </p>
-          </div>
-          <p class="mt-1 truncate text-xs text-muted">{{ link.url }}</p>
-          <p
-            v-if="link.healthError"
-            class="mt-1 line-clamp-1 text-xs text-error"
-          >
-            {{ link.healthError }}
-          </p>
-        </div>
-        <div
-          class="flex flex-wrap items-center justify-end gap-2 text-xs text-muted"
-        >
-          <span v-if="link.healthHttpStatus" class="tabular-nums"
-            >HTTP {{ link.healthHttpStatus }}</span
-          >
-          <span v-if="link.healthLatencyMs" class="tabular-nums"
-            >{{ link.healthLatencyMs }} ms</span
-          >
-          <UBadge
-            v-bind="healthMeta[link.healthStatus || 'unchecked']"
-            variant="subtle"
-            size="sm"
-          />
-          <UButton
+        <template #actions
+          ><UButton
             icon="i-tabler-refresh"
             color="neutral"
-            variant="ghost"
-            size="sm"
-            square
-            :aria-label="`重新检查 ${link.title}`"
-            :disabled="checking || !isAdmin"
-            @click="
-              selected = new Set([link.id]);
-              runChecks();
-            "
-          />
-        </div>
-      </article>
-    </div>
+            variant="outline"
+            aria-label="刷新检查结果"
+            @click="refresh()"
+        /></template>
+      </ManageCollectionToolbar>
+      <UAlert
+        v-if="checkMessage"
+        color="neutral"
+        variant="subtle"
+        icon="i-tabler-info-circle"
+        :description="checkMessage"
+      />
+      <UAlert
+        v-if="error"
+        color="error"
+        icon="i-tabler-alert-circle"
+        title="检查列表加载失败"
+        description="请检查 Nav API 与数据库状态。"
+      />
+      <SkeletonList v-else-if="pending" :rows="8" />
+      <ManageEmpty
+        v-else-if="!links.length"
+        icon="i-tabler-heartbeat"
+        :text="q || health ? '没有匹配的检查结果' : '还没有可检查的站点'"
+      />
 
-    <ManageCollectionFooter
-      v-if="total"
-      v-model:page="page"
-      v-model:size="size"
-      :total="total"
-      :total-pages="totalPages"
-      label="检查选择与分页"
-    >
-      <template #selection>
-        <ManagePageSelection
-          :model-value="isPageSelected"
-          :indeterminate="isPageIndeterminate"
-          label="选择当前页站点"
-          @update:model-value="togglePage"
-        />
-        <span class="text-xs">{{
-          selectedCount ? `已选 ${selectedCount} 项` : `共 ${total} 项`
-        }}</span>
-      </template>
-    </ManageCollectionFooter>
+      <div
+        v-else
+        class="overflow-hidden rounded-xl border border-default bg-default divide-y divide-default"
+      >
+        <article
+          v-for="link in links"
+          :key="link.id"
+          class="grid gap-3 px-4 py-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center"
+        >
+          <UCheckbox
+            :model-value="selected.has(link.id)"
+            :aria-label="`选择 ${link.title}`"
+            @update:model-value="toggle(link.id, Boolean($event))"
+          />
+          <div class="min-w-0">
+            <div class="flex min-w-0 items-center gap-2">
+              <span
+                class="grid size-6 shrink-0 place-items-center overflow-hidden rounded bg-primary/10 text-primary"
+              >
+                <NavigationFavicon
+                  :id="link.id"
+                  :title="link.title"
+                  image-class="size-5"
+                />
+              </span>
+              <p class="truncate text-sm font-medium text-highlighted">
+                {{ link.title }}
+              </p>
+            </div>
+            <p class="mt-1 truncate text-xs text-muted">{{ link.url }}</p>
+            <p
+              v-if="link.healthError"
+              class="mt-1 line-clamp-1 text-xs text-error"
+            >
+              {{ link.healthError }}
+            </p>
+          </div>
+          <div
+            class="flex flex-wrap items-center justify-end gap-2 text-xs text-muted"
+          >
+            <span v-if="link.healthHttpStatus" class="tabular-nums"
+              >HTTP {{ link.healthHttpStatus }}</span
+            >
+            <span v-if="link.healthLatencyMs" class="tabular-nums"
+              >{{ link.healthLatencyMs }} ms</span
+            >
+            <UBadge
+              v-bind="healthMeta[link.healthStatus || 'unchecked']"
+              variant="subtle"
+              size="sm"
+            />
+            <UButton
+              icon="i-tabler-refresh"
+              color="neutral"
+              variant="ghost"
+              size="sm"
+              square
+              :aria-label="`重新检查 ${link.title}`"
+              :disabled="checking || !isAdmin"
+              @click="
+                selected = new Set([link.id]);
+                runChecks();
+              "
+            />
+          </div>
+        </article>
+      </div>
+
+      <ManageCollectionFooter
+        v-if="total"
+        v-model:page="page"
+        v-model:size="size"
+        :total="total"
+        :total-pages="totalPages"
+        label="检查选择与分页"
+      >
+        <template #selection>
+          <ManagePageSelection
+            :model-value="isPageSelected"
+            :indeterminate="isPageIndeterminate"
+            label="选择当前页站点"
+            @update:model-value="togglePage"
+          />
+          <span class="text-xs">{{
+            selectedCount
+              ? `已选 ${selectedCount} 项；本次只检查已选站点`
+              : `共 ${total} 项；未选择时检查全部筛选结果`
+          }}</span>
+        </template>
+      </ManageCollectionFooter>
     </ManageClientBoundary>
   </div>
 </template>

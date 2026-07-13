@@ -19,8 +19,6 @@
               "format": "string",
               "type": "string"
             },
-            "maxLength": 100,
-            "minLength": 1,
             "type": "array"
           }
         },
@@ -541,20 +539,41 @@
       },
       "platform.products.nav.api.api.v1.AdminRunChecksReq": {
         "properties": {
+          "health": {
+            "enum": [
+              "unchecked",
+              "healthy",
+              "redirected",
+              "broken",
+              "timeout",
+              "error",
+              "issue"
+            ],
+            "format": "string",
+            "type": "string"
+          },
           "ids": {
             "format": "[]string",
             "items": {
               "format": "string",
               "type": "string"
             },
-            "maxLength": 50,
-            "minLength": 1,
             "type": "array"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "scope": {
+            "default": "selected",
+            "enum": [
+              "selected",
+              "filtered"
+            ],
+            "format": "string",
+            "type": "string"
           }
         },
-        "required": [
-          "ids"
-        ],
         "type": "object"
       },
       "platform.products.nav.api.api.v1.AdminRunChecksRes": {

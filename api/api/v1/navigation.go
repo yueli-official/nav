@@ -179,7 +179,10 @@ type AdminListChecksRes struct {
 
 type AdminRunChecksReq struct {
 	g.Meta `path:"/api/v1/admin/nav/checks/run" method:"POST" tags:"Admin Nav" summary:"Check navigation link availability"`
-	IDs    []string `json:"ids" v:"required|length:1,50"`
+	Scope  string   `json:"scope" d:"selected" v:"in:selected,filtered"`
+	IDs    []string `json:"ids"`
+	Q      string   `json:"q"`
+	Health string   `json:"health" v:"in:unchecked,healthy,redirected,broken,timeout,error,issue"`
 }
 
 type AdminRunChecksRes struct {
@@ -222,7 +225,7 @@ type AdminDeleteLinkRes struct {
 
 type AdminBulkLinksReq struct {
 	g.Meta `path:"/api/v1/admin/nav/links/bulk" method:"POST" tags:"Admin Nav" summary:"Bulk update navigation links"`
-	IDs    []string `json:"ids" v:"required|length:1,100"`
+	IDs    []string `json:"ids" v:"required"`
 	Action string   `json:"action" v:"required|in:publish,draft,archive,delete"`
 }
 

@@ -115,6 +115,7 @@ async function remove() {
       body: { name: current.value.name },
     });
     deleteOpen.value = false;
+    panelOpen.value = false;
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
@@ -141,91 +142,82 @@ async function remove() {
     />
 
     <ManageClientBoundary :rows="6">
-    <ManageCollectionToolbar
-      v-model:search="search"
-      search-placeholder="搜索标签名称…"
-    />
-    <UAlert
-      v-if="error"
-      color="error"
-      icon="i-tabler-alert-circle"
-      title="标签加载失败"
-      description="请检查 Nav API 与数据库状态。"
-    />
-    <SkeletonList v-else-if="pending" :rows="6" />
-    <ManageEmpty
-      v-else-if="!pagedTags.length"
-      icon="i-tabler-hash-off"
-      :text="q ? '没有匹配的标签' : '还没有标签；为站点添加标签后会显示在这里'"
-    />
+      <ManageCollectionToolbar
+        v-model:search="search"
+        search-placeholder="搜索标签名称…"
+      />
+      <UAlert
+        v-if="error"
+        color="error"
+        icon="i-tabler-alert-circle"
+        title="标签加载失败"
+        description="请检查 Nav API 与数据库状态。"
+      />
+      <SkeletonList v-else-if="pending" :rows="6" />
+      <ManageEmpty
+        v-else-if="!pagedTags.length"
+        icon="i-tabler-hash-off"
+        :text="
+          q ? '没有匹配的标签' : '还没有标签；为站点添加标签后会显示在这里'
+        "
+      />
 
-    <div
-      v-else
-      class="divide-y divide-default overflow-hidden rounded-xl border border-default bg-default"
-    >
-      <article
-        v-for="tag in pagedTags"
-        :key="tag.name"
-        class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
+      <div
+        v-else
+        class="divide-y divide-default overflow-hidden rounded-xl border border-default bg-default"
       >
-        <button
-          type="button"
-          class="flex min-w-0 items-center gap-3 text-left disabled:cursor-default"
-          :disabled="!isAdmin"
-          @click="openEdit(tag)"
+        <article
+          v-for="tag in pagedTags"
+          :key="tag.name"
+          class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
         >
-          <span
-            class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"
-            ><UIcon name="i-tabler-hash" class="size-5"
-          /></span>
-          <span class="min-w-0"
-            ><span
-              class="block truncate text-sm font-medium text-highlighted"
-              >{{ tag.name }}</span
-            ><span class="mt-0.5 block text-xs text-muted"
-              >关联 {{ tag.linkCount }} 个站点</span
-            ></span
+          <button
+            type="button"
+            class="flex min-w-0 items-center gap-3 text-left disabled:cursor-default"
+            :disabled="!isAdmin"
+            @click="openEdit(tag)"
           >
-        </button>
-        <div class="flex items-center gap-1">
-          <UTooltip text="重命名或合并"
-            ><UButton
-              icon="i-tabler-pencil"
-              color="neutral"
-              variant="ghost"
-              size="sm"
-              square
-              :aria-label="`编辑标签：${tag.name}`"
-              :disabled="!isAdmin"
-              @click="openEdit(tag)"
-          /></UTooltip>
-          <UTooltip text="删除标签"
-            ><UButton
-              icon="i-tabler-trash"
-              color="error"
-              variant="ghost"
-              size="sm"
-              square
-              :aria-label="`删除标签：${tag.name}`"
-              :disabled="!isAdmin"
-              @click="confirmDelete(tag)"
-          /></UTooltip>
-        </div>
-      </article>
-    </div>
+            <span
+              class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"
+              ><UIcon name="i-tabler-hash" class="size-5"
+            /></span>
+            <span class="min-w-0"
+              ><span
+                class="block truncate text-sm font-medium text-highlighted"
+                >{{ tag.name }}</span
+              ><span class="mt-0.5 block text-xs text-muted"
+                >关联 {{ tag.linkCount }} 个站点</span
+              ></span
+            >
+          </button>
+          <div class="flex items-center gap-1">
+            <UTooltip text="重命名或合并"
+              ><UButton
+                icon="i-tabler-pencil"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                square
+                :aria-label="`编辑标签：${tag.name}`"
+                :disabled="!isAdmin"
+                @click="openEdit(tag)"
+            /></UTooltip>
+          </div>
+        </article>
+      </div>
 
-    <ManageCollectionFooter
-      v-if="tags.length"
-      v-model:page="page"
-      v-model:size="size"
-      :total="tags.length"
-      :total-pages="totalPages"
-      label="标签统计与分页"
-    >
-      <template #selection
-        ><span class="text-xs">共 {{ tags.length }} 个标签</span></template
+      <ManageCollectionFooter
+        v-if="tags.length"
+        v-model:page="page"
+        v-model:size="size"
+        :total="tags.length"
+        :total-pages="totalPages"
+        label="标签统计与分页"
       >
-    </ManageCollectionFooter>
+        <template #selection
+          ><span class="text-xs">共 {{ tags.length }} 个标签</span></template
+        >
+      </ManageCollectionFooter>
     </ManageClientBoundary>
 
     <USlideover v-model:open="panelOpen" title="重命名或合并标签">
@@ -263,6 +255,25 @@ async function remove() {
             :disabled="renameForm.target.trim() === current?.name"
           />
         </UForm>
+        <div class="mt-8 border-t border-default pt-5">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <p class="text-sm font-medium text-highlighted">危险操作</p>
+              <p class="mt-1 text-xs text-muted">
+                删除只解除站点关联，不会删除任何站点。
+              </p>
+            </div>
+            <UButton
+              type="button"
+              label="删除标签"
+              icon="i-tabler-trash"
+              color="error"
+              variant="soft"
+              :disabled="!isAdmin || !current"
+              @click="current && confirmDelete(current)"
+            />
+          </div>
+        </div>
       </template>
     </USlideover>
 
