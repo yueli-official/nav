@@ -156,6 +156,12 @@ async function remove() {
   } catch (error) {
     const apiError = error as { data?: { message?: string } };
     deleteError.value = apiError.data?.message || "删除失败，请稍后重试。";
+    toast.add({
+      title: "删除失败",
+      description: deleteError.value,
+      color: "error",
+      icon: "i-tabler-alert-circle",
+    });
   } finally {
     deleting.value = false;
   }

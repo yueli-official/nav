@@ -19,7 +19,7 @@ import {
 } from "@platform/manage/collection";
 import { useManageCollectionState } from "@platform/manage/use-manage-collection-state";
 import { useManageSelection } from "@platform/manage/use-manage-selection";
-import { abs } from "@platform/ui/date";
+import { rel } from "@platform/ui/date";
 import type {
   AdminNavigationLink,
   AdminNavigationResponse,
@@ -448,13 +448,13 @@ async function executeBatch() {
               <ClientOnly>
                 <p class="text-muted">
                   {{
-                    link.updatedAt ? `更新 ${abs(link.updatedAt)}` : "尚未更新"
+                    link.updatedAt ? `更新 ${rel(link.updatedAt)}` : "尚未更新"
                   }}
                 </p>
                 <p class="mt-1 text-dimmed">
                   {{
                     link.publishedAt
-                      ? `发布 ${abs(link.publishedAt)}`
+                      ? `发布 ${rel(link.publishedAt)}`
                       : "尚未发布"
                   }}
                 </p>
