@@ -18,6 +18,10 @@ func NotFound(id string) *errs.Coded {
 	return errs.New(CodeNotFound, "navigation link not found", map[string]any{"id": id})
 }
 
+func FaviconNotFound(id string) *errs.Coded {
+	return errs.New(CodeNotFound, "navigation favicon not found", map[string]any{"id": id})
+}
+
 func Forbidden() *errs.Coded {
 	return errs.New(CodeForbidden, "forbidden", nil)
 }

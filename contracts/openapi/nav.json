@@ -307,6 +307,70 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.AdminListChecksReq": {
+        "properties": {
+          "health": {
+            "enum": [
+              "unchecked",
+              "healthy",
+              "redirected",
+              "broken",
+              "timeout",
+              "error",
+              "issue"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "format": "int",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "size": {
+            "default": 20,
+            "format": "int",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListChecksRes": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.HealthCountsView",
+            "description": ""
+          },
+          "links": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.AdminListLinksReq": {
         "properties": {
           "categoryId": {
@@ -451,6 +515,41 @@
           "changed": {
             "format": "int",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminRunChecksReq": {
+        "properties": {
+          "ids": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "ids"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminRunChecksRes": {
+        "properties": {
+          "checked": {
+            "format": "int",
+            "type": "integer"
+          },
+          "results": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -746,6 +845,95 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.GetFaviconReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetFaviconRes": {
+        "description": "Favicon image bytes",
+        "format": "binary",
+        "properties": {},
+        "type": "string"
+      },
+      "platform.products.nav.api.api.v1.GetGroupReq": {
+        "properties": {
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "format": "int",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "size": {
+            "default": 18,
+            "format": "int",
+            "maximum": 60,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "sort": {
+            "default": "default",
+            "enum": [
+              "default",
+              "popular"
+            ],
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetGroupRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "description": ""
+          },
+          "group": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "description": ""
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "site": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "description": ""
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.GroupView": {
         "properties": {
           "categoryId": {
@@ -783,6 +971,39 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.HealthCountsView": {
+        "properties": {
+          "all": {
+            "format": "int",
+            "type": "integer"
+          },
+          "broken": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthy": {
+            "format": "int",
+            "type": "integer"
+          },
+          "redirected": {
+            "format": "int",
+            "type": "integer"
+          },
+          "timeout": {
+            "format": "int",
+            "type": "integer"
+          },
+          "unchecked": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.LifecycleCountsView": {
         "properties": {
           "all": {
@@ -810,6 +1031,10 @@
             "format": "string",
             "type": "string"
           },
+          "clickCount": {
+            "format": "int64",
+            "type": "integer"
+          },
           "createdAt": {
             "format": "string",
             "type": "string"
@@ -826,6 +1051,22 @@
             "format": "string",
             "type": "string"
           },
+          "healthError": {
+            "format": "string",
+            "type": "string"
+          },
+          "healthHttpStatus": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthLatencyMs": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthStatus": {
+            "format": "string",
+            "type": "string"
+          },
           "id": {
             "format": "string",
             "type": "string"
@@ -839,6 +1080,14 @@
             "type": "array"
           },
           "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "lastCheckedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "lastClickedAt": {
             "format": "string",
             "type": "string"
           },
@@ -869,6 +1118,27 @@
           "url": {
             "format": "string",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RecordClickReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RecordClickRes": {
+        "properties": {
+          "recorded": {
+            "format": "bool",
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -1061,6 +1331,103 @@
           }
         },
         "summary": "Update navigation category",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "health",
+            "schema": {
+              "enum": [
+                "unchecked",
+                "healthy",
+                "redirected",
+                "broken",
+                "timeout",
+                "error",
+                "issue"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 20,
+              "format": "int",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListChecksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List navigation link health checks",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks/run": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRunChecksReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRunChecksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Check navigation link availability",
         "tags": [
           "Admin Nav"
         ]
@@ -1659,6 +2026,169 @@
           }
         },
         "summary": "Get the published navigation catalog",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/groups/{groupId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 18,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "default",
+              "enum": [
+                "default",
+                "popular"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get a paginated published navigation topic",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/links/{id}/click": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.RecordClickRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Record a navigation link visit",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/links/{id}/favicon": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/avif": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/vnd.microsoft.icon": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/x-icon": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": "Favicon image bytes"
+          }
+        },
+        "summary": "Get a proxied navigation link favicon",
         "tags": [
           "Nav"
         ]

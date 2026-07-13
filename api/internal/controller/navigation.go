@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/gogf/gf/v2/net/ghttp"
 	v1 "platform/products/nav/api/api/v1"
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/dao"
@@ -24,6 +25,49 @@ func (c *Public) GetCatalog(ctx context.Context, _ *v1.GetCatalogReq) (*v1.GetCa
 		return nil, err
 	}
 	return catalogResponse(value), nil
+}
+
+func (c *Public) GetGroup(ctx context.Context, req *v1.GetGroupReq) (*v1.GetGroupRes, error) {
+	page, err := c.service.PublicGroup(ctx, req.GroupID, req.Page, req.Size, req.Sort)
+	if err != nil {
+		return nil, err
+	}
+	items := make([]v1.LinkView, 0, len(page.Links))
+	for _, link := range page.Links {
+		items = append(items, linkView(link, false))
+	}
+	category := categoryView(page.Category)
+	group := groupView(page.Group)
+	group.LinkCount = page.Total
+	return &v1.GetGroupRes{
+		Site: settingsView(&model.SiteSettings{
+			Name: page.Site.Name, Title: page.Site.Title, Description: page.Site.Description,
+			SearchPlaceholder: page.Site.SearchPlaceholder, FooterTagline: page.Site.FooterTagline,
+		}),
+		Category: category, Group: group, Items: items,
+		Total: page.Total, Page: page.Page, Size: page.Size,
+	}, nil
+}
+
+func (c *Public) RecordClick(ctx context.Context, req *v1.RecordClickReq) (*v1.RecordClickRes, error) {
+	recorded, err := c.service.RecordClick(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.RecordClickRes{Recorded: recorded}, nil
+}
+
+func (c *Public) GetFavicon(ctx context.Context, req *v1.GetFaviconReq) (*v1.GetFaviconRes, error) {
+	data, contentType, err := c.service.Favicon(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+	request := ghttp.RequestFromCtx(ctx)
+	request.Response.Header().Set("Content-Type", contentType)
+	request.Response.Header().Set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800")
+	request.Response.Header().Set("X-Content-Type-Options", "nosniff")
+	request.Response.Write(data)
+	return nil, nil
 }
 
 type Admin struct {
@@ -62,6 +106,44 @@ func (c *Admin) AdminListLinks(ctx context.Context, req *v1.AdminListLinksReq) (
 		Counts: v1.LifecycleCountsView{All: page.Counts["all"], Published: page.Counts["published"], Draft: page.Counts["draft"], Archived: page.Counts["archived"]},
 		Total:  page.Total, Page: req.Page, Size: req.Size,
 	}, nil
+}
+
+func (c *Admin) AdminListChecks(ctx context.Context, req *v1.AdminListChecksReq) (*v1.AdminListChecksRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	page, err := c.service.AdminChecks(ctx, dao.LinkFilter{Query: req.Q, Health: req.Health, Page: req.Page, Size: req.Size})
+	if err != nil {
+		return nil, err
+	}
+	links := make([]v1.LinkView, 0, len(page.Links))
+	for _, link := range page.Links {
+		links = append(links, linkView(link, true))
+	}
+	return &v1.AdminListChecksRes{
+		Links: links,
+		Counts: v1.HealthCountsView{
+			All: page.Counts["all"], Unchecked: page.Counts["unchecked"], Healthy: page.Counts["healthy"],
+			Redirected: page.Counts["redirected"], Broken: page.Counts["broken"],
+			Timeout: page.Counts["timeout"], Error: page.Counts["error"],
+		},
+		Total: page.Total, Page: req.Page, Size: req.Size,
+	}, nil
+}
+
+func (c *Admin) AdminRunChecks(ctx context.Context, req *v1.AdminRunChecksReq) (*v1.AdminRunChecksRes, error) {
+	if err := requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	results, err := c.service.RunChecks(ctx, req.IDs)
+	if err != nil {
+		return nil, err
+	}
+	views := make([]v1.LinkView, 0, len(results))
+	for _, link := range results {
+		views = append(views, linkView(link, true))
+	}
+	return &v1.AdminRunChecksRes{Checked: len(views), Results: views}, nil
 }
 
 func (c *Admin) AdminBulkLinks(ctx context.Context, req *v1.AdminBulkLinksReq) (*v1.AdminBulkLinksRes, error) {
@@ -341,12 +423,23 @@ func linkView(link *model.Link, admin bool) v1.LinkView {
 		Keywords:    link.Keywords,
 		Kind:        link.Kind,
 		Featured:    link.Featured,
+		ClickCount:  link.ClickCount,
+	}
+	if link.LastClickedAt != nil {
+		view.LastClickedAt = link.LastClickedAt.Time.UTC().Format(time.RFC3339)
 	}
 	if admin {
 		view.CategoryID = link.CategoryID
 		view.GroupID = link.GroupID
 		view.Status = link.Status
 		view.SortOrder = link.SortOrder
+		view.HealthStatus = link.HealthStatus
+		view.HealthHTTPStatus = link.HealthHTTPStatus
+		view.HealthLatencyMS = link.HealthLatencyMS
+		view.HealthError = link.HealthError
+		if link.LastCheckedAt != nil {
+			view.LastCheckedAt = link.LastCheckedAt.Time.UTC().Format(time.RFC3339)
+		}
 		if link.CreatedAt != nil {
 			view.CreatedAt = link.CreatedAt.Time.UTC().Format(time.RFC3339)
 		}

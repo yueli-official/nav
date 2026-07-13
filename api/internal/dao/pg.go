@@ -25,8 +25,18 @@ type LinkFilter struct {
 	GroupID    string
 	Status     string
 	Tag        string
+	Health     string
+	Sort       string
 	Page       int
 	Size       int
+}
+
+type linkHealthMutation struct {
+	HealthStatus     string      `orm:"health_status"`
+	HealthHTTPStatus any         `orm:"health_http_status"`
+	HealthLatencyMS  any         `orm:"health_latency_ms"`
+	HealthError      string      `orm:"health_error"`
+	LastCheckedAt    *gtime.Time `orm:"last_checked_at"`
 }
 
 type categoryMutation struct {
@@ -127,8 +137,39 @@ func (p *PG) Links(ctx context.Context, filter LinkFilter) ([]*model.Link, error
 		query = query.Limit((page-1)*filter.Size, filter.Size)
 	}
 	var links []*model.Link
-	err := query.OrderDesc("featured").OrderAsc("sort_order").OrderAsc("title").Scan(&links)
+	if filter.Sort == "popular" {
+		query = query.OrderDesc("click_count").OrderDesc("featured")
+	} else if filter.Sort == "health" {
+		query = query.OrderAsc("last_checked_at").OrderAsc("title")
+	} else {
+		query = query.OrderDesc("featured").OrderAsc("sort_order")
+	}
+	err := query.OrderAsc("title").Scan(&links)
 	return links, gerror.Wrap(err, "list navigation links")
+}
+
+func (p *PG) LinksByIDs(ctx context.Context, ids []string) ([]*model.Link, error) {
+	if len(ids) == 0 {
+		return []*model.Link{}, nil
+	}
+	var links []*model.Link
+	err := p.db.Model(tLinks).Ctx(ctx).WhereIn("id", ids).OrderAsc("title").Scan(&links)
+	return links, gerror.Wrap(err, "list navigation links by ids")
+}
+
+func (p *PG) LinkByID(ctx context.Context, id string) (*model.Link, error) {
+	record, err := p.db.Model(tLinks).Ctx(ctx).Where("id", id).One()
+	if err != nil {
+		return nil, gerror.Wrap(err, "get navigation link")
+	}
+	if record.IsEmpty() {
+		return nil, nil
+	}
+	var link model.Link
+	if err := record.Struct(&link); err != nil {
+		return nil, gerror.Wrap(err, "scan navigation link")
+	}
+	return &link, nil
 }
 
 func (p *PG) CountLinks(ctx context.Context, filter LinkFilter) (int, error) {
@@ -177,7 +218,65 @@ func (p *PG) linkQuery(ctx context.Context, filter LinkFilter) *gdb.Model {
 		like := "%" + strings.TrimSpace(filter.Query) + "%"
 		query = query.Where("(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)", like, like, like)
 	}
+	switch filter.Health {
+	case "unchecked":
+		query = query.Where("health_status", "unchecked")
+	case "healthy", "redirected", "broken", "timeout", "error":
+		query = query.Where("health_status", filter.Health)
+	case "issue":
+		query = query.WhereIn("health_status", []string{"redirected", "broken", "timeout", "error"})
+	}
 	return query
+}
+
+func (p *PG) LinkHealthCounts(ctx context.Context) (map[string]int, error) {
+	counts := map[string]int{"all": 0, "unchecked": 0, "healthy": 0, "redirected": 0, "broken": 0, "timeout": 0, "error": 0}
+	rows, err := p.db.Model(tLinks).Ctx(ctx).Fields("health_status, COUNT(*) AS total").Group("health_status").All()
+	if err != nil {
+		return nil, gerror.Wrap(err, "count navigation link health")
+	}
+	for _, row := range rows {
+		status, count := row["health_status"].String(), row["total"].Int()
+		counts[status] = count
+		counts["all"] += count
+	}
+	return counts, nil
+}
+
+func (p *PG) RecordClick(ctx context.Context, id string) (bool, error) {
+	result, err := p.db.Model(tLinks).Ctx(ctx).Where("id", id).Where("status", "published").Data(struct {
+		ClickCount    any         `orm:"click_count"`
+		LastClickedAt *gtime.Time `orm:"last_clicked_at"`
+	}{ClickCount: gdb.Raw("click_count + 1"), LastClickedAt: gtime.Now()}).Update()
+	if err != nil {
+		return false, gerror.Wrap(err, "record navigation link click")
+	}
+	changed, err := result.RowsAffected()
+	return changed > 0, gerror.Wrap(err, "read navigation click result")
+}
+
+func (p *PG) UpdateLinkHealth(ctx context.Context, id string, health model.LinkHealth) (bool, error) {
+	var httpStatus any
+	if health.HTTPStatus > 0 {
+		httpStatus = health.HTTPStatus
+	} else {
+		httpStatus = gdb.Raw("NULL")
+	}
+	var latency any
+	if health.LatencyMS > 0 {
+		latency = health.LatencyMS
+	} else {
+		latency = gdb.Raw("NULL")
+	}
+	result, err := p.db.Model(tLinks).Ctx(ctx).Where("id", id).Data(linkHealthMutation{
+		HealthStatus: health.Status, HealthHTTPStatus: httpStatus, HealthLatencyMS: latency,
+		HealthError: health.Error, LastCheckedAt: health.CheckedAt,
+	}).Update()
+	if err != nil {
+		return false, gerror.Wrap(err, "update navigation link health")
+	}
+	changed, err := result.RowsAffected()
+	return changed > 0, gerror.Wrap(err, "read navigation health update result")
 }
 
 func (p *PG) Tags(ctx context.Context, query string) ([]*model.Tag, error) {

@@ -9,6 +9,7 @@ definePageMeta({ width: "full" });
 
 const ALL_GROUPS = "__all__";
 const SEARCH_PAGE_SIZE = 24;
+const GROUP_PREVIEW_SIZE = 4;
 const route = useRoute();
 const router = useRouter();
 
@@ -106,6 +107,9 @@ function entryFor(item: NavigationItem): NavigationResult {
   const entry = entryMap.value.get(item.id);
   if (!entry) throw new Error(`Missing navigation entry: ${item.id}`);
   return entry;
+}
+function previewItems(items: NavigationItem[]) {
+  return items.slice(0, GROUP_PREVIEW_SIZE);
 }
 function selectCategory(id: string) {
   selectedCategoryId.value = id;
@@ -246,10 +250,7 @@ useSeoMeta({
                 class="min-w-0 flex-1 truncate"
                 >{{ category.title }}</span
               ><span class="text-xs tabular-nums text-dimmed">{{
-                category.groups.reduce(
-                  (sum, group) => sum + group.items.length,
-                  0,
-                )
+                category.groups.reduce((sum, group) => sum + group.linkCount, 0)
               }}</span>
             </button>
           </nav>
@@ -275,7 +276,7 @@ useSeoMeta({
                 <span>全部主题</span
                 ><span>{{
                   selectedCategory.groups.reduce(
-                    (sum, group) => sum + group.items.length,
+                    (sum, group) => sum + group.linkCount,
                     0,
                   )
                 }}</span>
@@ -294,7 +295,7 @@ useSeoMeta({
               >
                 <span class="truncate">{{ group.title }}</span
                 ><span class="ml-2 tabular-nums text-dimmed">{{
-                  group.items.length
+                  group.linkCount
                 }}</span>
               </button>
             </nav>
@@ -451,13 +452,24 @@ useSeoMeta({
                     {{ group.description }}
                   </p>
                 </div>
-                <span class="shrink-0 text-xs text-dimmed"
-                  >{{ group.items.length }} 个站点</span
-                >
+                <div class="flex shrink-0 items-center gap-2">
+                  <span class="text-xs text-dimmed"
+                    >{{ group.linkCount }} 个站点</span
+                  >
+                  <UButton
+                    v-if="group.linkCount > GROUP_PREVIEW_SIZE"
+                    :to="`/topics/${group.id}`"
+                    label="查看全部"
+                    trailing-icon="i-tabler-arrow-right"
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                  />
+                </div>
               </div>
               <div class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
                 <NavigationLinkCard
-                  v-for="item in group.items"
+                  v-for="item in previewItems(group.items)"
                   :key="item.id"
                   :entry="entryFor(item)"
                 />

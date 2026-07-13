@@ -32,18 +32,33 @@ type Group struct {
 }
 
 type Link struct {
-	ID          string      `json:"id" orm:"id"`
-	CategoryID  string      `json:"categoryId" orm:"category_id"`
-	GroupID     string      `json:"groupId" orm:"group_id"`
-	Title       string      `json:"title" orm:"title"`
-	URL         string      `json:"url" orm:"url"`
-	Description string      `json:"description" orm:"description"`
-	Tags        []string    `json:"tags" orm:"tags"`
-	Keywords    []string    `json:"keywords" orm:"keywords"`
-	Kind        string      `json:"kind" orm:"kind"`
-	Featured    bool        `json:"featured" orm:"featured"`
-	Status      string      `json:"status" orm:"status"`
-	SortOrder   int         `json:"sortOrder" orm:"sort_order"`
-	CreatedAt   *gtime.Time `json:"createdAt" orm:"created_at"`
-	UpdatedAt   *gtime.Time `json:"updatedAt" orm:"updated_at"`
+	ID               string      `json:"id" orm:"id"`
+	CategoryID       string      `json:"categoryId" orm:"category_id"`
+	GroupID          string      `json:"groupId" orm:"group_id"`
+	Title            string      `json:"title" orm:"title"`
+	URL              string      `json:"url" orm:"url"`
+	Description      string      `json:"description" orm:"description"`
+	Tags             []string    `json:"tags" orm:"tags"`
+	Keywords         []string    `json:"keywords" orm:"keywords"`
+	Kind             string      `json:"kind" orm:"kind"`
+	Featured         bool        `json:"featured" orm:"featured"`
+	Status           string      `json:"status" orm:"status"`
+	SortOrder        int         `json:"sortOrder" orm:"sort_order"`
+	ClickCount       int64       `json:"clickCount" orm:"click_count"`
+	LastClickedAt    *gtime.Time `json:"lastClickedAt" orm:"last_clicked_at"`
+	HealthStatus     string      `json:"healthStatus" orm:"health_status"`
+	LastCheckedAt    *gtime.Time `json:"lastCheckedAt" orm:"last_checked_at"`
+	HealthHTTPStatus int         `json:"healthHttpStatus" orm:"health_http_status"`
+	HealthLatencyMS  int         `json:"healthLatencyMs" orm:"health_latency_ms"`
+	HealthError      string      `json:"healthError" orm:"health_error"`
+	CreatedAt        *gtime.Time `json:"createdAt" orm:"created_at"`
+	UpdatedAt        *gtime.Time `json:"updatedAt" orm:"updated_at"`
+}
+
+type LinkHealth struct {
+	Status     string
+	HTTPStatus int
+	LatencyMS  int
+	Error      string
+	CheckedAt  *gtime.Time
 }

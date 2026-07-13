@@ -5,6 +5,7 @@ const nav = [
   { label: "站点", icon: "i-tabler-world-www", to: "/manage" },
   { label: "分类与主题", icon: "i-tabler-folders", to: "/manage/categories" },
   { label: "标签", icon: "i-tabler-hash", to: "/manage/tags" },
+  { label: "站点检查", icon: "i-tabler-heartbeat", to: "/manage/checks" },
   { label: "设置", icon: "i-tabler-settings", to: "/manage/settings" },
 ];
 

@@ -3,6 +3,7 @@ import {
   ManageCollectionToolbar,
   ManageEmpty,
   ManageHeader,
+  ManageIconPicker,
   SkeletonList,
 } from "@platform/manage/components";
 import { z } from "zod";
@@ -374,9 +375,10 @@ async function remove() {
             v-if="entityKind === 'category'"
             name="icon"
             label="图标"
-            help="使用 i-tabler-* 图标名"
-            ><UInput v-model="form.icon" class="w-full"
-          /></UFormField>
+            help="选择一个易识别的分类图标"
+          >
+            <ManageIconPicker v-model="form.icon" compact />
+          </UFormField>
           <UFormField name="description" label="描述"
             ><UTextarea v-model="form.description" :rows="4" class="w-full"
           /></UFormField>

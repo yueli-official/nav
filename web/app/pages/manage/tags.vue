@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import {
-  ManageCollectionDock,
+  ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
   ManageHeader,
-  ManagePagination,
   SkeletonList,
 } from "@platform/manage/components";
 import { z } from "zod";
@@ -59,10 +58,6 @@ const totalPages = computed(() =>
 const pagedTags = computed(() =>
   tags.value.slice((page.value - 1) * size.value, page.value * size.value),
 );
-const pageSizeItems = [15, 30, 60].map((value) => ({
-  label: `${value}/页`,
-  value,
-}));
 watch(
   totalPages,
   (lastPage) => {
@@ -217,23 +212,18 @@ async function remove() {
       </article>
     </div>
 
-    <ManageCollectionDock v-if="tags.length" label="标签统计与分页">
+    <ManageCollectionFooter
+      v-if="tags.length"
+      v-model:page="page"
+      v-model:size="size"
+      :total="tags.length"
+      :total-pages="totalPages"
+      label="标签统计与分页"
+    >
       <template #selection
         ><span class="text-xs">共 {{ tags.length }} 个标签</span></template
       >
-      <template #pagination
-        ><USelect
-          v-model="size"
-          :items="pageSizeItems"
-          value-key="value"
-          size="sm"
-          class="w-20"
-          aria-label="每页数量" /><ManagePagination
-          v-model="page"
-          :total-pages="totalPages"
-          class="!mt-0"
-      /></template>
-    </ManageCollectionDock>
+    </ManageCollectionFooter>
 
     <USlideover v-model:open="panelOpen" title="重命名或合并标签">
       <template #body>

@@ -5,6 +5,13 @@ const { entry, showContext = false } = defineProps<{
   entry: NavigationResult;
   showContext?: boolean;
 }>();
+function recordClick() {
+  if (import.meta.client) {
+    navigator.sendBeacon(
+      `/api/links/${encodeURIComponent(entry.item.id)}/click`,
+    );
+  }
+}
 </script>
 
 <template>
@@ -14,14 +21,13 @@ const { entry, showContext = false } = defineProps<{
     target="_blank"
     rel="noopener noreferrer"
     class="group platform-interactive flex h-full min-w-0 flex-col rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    @click="recordClick"
   >
     <div class="flex min-w-0 items-start gap-3">
       <span
-        class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15"
+        class="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15"
       >
-        <span class="font-display text-sm font-bold uppercase">{{
-          entry.item.title.slice(0, 1)
-        }}</span>
+        <NavigationFavicon :id="entry.item.id" :title="entry.item.title" />
       </span>
 
       <div class="min-w-0 flex-1">
@@ -48,6 +54,14 @@ const { entry, showContext = false } = defineProps<{
       <UBadge
         :label="kindLabel(entry.item.kind)"
         color="primary"
+        variant="subtle"
+        size="sm"
+      />
+      <UBadge
+        v-if="entry.item.clickCount > 0"
+        :label="`热门 ${entry.item.clickCount}`"
+        icon="i-tabler-flame"
+        color="warning"
         variant="subtle"
         size="sm"
       />

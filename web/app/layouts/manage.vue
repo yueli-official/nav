@@ -10,6 +10,7 @@ const route = useRoute();
 const contextLabel = computed(() => {
   if (route.path.startsWith("/manage/categories")) return "分类与主题";
   if (route.path.startsWith("/manage/tags")) return "标签管理";
+  if (route.path.startsWith("/manage/checks")) return "站点检查";
   if (route.path.startsWith("/manage/settings")) return "站点设置";
   return "站点管理";
 });

@@ -2,10 +2,14 @@ package catalog
 
 import (
 	"context"
+	"net/http"
 	"net/url"
 	"slices"
 	"strings"
+	"sync"
+	"time"
 
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/google/uuid"
 
 	"platform/products/nav/api/internal/dao"
@@ -22,11 +26,16 @@ type Store interface {
 	Categories(context.Context) ([]*model.Category, error)
 	Groups(context.Context) ([]*model.Group, error)
 	Links(context.Context, dao.LinkFilter) ([]*model.Link, error)
+	LinksByIDs(context.Context, []string) ([]*model.Link, error)
+	LinkByID(context.Context, string) (*model.Link, error)
 	CountLinks(context.Context, dao.LinkFilter) (int, error)
 	LinkStatusCounts(context.Context) (map[string]int, error)
+	LinkHealthCounts(context.Context) (map[string]int, error)
 	Tags(context.Context, string) ([]*model.Tag, error)
 	GroupBelongsToCategory(context.Context, string, string) (bool, error)
 	LinkExists(context.Context, string) (bool, error)
+	RecordClick(context.Context, string) (bool, error)
+	UpdateLinkHealth(context.Context, string, model.LinkHealth) (bool, error)
 	InsertLink(context.Context, *model.Link) error
 	UpdateLink(context.Context, *model.Link) (bool, error)
 	DeleteLink(context.Context, string) (bool, error)
@@ -81,17 +90,88 @@ type AdminLinkPage struct {
 	Tags   []*model.Tag
 }
 
+type GroupPage struct {
+	Site     Site
+	Category *model.Category
+	Group    *model.Group
+	Links    []*model.Link
+	Total    int
+	Page     int
+	Size     int
+}
+
+type AdminCheckPage struct {
+	Links  []*model.Link
+	Total  int
+	Counts map[string]int
+}
+
 type Service struct {
-	store Store
-	site  Site
+	store         Store
+	site          Site
+	checker       LinkChecker
+	faviconClient *http.Client
 }
 
 func New(store Store, site Site) *Service {
-	return &Service{store: store, site: site}
+	return &Service{
+		store: store, site: site, checker: NewHTTPLinkChecker(),
+		faviconClient: newSafeHTTPClient(8*time.Second, true),
+	}
 }
 
 func (s *Service) PublicCatalog(ctx context.Context) (*Catalog, error) {
 	return s.catalog(ctx, dao.LinkFilter{Status: StatusPublished})
+}
+
+func (s *Service) PublicGroup(ctx context.Context, groupID string, page, size int, sort string) (*GroupPage, error) {
+	groupID = strings.TrimSpace(groupID)
+	groups, err := s.store.Groups(ctx)
+	if err != nil {
+		return nil, err
+	}
+	groupIndex := slices.IndexFunc(groups, func(group *model.Group) bool { return group.ID == groupID })
+	if groupIndex < 0 {
+		return nil, naverr.NotFound(groupID)
+	}
+	group := groups[groupIndex]
+	categories, err := s.store.Categories(ctx)
+	if err != nil {
+		return nil, err
+	}
+	categoryIndex := slices.IndexFunc(categories, func(category *model.Category) bool { return category.ID == group.CategoryID })
+	if categoryIndex < 0 {
+		return nil, naverr.NotFound(group.CategoryID)
+	}
+	page, size = max(page, 1), min(max(size, 1), 60)
+	filter := dao.LinkFilter{GroupID: groupID, Status: StatusPublished, Page: page, Size: size, Sort: sort}
+	links, err := s.store.Links(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	total, err := s.store.CountLinks(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	settings, err := s.Settings(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &GroupPage{
+		Site:     Site{Name: settings.Name, Title: settings.Title, Description: settings.Description, SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline},
+		Category: categories[categoryIndex], Group: group, Links: links, Total: total, Page: page, Size: size,
+	}, nil
+}
+
+func (s *Service) RecordClick(ctx context.Context, id string) (bool, error) {
+	recorded, err := s.store.RecordClick(ctx, strings.TrimSpace(id))
+	if err != nil {
+		return false, err
+	}
+	if !recorded {
+		return false, naverr.NotFound(id)
+	}
+	return true, nil
 }
 
 func (s *Service) AdminLinks(ctx context.Context, filter dao.LinkFilter) (*AdminLinkPage, error) {
@@ -112,6 +192,79 @@ func (s *Service) AdminLinks(ctx context.Context, filter dao.LinkFilter) (*Admin
 		return nil, err
 	}
 	return &AdminLinkPage{Links: links, Total: total, Counts: counts, Tags: tags}, nil
+}
+
+func (s *Service) AdminChecks(ctx context.Context, filter dao.LinkFilter) (*AdminCheckPage, error) {
+	filter.Sort = "health"
+	links, err := s.store.Links(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	total, err := s.store.CountLinks(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	counts, err := s.store.LinkHealthCounts(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &AdminCheckPage{Links: links, Total: total, Counts: counts}, nil
+}
+
+func (s *Service) RunChecks(ctx context.Context, ids []string) ([]*model.Link, error) {
+	ids = normalize(ids, 50)
+	if len(ids) == 0 {
+		return nil, naverr.Validation("ids", "required", nil)
+	}
+	links, err := s.store.LinksByIDs(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+	if len(links) != len(ids) {
+		return nil, naverr.NotFound("one_or_more_links")
+	}
+	results := make([]*model.Link, len(links))
+	jobs := make(chan int)
+	var (
+		workers  sync.WaitGroup
+		firstErr error
+		errOnce  sync.Once
+	)
+	workerCount := min(12, len(links))
+	workers.Add(workerCount)
+	for range workerCount {
+		go func() {
+			defer workers.Done()
+			for index := range jobs {
+				link := links[index]
+				health := s.checker.Check(ctx, link.URL)
+				health.CheckedAt = gtime.Now()
+				updated, updateErr := s.store.UpdateLinkHealth(ctx, link.ID, health)
+				if updateErr != nil || !updated {
+					if updateErr == nil {
+						updateErr = naverr.NotFound(link.ID)
+					}
+					errOnce.Do(func() { firstErr = updateErr })
+					continue
+				}
+				link.HealthStatus = health.Status
+				link.HealthHTTPStatus = health.HTTPStatus
+				link.HealthLatencyMS = health.LatencyMS
+				link.HealthError = health.Error
+				link.LastCheckedAt = health.CheckedAt
+				results[index] = link
+			}
+		}()
+	}
+	for index := range links {
+		jobs <- index
+	}
+	close(jobs)
+	workers.Wait()
+	if firstErr != nil {
+		return nil, firstErr
+	}
+	return results, nil
 }
 
 func (s *Service) AdminStructure(ctx context.Context) (*Catalog, error) {
@@ -136,6 +289,13 @@ func (s *Service) CreateLink(ctx context.Context, input LinkInput) (*model.Link,
 	if err := s.store.InsertLink(ctx, link); err != nil {
 		return nil, err
 	}
+	created, err := s.store.LinkByID(ctx, link.ID)
+	if err != nil {
+		return nil, err
+	}
+	if created != nil {
+		return created, nil
+	}
 	return link, nil
 }
 
@@ -151,6 +311,13 @@ func (s *Service) UpdateLink(ctx context.Context, id string, input LinkInput) (*
 	}
 	if !updated {
 		return nil, naverr.NotFound(id)
+	}
+	current, err := s.store.LinkByID(ctx, link.ID)
+	if err != nil {
+		return nil, err
+	}
+	if current != nil {
+		return current, nil
 	}
 	return link, nil
 }

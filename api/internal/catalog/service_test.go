@@ -3,7 +3,10 @@ package catalog
 import (
 	"context"
 	"errors"
+	"fmt"
+	"sync"
 	"testing"
+	"time"
 
 	"platform/gokit/errs"
 	"platform/products/nav/api/internal/dao"
@@ -11,10 +14,31 @@ import (
 	"platform/products/nav/api/internal/naverr"
 )
 
+type countingChecker struct {
+	mu      sync.Mutex
+	current int
+	maximum int
+}
+
+func (c *countingChecker) Check(context.Context, string) model.LinkHealth {
+	c.mu.Lock()
+	c.current++
+	c.maximum = max(c.maximum, c.current)
+	c.mu.Unlock()
+	time.Sleep(5 * time.Millisecond)
+	c.mu.Lock()
+	c.current--
+	c.mu.Unlock()
+	return model.LinkHealth{Status: "healthy", HTTPStatus: 200}
+}
+
 type fakeStore struct {
 	links    []*model.Link
 	existing map[string]bool
 	settings *model.SiteSettings
+	health   map[string]model.LinkHealth
+	healthMu sync.Mutex
+	clicks   map[string]int
 }
 
 func (f *fakeStore) Categories(context.Context) ([]*model.Category, error) {
@@ -29,10 +53,34 @@ func (f *fakeStore) Links(context.Context, dao.LinkFilter) ([]*model.Link, error
 	return f.links, nil
 }
 
+func (f *fakeStore) LinksByIDs(_ context.Context, ids []string) ([]*model.Link, error) {
+	links := make([]*model.Link, 0, len(ids))
+	for _, id := range ids {
+		for _, link := range f.links {
+			if link.ID == id {
+				links = append(links, link)
+			}
+		}
+	}
+	return links, nil
+}
+
+func (f *fakeStore) LinkByID(_ context.Context, id string) (*model.Link, error) {
+	for _, link := range f.links {
+		if link.ID == id {
+			return link, nil
+		}
+	}
+	return nil, nil
+}
+
 func (f *fakeStore) CountLinks(context.Context, dao.LinkFilter) (int, error) {
 	return len(f.links), nil
 }
 func (f *fakeStore) LinkStatusCounts(context.Context) (map[string]int, error) {
+	return map[string]int{"all": len(f.links)}, nil
+}
+func (f *fakeStore) LinkHealthCounts(context.Context) (map[string]int, error) {
 	return map[string]int{"all": len(f.links)}, nil
 }
 func (f *fakeStore) Tags(context.Context, string) ([]*model.Tag, error) { return nil, nil }
@@ -43,6 +91,27 @@ func (f *fakeStore) GroupBelongsToCategory(_ context.Context, groupID, categoryI
 
 func (f *fakeStore) LinkExists(_ context.Context, id string) (bool, error) {
 	return f.existing[id], nil
+}
+
+func (f *fakeStore) RecordClick(_ context.Context, id string) (bool, error) {
+	if !f.existing[id] {
+		return false, nil
+	}
+	if f.clicks == nil {
+		f.clicks = map[string]int{}
+	}
+	f.clicks[id]++
+	return true, nil
+}
+
+func (f *fakeStore) UpdateLinkHealth(_ context.Context, id string, health model.LinkHealth) (bool, error) {
+	f.healthMu.Lock()
+	defer f.healthMu.Unlock()
+	if f.health == nil {
+		f.health = map[string]model.LinkHealth{}
+	}
+	f.health[id] = health
+	return true, nil
 }
 
 func (f *fakeStore) InsertLink(_ context.Context, link *model.Link) error {
@@ -90,6 +159,25 @@ func TestBulkLinksReportsMissingIDs(t *testing.T) {
 	}
 	if result.Changed != 1 || len(result.FailedIDs) != 1 || result.FailedIDs[0] != "missing" {
 		t.Fatalf("unexpected bulk result: %#v", result)
+	}
+}
+
+func TestRunChecksCapsConcurrency(t *testing.T) {
+	store := &fakeStore{}
+	ids := make([]string, 20)
+	for index := range ids {
+		ids[index] = fmt.Sprintf("link-%02d", index)
+		store.links = append(store.links, &model.Link{ID: ids[index], URL: "https://example.com"})
+	}
+	checker := &countingChecker{}
+	service := New(store, Site{})
+	service.checker = checker
+	results, err := service.RunChecks(context.Background(), ids)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(results) != len(ids) || checker.maximum < 2 || checker.maximum > 12 {
+		t.Fatalf("results=%d maximum=%d, want 20 results and concurrency 2..12", len(results), checker.maximum)
 	}
 }
 

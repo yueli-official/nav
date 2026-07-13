@@ -16,6 +16,8 @@ export interface NavigationItem {
   keywords?: string[];
   kind: NavigationItemKind;
   featured: boolean;
+  clickCount: number;
+  lastClickedAt?: string;
 }
 
 export interface NavigationGroup {
@@ -81,6 +83,42 @@ export interface AdminNavigationLink extends NavigationItem {
   sortOrder: number;
   createdAt?: string;
   updatedAt?: string;
+  healthStatus?: NavigationHealthStatus;
+  lastCheckedAt?: string;
+  healthHttpStatus?: number;
+  healthLatencyMs?: number;
+  healthError?: string;
+}
+
+export type NavigationHealthStatus =
+  "unchecked" | "healthy" | "redirected" | "broken" | "timeout" | "error";
+
+export interface NavigationGroupResponse {
+  site: NavigationSiteCopy;
+  category: NavigationCategory;
+  group: NavigationGroup;
+  items: NavigationItem[];
+  total: number;
+  page: number;
+  size: number;
+}
+
+export interface NavigationHealthCounts {
+  all: number;
+  unchecked: number;
+  healthy: number;
+  redirected: number;
+  broken: number;
+  timeout: number;
+  error: number;
+}
+
+export interface NavigationChecksResponse {
+  links: AdminNavigationLink[];
+  counts: NavigationHealthCounts;
+  total: number;
+  page: number;
+  size: number;
 }
 
 export interface AdminNavigationResponse {

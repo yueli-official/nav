@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import {
   ManageActiveFilters,
-  ManageCollectionDock,
+  ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
   ManageHeader,
   ManageLifecycleTabs,
   ManagePageSelection,
-  ManagePagination,
   ManageRowShell,
   ManageTaxonomyChips,
   SkeletonList,
@@ -148,11 +147,6 @@ const tabs = computed(() => [
   { key: "draft", label: "草稿", count: counts.value.draft },
   { key: "archived", label: "归档", count: counts.value.archived },
 ]);
-const pageSizeItems = [15, 30, 60].map((value) => ({
-  label: `${value}/页`,
-  value,
-}));
-
 watch(categoryId, () => {
   if (!groupItems.value.some((item) => item.value === groupId.value))
     groupId.value = ALL;
@@ -510,8 +504,12 @@ async function executeBatch() {
         </ManageRowShell>
       </div>
 
-      <ManageCollectionDock
+      <ManageCollectionFooter
         v-if="total > 0 || links.length"
+        v-model:page="page"
+        v-model:size="size"
+        :total="total"
+        :total-pages="totalPages"
         label="站点选择、批量操作与分页"
       >
         <template #selection>
@@ -559,23 +557,7 @@ async function executeBatch() {
           </template>
           <span v-else class="text-xs">共 {{ total }} 个站点</span>
         </template>
-        <template #pagination>
-          <USelect
-            v-model="size"
-            :items="pageSizeItems"
-            value-key="value"
-            size="sm"
-            class="w-20"
-            :disabled="batchBusy"
-            aria-label="每页数量"
-          />
-          <ManagePagination
-            v-model="page"
-            :total-pages="totalPages"
-            class="!mt-0"
-          />
-        </template>
-      </ManageCollectionDock>
+      </ManageCollectionFooter>
     </div>
 
     <NavigationLinkEditor
