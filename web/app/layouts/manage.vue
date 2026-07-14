@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { ManageShell, ManageUserMenu } from "@platform/manage/components";
+import { ManageShell } from "@platform/manage/components";
 
-const { user, logout } = useAuth();
 const { brand } = useSiteRuntime();
-const accountUrl = computed(
-  () => useRuntimeConfig().public.accountUrl || "http://localhost:3000",
-);
 const route = useRoute();
 const showBackToTop = computed(() => route.path === "/manage/settings");
 const contextLabel = computed(() => {
@@ -30,12 +26,7 @@ const contextLabel = computed(() => {
       <ManageSidebar />
     </template>
     <template #user>
-      <ManageUserMenu
-        :name="user?.name"
-        :email="user?.email"
-        :settings-to="accountUrl"
-        :logout
-      />
+      <ConsumerManageAccountControl home-to="/" />
     </template>
     <slot />
   </ManageShell>
