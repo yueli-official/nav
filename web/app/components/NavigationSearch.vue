@@ -6,19 +6,13 @@ const { placeholder, resultCount } = defineProps<{
 
 const query = defineModel<string>({ required: true });
 const input = useTemplateRef<{ inputRef?: HTMLInputElement }>("search-input");
+const emit = defineEmits<{ submit: [] }>();
 
-function focusSearch() {
+function focus() {
   input.value?.inputRef?.focus();
 }
 
-defineShortcuts({
-  "/": {
-    usingInput: false,
-    handler: focusSearch,
-  },
-  meta_k: focusSearch,
-  ctrl_k: focusSearch,
-});
+defineExpose({ focus });
 </script>
 
 <template>
@@ -33,9 +27,10 @@ defineShortcuts({
       aria-label="搜索导航站点"
       class="w-full"
       :ui="{
-        base: 'h-14 rounded-xl bg-default/94 pl-12 pr-24 text-base shadow-sm ring-1 ring-default focus-visible:ring-2 focus-visible:ring-primary sm:h-16 sm:text-lg',
-        leadingIcon: 'ml-1 size-5 text-primary sm:size-6',
+        base: 'h-12 rounded-xl bg-default pl-11 pr-12 text-base shadow-sm ring-1 ring-default focus-visible:ring-2 focus-visible:ring-primary',
+        leadingIcon: 'ml-1 size-5 text-primary',
       }"
+      @keydown.enter.prevent="emit('submit')"
     >
       <template #trailing>
         <UButton
@@ -51,7 +46,6 @@ defineShortcuts({
             }
           "
         />
-        <UKbd v-else value="/" class="hidden sm:inline-flex" />
       </template>
     </UInput>
     <p

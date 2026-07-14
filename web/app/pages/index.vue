@@ -8,7 +8,6 @@ import type {
 definePageMeta({ width: "full" });
 
 const ALL_GROUPS = "__all__";
-const SEARCH_PAGE_SIZE = 24;
 const GROUP_PREVIEW_SIZE = 4;
 const route = useRoute();
 const router = useRouter();
@@ -18,10 +17,8 @@ function queryValue(value: unknown) {
   return typeof value === "string" ? value : "";
 }
 
-const searchQuery = ref(queryValue(route.query.q));
 const selectedCategoryId = ref(queryValue(route.query.category));
 const selectedGroupId = ref(queryValue(route.query.group) || ALL_GROUPS);
-const visibleSearchCount = ref(SEARCH_PAGE_SIZE);
 const { data, error, status, refresh } = await useFetch<NavigationResponse>(
   "/api/navigation",
   { key: "navigation-catalog" },
@@ -39,12 +36,6 @@ const selectedCategory = computed(
     categories.value.find(
       (category) => category.id === selectedCategoryId.value,
     ) ?? categories.value[0],
-);
-const searchResults = computed(() =>
-  searchNavigation(allEntries.value, searchQuery.value),
-);
-const visibleSearchResults = computed(() =>
-  searchResults.value.slice(0, visibleSearchCount.value),
 );
 const visibleGroups = computed(() => {
   const category = selectedCategory.value;
@@ -73,26 +64,20 @@ watch(selectedCategoryId, () => {
   )
     selectedGroupId.value = ALL_GROUPS;
 });
-watch(searchQuery, () => {
-  visibleSearchCount.value = SEARCH_PAGE_SIZE;
-});
 watch(
   () => route.fullPath,
   () => {
-    const nextQuery = queryValue(route.query.q);
     const nextCategory =
       queryValue(route.query.category) || categories.value[0]?.id || "";
     const nextGroup = queryValue(route.query.group) || ALL_GROUPS;
-    if (searchQuery.value !== nextQuery) searchQuery.value = nextQuery;
     if (selectedCategoryId.value !== nextCategory)
       selectedCategoryId.value = nextCategory;
     if (selectedGroupId.value !== nextGroup) selectedGroupId.value = nextGroup;
   },
 );
-watch([searchQuery, selectedCategoryId, selectedGroupId], async () => {
+watch([selectedCategoryId, selectedGroupId], async () => {
   if (!import.meta.client) return;
   const query: Record<string, string> = {};
-  if (searchQuery.value.trim()) query.q = searchQuery.value.trim();
   if (
     selectedCategoryId.value &&
     selectedCategoryId.value !== categories.value[0]?.id
@@ -115,12 +100,6 @@ function selectCategory(id: string) {
   selectedCategoryId.value = id;
   selectedGroupId.value = ALL_GROUPS;
 }
-function clearSearch() {
-  searchQuery.value = "";
-}
-function loadMore() {
-  visibleSearchCount.value += SEARCH_PAGE_SIZE;
-}
 async function retryLoad() {
   await refresh();
 }
@@ -135,34 +114,7 @@ useSeoMeta({
 
 <template>
   <div class="min-w-0 space-y-7 overflow-x-hidden">
-    <header id="search" class="scroll-mt-24 border-b border-default pb-7">
-      <div
-        class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.72fr)] lg:items-end"
-      >
-        <div class="min-w-0">
-          <p
-            class="mb-2 flex items-center gap-2 text-sm font-medium text-primary"
-          >
-            <UIcon name="i-tabler-compass" class="size-4" />精选互联网入口
-          </p>
-          <h1
-            class="font-display text-balance text-3xl font-bold tracking-tight text-highlighted sm:text-4xl"
-          >
-            {{ data?.site.title }}
-          </h1>
-          <p
-            class="mt-3 max-w-[66ch] text-sm leading-6 text-muted sm:text-base"
-          >
-            {{ data?.site.description }}
-          </p>
-        </div>
-        <NavigationSearch
-          v-model="searchQuery"
-          :placeholder="data?.site.searchPlaceholder ?? ''"
-          :result-count="searchQuery ? searchResults.length : undefined"
-        />
-      </div>
-    </header>
+    <NavigationFeatured v-if="data" :entries="allEntries" />
 
     <div
       v-if="error"
@@ -305,84 +257,7 @@ useSeoMeta({
 
       <div class="min-w-0">
         <section
-          v-if="searchQuery"
-          class="space-y-5"
-          aria-labelledby="search-results-title"
-        >
-          <div
-            class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
-          >
-            <div>
-              <h2
-                id="search-results-title"
-                class="font-display text-2xl font-semibold text-highlighted"
-              >
-                搜索结果
-              </h2>
-              <p class="mt-1 text-sm text-muted">
-                检索名称、描述、域名、分类与标签，共
-                {{ searchResults.length }} 个结果。
-              </p>
-            </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-tabler-x"
-              label="清空搜索"
-              @click="clearSearch"
-            />
-          </div>
-          <div
-            v-if="visibleSearchResults.length"
-            class="grid gap-3 sm:grid-cols-2 2xl:grid-cols-3"
-          >
-            <NavigationLinkCard
-              v-for="entry in visibleSearchResults"
-              :key="entry.item.id"
-              :entry="entry"
-              show-context
-            />
-          </div>
-          <div
-            v-else
-            class="rounded-xl border border-dashed border-default bg-elevated/35 px-6 py-12 text-center"
-          >
-            <UIcon
-              name="i-tabler-search-off"
-              class="mx-auto size-8 text-dimmed"
-            />
-            <h3
-              class="mt-3 font-display text-lg font-semibold text-highlighted"
-            >
-              没有找到匹配站点
-            </h3>
-            <p class="mt-1 text-sm text-muted">
-              试试更短的关键词、英文名称或域名。
-            </p>
-            <UButton
-              class="mt-4"
-              color="neutral"
-              variant="soft"
-              label="清空搜索"
-              @click="clearSearch"
-            />
-          </div>
-          <div
-            v-if="visibleSearchCount < searchResults.length"
-            class="flex justify-center"
-          >
-            <UButton
-              color="neutral"
-              variant="soft"
-              icon="i-tabler-arrow-down"
-              label="加载更多"
-              @click="loadMore"
-            />
-          </div>
-        </section>
-
-        <section
-          v-else-if="selectedCategory"
+          v-if="selectedCategory"
           class="space-y-7"
           :aria-labelledby="`${selectedCategory.id}-title`"
         >

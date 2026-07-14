@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   domainFromUrl,
+  featuredNavigation,
   flattenNavigation,
   kindLabel,
   searchNavigation,
@@ -35,6 +36,7 @@ const catalog: NavigationCatalog = {
               tags: ["JavaScript", "CSS"],
               kind: "reference",
               featured: true,
+              clickCount: 0,
             },
           ],
         },
@@ -64,5 +66,23 @@ describe("navigation utilities", () => {
   test("normalizes domains and kind labels", () => {
     expect(domainFromUrl("https://www.example.com/path")).toBe("example.com");
     expect(kindLabel("reference")).toBe("参考");
+  });
+
+  test("keeps editorial picks ahead of click-based fallbacks", () => {
+    const [featured] = flattenNavigation(catalog);
+    const clicked = {
+      ...featured!,
+      item: {
+        ...featured!.item,
+        id: "popular",
+        title: "Popular fallback",
+        featured: false,
+        clickCount: 12,
+      },
+    };
+
+    expect(
+      featuredNavigation([clicked, featured!], 2).map((entry) => entry.item.id),
+    ).toEqual(["mdn", "popular"]);
   });
 });

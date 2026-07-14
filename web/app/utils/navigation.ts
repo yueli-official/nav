@@ -87,3 +87,29 @@ export function searchNavigation(entries: NavigationResult[], query: string) {
       );
     });
 }
+
+export function featuredNavigation(
+  entries: NavigationResult[],
+  limit = 5,
+): NavigationResult[] {
+  if (limit <= 0) return [];
+
+  const featured = entries.filter((entry) => entry.item.featured);
+  const remaining = entries
+    .filter((entry) => !entry.item.featured)
+    .map((entry, index) => ({ entry, index }))
+    .sort(
+      (left, right) =>
+        right.entry.item.clickCount - left.entry.item.clickCount ||
+        left.index - right.index,
+    )
+    .map(({ entry }) => entry);
+
+  return [...featured, ...remaining].slice(0, limit);
+}
+
+export function recordNavigationClick(id: string) {
+  if (import.meta.client && typeof navigator.sendBeacon === "function") {
+    navigator.sendBeacon(`/api/links/${encodeURIComponent(id)}/click`);
+  }
+}

@@ -6,11 +6,7 @@ const { entry, showContext = false } = defineProps<{
   showContext?: boolean;
 }>();
 function recordClick() {
-  if (import.meta.client) {
-    navigator.sendBeacon(
-      `/api/links/${encodeURIComponent(entry.item.id)}/click`,
-    );
-  }
+  recordNavigationClick(entry.item.id);
 }
 </script>
 

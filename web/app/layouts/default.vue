@@ -6,8 +6,21 @@ const mainWidth = computed(
   () =>
     PAGE_WIDTHS[(route.meta.width as PageWidth) ?? "full"] ?? PAGE_WIDTHS.full,
 );
-const { data } = await useFetch<NavigationResponse>("/api/navigation", {
-  key: "navigation-catalog",
+const { data, error, status } = await useFetch<NavigationResponse>(
+  "/api/navigation",
+  {
+    key: "navigation-catalog",
+  },
+);
+const entries = computed(() =>
+  data.value ? flattenNavigation(data.value) : [],
+);
+const { openSearch } = useNavigationSearch();
+
+defineShortcuts({
+  "/": { usingInput: false, handler: openSearch },
+  meta_k: openSearch,
+  ctrl_k: openSearch,
 });
 </script>
 
@@ -17,6 +30,12 @@ const { data } = await useFetch<NavigationResponse>("/api/navigation", {
       :width-class="mainWidth"
       :brand-name="data?.site.name"
       :brand-tagline="data?.site.title"
+    />
+    <NavigationSearchDialog
+      :entries="entries"
+      :placeholder="data?.site.searchPlaceholder ?? '搜索名称、标签或域名'"
+      :loading="status === 'pending'"
+      :failed="Boolean(error)"
     />
     <main
       id="public-main"
