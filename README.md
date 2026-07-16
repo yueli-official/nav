@@ -1,11 +1,8 @@
-# Nav product
+# 导航站产品
 
-- Lifecycle: active reusable product type
-- Authority: Catalog product type `nav`, `api/` migrations/OpenAPI, `web/` UI
-- Consumers: navigation site instances such as `nav-yueli`
-- Verify: `pnpm platformctl verify product --file catalog/overlays/local.yaml --root . nav`
+- 生命周期：活跃的可复用产品类型
+- 权威来源：Catalog 产品类型 `nav`、`api/` 迁移/OpenAPI、`web/` 界面
+- 消费者：`nav-yueli` 等导航站点实例
+- 验证：`pnpm platformctl verify product --file catalog/overlays/local.yaml --root . nav`
 
-Nav owns curated link groups, topics, featured links, search and click metrics.
-`api/` is the durable domain service and `web/` provides public discovery plus
-management. Research notes under `research/` inform the product but are not
-runtime authority.
+Nav 负责精选链接组、主题、推荐链接、搜索和点击指标。`api/` 是持久领域服务，`web/` 提供公开发现与管理。`research/` 下的调研仅提供设计输入，不是运行时真值。
