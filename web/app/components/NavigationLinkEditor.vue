@@ -185,141 +185,141 @@ function closeDelete() {
       description="修改后会直接写入导航站数据库。"
       :ui="{ content: 'sm:max-w-2xl', footer: 'justify-end' }"
     >
-    <template #body>
-      <UForm :schema="schema" :state="form" class="space-y-5" @submit="save">
-        <div class="grid gap-4 sm:grid-cols-2">
-          <UFormField name="categoryId" label="分类" required>
-            <USelect
-              v-model="form.categoryId"
-              :items="categoryItems"
-              value-key="value"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField name="groupId" label="主题" required>
-            <USelect
-              v-model="form.groupId"
-              :items="groupItems"
-              value-key="value"
-              class="w-full"
-            />
-          </UFormField>
-        </div>
-
-        <UFormField name="title" label="名称" required>
-          <UInput
-            v-model="form.title"
-            class="w-full"
-            placeholder="例如 MDN Web Docs"
-            autofocus
-          />
-        </UFormField>
-        <UFormField name="url" label="网址" required>
-          <UInput
-            v-model="form.url"
-            class="w-full"
-            type="url"
-            placeholder="https://example.com/"
-          />
-        </UFormField>
-        <UFormField name="description" label="简介" required>
-          <UTextarea
-            v-model="form.description"
-            class="w-full"
-            :rows="3"
-            autoresize
-            :maxrows="5"
-          />
-        </UFormField>
-
-        <div class="grid gap-4 sm:grid-cols-2">
-          <UFormField label="标签" hint="最多 6 个">
-            <UInputTags
-              v-model="form.tags"
-              class="w-full"
-              :max="6"
-              placeholder="输入后回车"
-            />
-          </UFormField>
-          <UFormField label="搜索关键词" hint="最多 12 个">
-            <UInputTags
-              v-model="form.keywords"
-              class="w-full"
-              :max="12"
-              placeholder="输入后回车"
-            />
-          </UFormField>
-        </div>
-
-        <div class="grid gap-4 sm:grid-cols-3">
-          <UFormField label="类型">
-            <USelect
-              v-model="form.kind"
-              :items="kindItems"
-              value-key="value"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField label="状态">
-            <USelect
-              v-model="form.status"
-              :items="statusItems"
-              value-key="value"
-              class="w-full"
-            />
-          </UFormField>
-          <UFormField label="排序">
-            <UInputNumber v-model="form.sortOrder" class="w-full" :min="0" />
-          </UFormField>
-        </div>
-
-        <USwitch v-model="form.featured" label="加入首页精选" />
-
-        <UAlert
-          v-if="saveError"
-          color="error"
-          icon="i-tabler-alert-circle"
-          title="未能保存站点"
-          :description="saveError"
-        />
-
-        <div
-          class="flex flex-col-reverse gap-2 border-t border-default pt-5 sm:flex-row sm:items-center"
-        >
-          <UButton
-            v-if="link"
-            type="button"
-            label="删除站点"
-            icon="i-tabler-trash"
-            color="error"
-            variant="ghost"
-            :disabled="saving"
-            @click="openDelete"
-          />
-          <div class="ml-auto flex justify-end gap-2">
-          <UButton
-            label="取消"
-            color="neutral"
-            variant="outline"
-            :disabled="saving"
-            @click="
-              () => {
-                open = false;
-              }
-            "
-          />
-          <ActionFeedbackButton
-            type="submit"
-            :status="saveStatus"
-            idle-label="保存"
-            pending-label="保存中"
-            :success-label="link ? '已更新' : '已添加'"
-            error-label="重试保存"
-          />
+      <template #body>
+        <UForm :schema="schema" :state="form" class="space-y-5" @submit="save">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <UFormField name="categoryId" label="分类" required>
+              <USelect
+                v-model="form.categoryId"
+                :items="categoryItems"
+                value-key="value"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField name="groupId" label="主题" required>
+              <USelect
+                v-model="form.groupId"
+                :items="groupItems"
+                value-key="value"
+                class="w-full"
+              />
+            </UFormField>
           </div>
-        </div>
-      </UForm>
-    </template>
+
+          <UFormField name="title" label="名称" required>
+            <UInput
+              v-model="form.title"
+              class="w-full"
+              placeholder="例如 MDN Web Docs"
+              autofocus
+            />
+          </UFormField>
+          <UFormField name="url" label="网址" required>
+            <UInput
+              v-model="form.url"
+              class="w-full"
+              type="url"
+              placeholder="https://example.com/"
+            />
+          </UFormField>
+          <UFormField name="description" label="简介" required>
+            <UTextarea
+              v-model="form.description"
+              class="w-full"
+              :rows="3"
+              autoresize
+              :maxrows="5"
+            />
+          </UFormField>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <UFormField label="标签" hint="最多 6 个">
+              <UInputTags
+                v-model="form.tags"
+                class="w-full"
+                :max="6"
+                placeholder="输入后回车"
+              />
+            </UFormField>
+            <UFormField label="搜索关键词" hint="最多 12 个">
+              <UInputTags
+                v-model="form.keywords"
+                class="w-full"
+                :max="12"
+                placeholder="输入后回车"
+              />
+            </UFormField>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-3">
+            <UFormField label="类型">
+              <USelect
+                v-model="form.kind"
+                :items="kindItems"
+                value-key="value"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="状态">
+              <USelect
+                v-model="form.status"
+                :items="statusItems"
+                value-key="value"
+                class="w-full"
+              />
+            </UFormField>
+            <UFormField label="排序">
+              <UInputNumber v-model="form.sortOrder" class="w-full" :min="0" />
+            </UFormField>
+          </div>
+
+          <USwitch v-model="form.featured" label="加入首页精选" />
+
+          <UAlert
+            v-if="saveError"
+            color="error"
+            icon="i-tabler-alert-circle"
+            title="未能保存站点"
+            :description="saveError"
+          />
+
+          <div
+            class="flex flex-col-reverse gap-2 border-t border-default pt-5 sm:flex-row sm:items-center"
+          >
+            <UButton
+              v-if="link"
+              type="button"
+              label="删除站点"
+              icon="i-tabler-trash"
+              color="error"
+              variant="ghost"
+              :disabled="saving"
+              @click="openDelete"
+            />
+            <div class="ml-auto flex justify-end gap-2">
+              <UButton
+                label="取消"
+                color="neutral"
+                variant="outline"
+                :disabled="saving"
+                @click="
+                  () => {
+                    open = false;
+                  }
+                "
+              />
+              <ActionFeedbackButton
+                type="submit"
+                :status="saveStatus"
+                idle-label="保存"
+                pending-label="保存中"
+                :success-label="link ? '已更新' : '已添加'"
+                error-label="重试保存"
+              />
+            </div>
+          </div>
+        </UForm>
+      </template>
     </UModal>
 
     <UModal

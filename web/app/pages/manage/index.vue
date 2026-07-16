@@ -313,241 +313,249 @@ async function executeBatch() {
     />
 
     <ManageClientBoundary :rows="6">
-    <div class="space-y-5" :inert="batchBusy" :aria-busy="batchBusy">
-      <ManageLifecycleTabs v-model="status" :items="tabs" />
+      <div class="space-y-5" :inert="batchBusy" :aria-busy="batchBusy">
+        <ManageLifecycleTabs v-model="status" :items="tabs" />
 
-      <ManageCollectionToolbar
-        v-model:search="searchInput"
-        search-placeholder="搜索名称、网址或简介…"
-        :filter-count="activeFilters.length"
-      >
-        <template #filters>
-          <USelectMenu
-            v-model="categoryId"
-            :items="categoryItems"
-            value-key="value"
-            :search-input="{ placeholder: '搜索分类…' }"
-            icon="i-tabler-folders"
-            size="sm"
-            aria-label="筛选分类"
-          />
-          <USelectMenu
-            v-model="groupId"
-            :items="groupItems"
-            value-key="value"
-            :search-input="{ placeholder: '搜索主题…' }"
-            icon="i-tabler-layout-list"
-            size="sm"
-            aria-label="筛选主题"
-          />
-          <USelectMenu
-            v-model="tag"
-            :items="tagItems"
-            value-key="value"
-            :search-input="{ placeholder: '搜索标签…' }"
-            icon="i-tabler-hash"
-            size="sm"
-            aria-label="筛选标签"
-          />
-          <USelect
-            v-model="sort"
-            :items="sortItems"
-            value-key="value"
-            icon="i-tabler-arrows-sort"
-            size="sm"
-            aria-label="排序字段"
-          />
-          <ManageSortDirectionButton v-model="direction" />
-        </template>
-      </ManageCollectionToolbar>
-
-      <ManageActiveFilters
-        :items="activeFilters"
-        @remove="removeFilter"
-        @clear="clearFilters"
-      />
-
-      <UAlert
-        v-if="error && !links.length"
-        color="error"
-        icon="i-tabler-alert-circle"
-        title="站点列表加载失败"
-        description="请确认 Nav API、数据库和登录状态正常。"
-      >
-        <template #actions
-          ><UButton
-            label="重试"
-            color="error"
-            variant="soft"
-            size="sm"
-            @click="() => refresh()"
-        /></template>
-      </UAlert>
-      <SkeletonList v-else-if="pending" :rows="6" />
-      <ManageEmpty
-        v-else-if="!links.length"
-        icon="i-tabler-world-off"
-        :text="
-          q || activeFilters.length ? '没有匹配的站点' : '这个状态下还没有站点'
-        "
-      />
-
-      <div
-        v-else
-        class="overflow-hidden rounded-xl border border-default bg-default"
-      >
-        <ManageRowShell
-          v-for="link in links"
-          :key="link.id"
-          :selected="isSelected(link.id)"
-          :selection-disabled="batchBusy || !isAdmin"
-          :selection-label="`选择站点：${link.title}`"
-          @select="toggleOne(link.id)"
+        <ManageCollectionToolbar
+          v-model:search="searchInput"
+          search-placeholder="搜索名称、网址或简介…"
+          :filter-count="activeFilters.length"
         >
-          <template #media>
-            <span
-              class="grid size-12 place-items-center rounded-lg bg-primary/10 font-display font-semibold text-primary"
-              >{{ link.title.slice(0, 1) }}</span
-            >
-          </template>
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                class="truncate text-left text-sm font-semibold text-highlighted hover:text-primary disabled:cursor-default disabled:hover:text-highlighted"
-                :disabled="!isAdmin"
-                @click="openEdit(link)"
-              >
-                {{ link.title }}
-              </button>
-              <UBadge
-                v-if="link.featured"
-                label="精选"
-                color="primary"
-                variant="subtle"
-                size="sm"
-              />
-            </div>
-            <p class="mt-0.5 truncate text-xs text-muted">{{ link.url }}</p>
-            <p class="mt-1 line-clamp-1 text-sm text-toned">
-              {{ link.description }}
-            </p>
-            <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
-              <span class="text-xs text-muted">{{ categoryLabel(link) }}</span>
-              <ManageTaxonomyChips
-                :items="
-                  link.tags.map((item) => ({
-                    key: item,
-                    label: item,
-                    kind: 'tag',
-                  }))
-                "
-              />
-            </div>
-          </div>
-          <template #meta>
-            <div class="text-xs md:w-36 md:text-right">
-              <ClientOnly>
-                <p class="text-muted">
-                  {{
-                    link.updatedAt ? `更新 ${rel(link.updatedAt)}` : "尚未更新"
-                  }}
-                </p>
-                <p class="mt-1 text-dimmed">
-                  {{
-                    link.publishedAt
-                      ? `发布 ${rel(link.publishedAt)}`
-                      : "尚未发布"
-                  }}
-                </p>
-                <template #fallback><p class="text-dimmed">…</p></template>
-              </ClientOnly>
-            </div>
-          </template>
-          <template #actions>
-            <UTooltip text="打开站点"
-              ><UButton
-                :to="link.url"
-                external
-                target="_blank"
-                icon="i-tabler-external-link"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`打开 ${link.title}`"
-            /></UTooltip>
-            <UTooltip text="编辑"
-              ><UButton
-                icon="i-tabler-pencil"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`编辑 ${link.title}`"
-                :disabled="!isAdmin"
-                @click="openEdit(link)"
-            /></UTooltip>
-          </template>
-        </ManageRowShell>
-      </div>
-
-      <ManageCollectionFooter
-        v-if="total > 0 || links.length"
-        v-model:page="page"
-        v-model:size="size"
-        :total="total"
-        :total-pages="totalPages"
-        :page-size-options="[15, 30, 60]"
-        label="站点选择、批量操作与分页"
-      >
-        <template #selection>
-          <ManagePageSelection
-            :model-value="isPageSelected"
-            :indeterminate="isPageIndeterminate"
-            :disabled="batchBusy || !isAdmin"
-            label="选择当前页站点"
-            @update:model-value="togglePage"
-          />
-          <span
-            v-if="batchMessage"
-            class="rounded-lg bg-elevated px-2.5 py-1.5 text-xs text-default"
-            >{{ batchMessage }}</span
-          >
-          <template v-if="selectionCount">
-            <span class="text-sm text-default">已选 {{ selectionCount }}</span>
-            <USelect
-              v-model="batchAction"
-              :items="batchItems"
+          <template #filters>
+            <USelectMenu
+              v-model="categoryId"
+              :items="categoryItems"
               value-key="value"
-              placeholder="批量操作"
+              :search-input="{ placeholder: '搜索分类…' }"
+              icon="i-tabler-folders"
               size="sm"
-              class="w-28"
-              :disabled="batchBusy || !isAdmin"
-              aria-label="批量操作"
+              aria-label="筛选分类"
             />
-            <UButton
-              label="应用"
+            <USelectMenu
+              v-model="groupId"
+              :items="groupItems"
+              value-key="value"
+              :search-input="{ placeholder: '搜索主题…' }"
+              icon="i-tabler-layout-list"
               size="sm"
-              color="primary"
-              variant="soft"
-              :disabled="!batchAction"
-              :loading="batchBusy"
-              @click="applyBatch"
+              aria-label="筛选主题"
             />
-            <UButton
-              label="取消"
+            <USelectMenu
+              v-model="tag"
+              :items="tagItems"
+              value-key="value"
+              :search-input="{ placeholder: '搜索标签…' }"
+              icon="i-tabler-hash"
               size="sm"
-              color="neutral"
-              variant="ghost"
-              :disabled="batchBusy"
-              @click="clearSelection"
+              aria-label="筛选标签"
             />
+            <USelect
+              v-model="sort"
+              :items="sortItems"
+              value-key="value"
+              icon="i-tabler-arrows-sort"
+              size="sm"
+              aria-label="排序字段"
+            />
+            <ManageSortDirectionButton v-model="direction" />
           </template>
-          <span v-else class="text-xs">共 {{ total }} 个站点</span>
-        </template>
-      </ManageCollectionFooter>
-    </div>
+        </ManageCollectionToolbar>
+
+        <ManageActiveFilters
+          :items="activeFilters"
+          @remove="removeFilter"
+          @clear="clearFilters"
+        />
+
+        <UAlert
+          v-if="error && !links.length"
+          color="error"
+          icon="i-tabler-alert-circle"
+          title="站点列表加载失败"
+          description="请确认 Nav API、数据库和登录状态正常。"
+        >
+          <template #actions
+            ><UButton
+              label="重试"
+              color="error"
+              variant="soft"
+              size="sm"
+              @click="() => refresh()"
+          /></template>
+        </UAlert>
+        <SkeletonList v-else-if="pending" :rows="6" />
+        <ManageEmpty
+          v-else-if="!links.length"
+          icon="i-tabler-world-off"
+          :text="
+            q || activeFilters.length
+              ? '没有匹配的站点'
+              : '这个状态下还没有站点'
+          "
+        />
+
+        <div
+          v-else
+          class="overflow-hidden rounded-xl border border-default bg-default"
+        >
+          <ManageRowShell
+            v-for="link in links"
+            :key="link.id"
+            :selected="isSelected(link.id)"
+            :selection-disabled="batchBusy || !isAdmin"
+            :selection-label="`选择站点：${link.title}`"
+            @select="toggleOne(link.id)"
+          >
+            <template #media>
+              <span
+                class="grid size-12 place-items-center rounded-lg bg-primary/10 font-display font-semibold text-primary"
+                >{{ link.title.slice(0, 1) }}</span
+              >
+            </template>
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  class="truncate text-left text-sm font-semibold text-highlighted hover:text-primary disabled:cursor-default disabled:hover:text-highlighted"
+                  :disabled="!isAdmin"
+                  @click="openEdit(link)"
+                >
+                  {{ link.title }}
+                </button>
+                <UBadge
+                  v-if="link.featured"
+                  label="精选"
+                  color="primary"
+                  variant="subtle"
+                  size="sm"
+                />
+              </div>
+              <p class="mt-0.5 truncate text-xs text-muted">{{ link.url }}</p>
+              <p class="mt-1 line-clamp-1 text-sm text-toned">
+                {{ link.description }}
+              </p>
+              <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <span class="text-xs text-muted">{{
+                  categoryLabel(link)
+                }}</span>
+                <ManageTaxonomyChips
+                  :items="
+                    link.tags.map((item) => ({
+                      key: item,
+                      label: item,
+                      kind: 'tag',
+                    }))
+                  "
+                />
+              </div>
+            </div>
+            <template #meta>
+              <div class="text-xs md:w-36 md:text-right">
+                <ClientOnly>
+                  <p class="text-muted">
+                    {{
+                      link.updatedAt
+                        ? `更新 ${rel(link.updatedAt)}`
+                        : "尚未更新"
+                    }}
+                  </p>
+                  <p class="mt-1 text-dimmed">
+                    {{
+                      link.publishedAt
+                        ? `发布 ${rel(link.publishedAt)}`
+                        : "尚未发布"
+                    }}
+                  </p>
+                  <template #fallback><p class="text-dimmed">…</p></template>
+                </ClientOnly>
+              </div>
+            </template>
+            <template #actions>
+              <UTooltip text="打开站点"
+                ><UButton
+                  :to="link.url"
+                  external
+                  target="_blank"
+                  icon="i-tabler-external-link"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  square
+                  :aria-label="`打开 ${link.title}`"
+              /></UTooltip>
+              <UTooltip text="编辑"
+                ><UButton
+                  icon="i-tabler-pencil"
+                  color="neutral"
+                  variant="ghost"
+                  size="sm"
+                  square
+                  :aria-label="`编辑 ${link.title}`"
+                  :disabled="!isAdmin"
+                  @click="openEdit(link)"
+              /></UTooltip>
+            </template>
+          </ManageRowShell>
+        </div>
+
+        <ManageCollectionFooter
+          v-if="total > 0 || links.length"
+          v-model:page="page"
+          v-model:size="size"
+          :total="total"
+          :total-pages="totalPages"
+          :page-size-options="[15, 30, 60]"
+          label="站点选择、批量操作与分页"
+        >
+          <template #selection>
+            <ManagePageSelection
+              :model-value="isPageSelected"
+              :indeterminate="isPageIndeterminate"
+              :disabled="batchBusy || !isAdmin"
+              label="选择当前页站点"
+              @update:model-value="togglePage"
+            />
+            <span
+              v-if="batchMessage"
+              class="rounded-lg bg-elevated px-2.5 py-1.5 text-xs text-default"
+              >{{ batchMessage }}</span
+            >
+            <template v-if="selectionCount">
+              <span class="text-sm text-default"
+                >已选 {{ selectionCount }}</span
+              >
+              <USelect
+                v-model="batchAction"
+                :items="batchItems"
+                value-key="value"
+                placeholder="批量操作"
+                size="sm"
+                class="w-28"
+                :disabled="batchBusy || !isAdmin"
+                aria-label="批量操作"
+              />
+              <UButton
+                label="应用"
+                size="sm"
+                color="primary"
+                variant="soft"
+                :disabled="!batchAction"
+                :loading="batchBusy"
+                @click="applyBatch"
+              />
+              <UButton
+                label="取消"
+                size="sm"
+                color="neutral"
+                variant="ghost"
+                :disabled="batchBusy"
+                @click="clearSelection"
+              />
+            </template>
+            <span v-else class="text-xs">共 {{ total }} 个站点</span>
+          </template>
+        </ManageCollectionFooter>
+      </div>
     </ManageClientBoundary>
 
     <NavigationLinkEditor

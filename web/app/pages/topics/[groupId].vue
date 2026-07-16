@@ -17,11 +17,28 @@ const sortItems = [
   { label: "最受欢迎", value: "popular", icon: "i-tabler-flame" },
 ];
 
-const { data, status, error, refresh } =
-  await useFetch<NavigationGroupResponse>(
-    () => `/api/topics/${encodeURIComponent(groupId.value)}`,
-    { query: { page, size, sort }, watch: [groupId, page, size, sort] },
-  );
+type TopicPayload = NavigationGroupResponse | { missing: true };
+
+const {
+  data: payload,
+  status,
+  error,
+  refresh,
+} = await useFetch<TopicPayload>(
+  () => `/api/topics/${encodeURIComponent(groupId.value)}`,
+  { query: { page, size, sort }, watch: [groupId, page, size, sort] },
+);
+const missing = computed(() =>
+  Boolean(payload.value && "missing" in payload.value),
+);
+const data = computed<NavigationGroupResponse | undefined>(() => {
+  const value = payload.value;
+  return value && !("missing" in value) ? value : undefined;
+});
+if (import.meta.server) {
+  if (missing.value) setResponseStatus(404);
+  else if (error.value) setResponseStatus(502);
+}
 const totalPages = computed(() =>
   Math.max(1, Math.ceil((data.value?.total ?? 0) / size.value)),
 );
@@ -100,7 +117,7 @@ useSeoMeta({
     </header>
 
     <UAlert
-      v-if="error"
+      v-if="error || missing"
       color="error"
       icon="i-tabler-alert-circle"
       title="主题加载失败"

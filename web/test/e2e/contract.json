@@ -1,0 +1,55 @@
+{
+  "$schema": "../../../../../tests/e2e/contract.schema.json",
+  "version": 1,
+  "public": { "path": "/", "readySelector": "main" },
+  "manage": {
+    "path": "/manage",
+    "heading": "站点管理",
+    "readySelector": "main h1",
+    "settings": { "path": "/manage/settings", "fieldLabel": "导航名称" },
+    "views": []
+  },
+  "empty": {
+    "path": "/manage?q=__platform_e2e_missing__",
+    "text": "没有匹配的站点",
+    "authenticated": true
+  },
+  "error": {
+    "path": "/topics/__platform_e2e_missing__",
+    "status": 404,
+    "text": "主题加载失败"
+  },
+  "visual": {
+    "managePath": "/manage",
+    "scenarios": [
+      {
+        "key": "settings",
+        "path": "/manage/settings",
+        "readySelector": "main h1",
+        "authenticated": true,
+        "viewports": ["mobile", "desktop"]
+      },
+      {
+        "key": "classification",
+        "path": "/manage/categories",
+        "readySelector": "main h1",
+        "authenticated": true,
+        "viewports": ["mobile", "desktop"]
+      },
+      {
+        "key": "empty",
+        "path": "/manage?q=__platform_e2e_missing__",
+        "readySelector": "text=没有匹配的站点",
+        "authenticated": true,
+        "viewports": ["mobile", "desktop"]
+      },
+      {
+        "key": "error",
+        "path": "/topics/__platform_e2e_missing__",
+        "readySelector": "text=主题加载失败",
+        "status": 404,
+        "viewports": ["mobile", "desktop"]
+      }
+    ]
+  }
+}
