@@ -8,7 +8,7 @@ import (
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 
-	"platform/gokit/authjwt"
+	"platform/gokit/authsetup"
 	"platform/gokit/observability"
 	"platform/gokit/openapiexport"
 	"platform/products/nav/api/internal/appconfig"
@@ -38,11 +38,7 @@ func main() {
 
 	service := catalog.New(dao.NewPG(g.DB()), siteMeta(appconfig.SiteBrand(ctx)))
 	jwks := appconfig.LoadJWKS(ctx)
-	verifier, err := authjwt.NewVerifier(authjwt.VerifierConfig{
-		Keys:     authjwt.NewRemoteKeySource(jwks.URL),
-		Issuer:   jwks.Issuer,
-		Audience: jwks.Audience,
-	})
+	verifier, err := authsetup.NewRemoteVerifier(authsetup.RemoteVerifierConfig{JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience})
 	if err != nil {
 		panic(err)
 	}

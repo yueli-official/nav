@@ -3,7 +3,8 @@ package server
 import (
 	"github.com/gogf/gf/v2/net/ghttp"
 
-	"platform/gokit/authjwt"
+	foundationauth "github.com/yueli-official/foundation/go/auth"
+	"platform/gokit/authhttp"
 	"platform/gokit/ghttpx"
 	"platform/gokit/healthcheck"
 	"platform/products/nav/api/internal/catalog"
@@ -11,7 +12,7 @@ import (
 )
 
 type Deps struct {
-	Verifier    *authjwt.Verifier
+	Verifier    *foundationauth.Verifier
 	Catalog     *catalog.Service
 	ReadyChecks map[string]healthcheck.Check
 }
@@ -35,7 +36,7 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.Bind(controller.NewPublic(deps.Catalog))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(ghttpx.Middleware, authjwt.Middleware(deps.Verifier))
+		group.Middleware(ghttpx.Middleware, authhttp.Required(deps.Verifier))
 		group.Bind(controller.NewAdmin(deps.Catalog))
 	})
 }
