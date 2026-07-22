@@ -1,12 +1,16 @@
 <script setup lang="ts">
+import { ManageClientBoundary } from "@platform/manage/components";
 import {
-  ManageClientBoundary,
-  ManageSaveDock,
-  ManageSettingCard,
-  ManageSettingsLayout,
-} from "@platform/manage/components";
+  platformSettingsSaveMessages,
+  usePlatformSettingsProtection,
+} from "@platform/manage/settings";
 import { useActionFeedback } from "@platform/manage/use-action-feedback";
-import { useManageSettings } from "@platform/manage/use-manage-settings";
+import {
+  SettingSection,
+  SettingsLayout,
+  SettingsSaveDock,
+} from "@yueli/ui/settings/pattern";
+import { useVueSettingsWorkflow } from "@yueli/ui/settings/vue";
 import { z } from "zod";
 import type {
   NavigationSettingsResponse,
@@ -76,10 +80,11 @@ const {
   success: markSaved,
   reset: resetSave,
 } = useActionFeedback();
-const settingsState = useManageSettings({
+const settingsState = useVueSettingsWorkflow({
   snapshot: () => form,
   restore: (snapshot) => Object.assign(form, snapshot),
 });
+usePlatformSettingsProtection(() => settingsState.dirty.value);
 
 const { data, pending, error, refresh } = await useAsyncData(
   "nav-settings",
@@ -146,11 +151,12 @@ function discard() {
     @submit="save"
   >
     <ManageClientBoundary :rows="4">
-      <ManageSettingsLayout
+      <SettingsLayout
         v-model:active-section="section"
         :title="activeSection.label"
         :description="activeSection.description"
         :sections="sections"
+        navigation-label="设置分区"
       >
         <template #actions>
           <UButton
@@ -174,7 +180,7 @@ function discard() {
           />
         </template>
 
-        <ManageSettingCard
+        <SettingSection
           v-if="pending"
           title="正在加载设置"
           description="读取当前站点的已保存配置。"
@@ -184,7 +190,7 @@ function discard() {
             <USkeleton class="h-9 w-full" />
             <USkeleton class="h-24 w-full" />
           </div>
-        </ManageSettingCard>
+        </SettingSection>
 
         <UAlert
           v-else-if="error"
@@ -205,7 +211,7 @@ function discard() {
           </template>
         </UAlert>
 
-        <ManageSettingCard
+        <SettingSection
           v-else-if="section === 'site'"
           title="品牌与分享信息"
           description="这些内容用于公开页页头、浏览器标题和社交分享摘要。"
@@ -245,9 +251,9 @@ function discard() {
               />
             </UFormField>
           </div>
-        </ManageSettingCard>
+        </SettingSection>
 
-        <ManageSettingCard
+        <SettingSection
           v-else-if="section === 'featured'"
           title="本周值得逛"
           description="首页精选是内容治理能力，不在站点文案中维护。"
@@ -297,9 +303,9 @@ function discard() {
               />
             </div>
           </div>
-        </ManageSettingCard>
+        </SettingSection>
 
-        <ManageSettingCard
+        <SettingSection
           v-else-if="section === 'search'"
           title="全局搜索"
           description="搜索按钮、快捷键和首页精选区共用同一个搜索面板。"
@@ -333,9 +339,9 @@ function discard() {
               </div>
             </div>
           </div>
-        </ManageSettingCard>
+        </SettingSection>
 
-        <ManageSettingCard
+        <SettingSection
           v-else
           title="页脚说明"
           description="保持简短，说明这个导航站为什么存在。"
@@ -353,17 +359,19 @@ function discard() {
               class="w-full"
             />
           </UFormField>
-        </ManageSettingCard>
+        </SettingSection>
 
-        <ManageSaveDock
+        <SettingsSaveDock
           :dirty="settingsState.dirty.value"
           :status="saveStatus"
           :error="saveError"
           :disabled="!isAdmin"
+          :messages="platformSettingsSaveMessages"
+          dock-class="lg:left-60"
           @discard="discard"
           @save="submitSettings"
         />
-      </ManageSettingsLayout>
+      </SettingsLayout>
     </ManageClientBoundary>
   </UForm>
 </template>
