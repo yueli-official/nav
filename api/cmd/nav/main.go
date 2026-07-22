@@ -38,7 +38,10 @@ func main() {
 
 	service := catalog.New(dao.NewPG(g.DB()), siteMeta(appconfig.SiteBrand(ctx)))
 	jwks := appconfig.LoadJWKS(ctx)
-	verifier, err := authsetup.NewRemoteVerifier(authsetup.RemoteVerifierConfig{JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience})
+	verifier, err := authsetup.NewRemoteVerifier(authsetup.RemoteVerifierConfig{
+		JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience,
+		AllowLoopbackHTTP: jwks.AllowLoopbackHTTP,
+	})
 	if err != nil {
 		panic(err)
 	}
