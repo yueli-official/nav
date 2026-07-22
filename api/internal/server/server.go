@@ -18,13 +18,14 @@ type Deps struct {
 }
 
 func Configure(server *ghttp.Server, deps Deps) {
+	apiMiddleware := ghttpx.NewMiddleware(ghttpx.MustRateLimiterFromEnvironment(), ghttpx.ForwardedClientIPKey)
 	readyChecks := deps.ReadyChecks
 	if readyChecks == nil {
 		readyChecks = map[string]healthcheck.Check{"database": healthcheck.Database}
 	}
 	server.Use(ghttpx.TraceRouteMiddleware)
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(ghttpx.Middleware)
+		group.Middleware(apiMiddleware)
 		group.GET("/healthz", controller.Healthz)
 		group.GET("/readyz", healthcheck.Handler(readyChecks))
 	})
@@ -32,11 +33,11 @@ func Configure(server *ghttp.Server, deps Deps) {
 		return
 	}
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(ghttpx.Middleware)
+		group.Middleware(apiMiddleware)
 		group.Bind(controller.NewPublic(deps.Catalog))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(ghttpx.Middleware, authhttp.Required(deps.Verifier))
+		group.Middleware(apiMiddleware, authhttp.Required(deps.Verifier))
 		group.Bind(controller.NewAdmin(deps.Catalog))
 	})
 }

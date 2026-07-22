@@ -16,7 +16,7 @@ import (
 
 func TestReadinessSuccess(t *testing.T) {
 	status, body, _ := readinessResponse(t, func(context.Context) error { return nil })
-	if status != 200 || gjson.New(body).Get("data.status").String() != "ready" {
+	if status != 200 || gjson.New(body).Get("status").String() != "ready" {
 		t.Fatalf("status=%d body=%s", status, body)
 	}
 }

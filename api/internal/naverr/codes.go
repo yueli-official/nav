@@ -2,9 +2,10 @@ package naverr
 
 import (
 	"net/http"
+	"strings"
 
+	"github.com/yueli-official/foundation/go/problem"
 	"platform/gokit/errs"
-	"platform/gokit/response"
 )
 
 var (
@@ -28,7 +29,7 @@ func Forbidden() *errs.Coded {
 
 func Validation(field, code string, params map[string]any) *errs.Coded {
 	return errs.New(errs.CommonValidationFailed, "validation failed", map[string]any{
-		"details": []response.ValidationDetail{{Field: field, Code: code, Params: params}},
+		"details": []problem.Violation{{Pointer: "/" + strings.ReplaceAll(strings.ReplaceAll(field, "~", "~0"), "/", "~1"), Code: "validation." + code, Params: problem.Parameters(params)}},
 	})
 }
 
