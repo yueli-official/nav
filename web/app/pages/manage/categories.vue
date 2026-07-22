@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { PageHeader } from '@yueli/ui/dashboard/pattern'
 import {
   ManageClientBoundary,
   ManageCollectionToolbar,
   ManageEmpty,
-  ManageHeader,
   ManageIconPicker,
   SkeletonList,
 } from "@platform/manage/components";
@@ -187,7 +187,7 @@ async function remove() {
 
 <template>
   <div class="space-y-6">
-    <ManageHeader title="分类与主题">
+    <PageHeader title="分类与主题">
       <template #subtitle
         >维护前台左侧导航结构；分类是一级入口，主题用于组织同类站点。</template
       >
@@ -198,7 +198,7 @@ async function remove() {
           :disabled="!isAdmin"
           @click="openCategory()"
       /></template>
-    </ManageHeader>
+    </PageHeader>
     <UAlert
       v-if="!isAdmin"
       color="warning"

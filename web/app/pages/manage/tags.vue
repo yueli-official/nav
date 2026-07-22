@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { PageHeader } from '@yueli/ui/dashboard/pattern'
 import {
   ManageClientBoundary,
   ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
-  ManageHeader,
   SkeletonList,
 } from "@platform/manage/components";
 import { z } from "zod";
@@ -128,11 +128,11 @@ async function remove() {
 
 <template>
   <div class="space-y-6">
-    <ManageHeader title="标签管理">
+    <PageHeader title="标签管理">
       <template #subtitle
         >标签从站点内容中产生；在这里统一重命名、合并重复词或解除关联。</template
       >
-    </ManageHeader>
+    </PageHeader>
     <UAlert
       v-if="!isAdmin"
       color="warning"

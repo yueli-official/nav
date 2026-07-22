@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { PageHeader } from '@yueli/ui/dashboard/pattern'
 import {
   ManageActiveFilters,
   ManageClientBoundary,
   ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
-  ManageHeader,
   ManageLifecycleTabs,
   ManagePageSelection,
   ManageRowShell,
@@ -287,7 +287,7 @@ async function executeBatch() {
 
 <template>
   <div class="space-y-6">
-    <ManageHeader title="站点管理">
+    <PageHeader title="站点管理">
       <template #subtitle>
         已登录：<span class="text-default">{{
           user?.name || user?.email
@@ -302,7 +302,7 @@ async function executeBatch() {
           @click="openCreate"
         />
       </template>
-    </ManageHeader>
+    </PageHeader>
 
     <UAlert
       v-if="!isAdmin"

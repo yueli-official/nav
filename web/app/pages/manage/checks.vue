@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { PageHeader } from '@yueli/ui/dashboard/pattern'
 import {
   ManageClientBoundary,
   ManageCollectionFooter,
   ManageCollectionToolbar,
   ManageEmpty,
-  ManageHeader,
   ManagePageSelection,
   ManageTabs,
   SkeletonList,
@@ -177,7 +177,7 @@ async function runChecks() {
 
 <template>
   <div class="space-y-6">
-    <ManageHeader title="站点检查">
+    <PageHeader title="站点检查">
       <template #subtitle
         >定期验证站点可访问性；异常结果集中在“待处理”，便于修正或归档。</template
       >
@@ -190,7 +190,7 @@ async function runChecks() {
           @click="runChecks"
         />
       </template>
-    </ManageHeader>
+    </PageHeader>
 
     <ManageClientBoundary :rows="8">
       <ManageTabs v-model="health" :items="tabs" />
