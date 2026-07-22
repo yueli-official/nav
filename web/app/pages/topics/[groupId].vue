@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ManagePagination } from "@platform/manage/components";
+import { CollectionPagination } from "@yueli/ui/collection/pattern";
 import type {
   NavigationGroupResponse,
   NavigationResult,
@@ -157,7 +157,7 @@ useSeoMeta({
         v-if="totalPages > 1"
         class="flex justify-center border-t border-default pt-7"
       >
-        <ManagePagination v-model="page" :total-pages="totalPages" />
+        <CollectionPagination v-model="page" :total-pages="totalPages" />
       </div>
     </template>
   </div>

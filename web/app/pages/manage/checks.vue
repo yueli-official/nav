@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { PageHeader } from '@yueli/ui/dashboard/pattern'
+import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
-  ManageCollectionFooter,
-  ManageCollectionToolbar,
   ManageEmpty,
-  ManagePageSelection,
   ManageTabs,
   SkeletonList,
 } from "@platform/manage/components";
+import {
+  CollectionFooter,
+  CollectionPageSelection,
+  CollectionToolbar,
+} from "@yueli/ui/collection/pattern";
 import type {
   NavigationChecksResponse,
   NavigationHealthCounts,
@@ -194,7 +196,7 @@ async function runChecks() {
 
     <ManageClientBoundary :rows="8">
       <ManageTabs v-model="health" :items="tabs" />
-      <ManageCollectionToolbar
+      <CollectionToolbar
         v-model:search="search"
         search-placeholder="搜索站点名称、地址或描述…"
       >
@@ -206,7 +208,7 @@ async function runChecks() {
             aria-label="刷新检查结果"
             @click="refresh()"
         /></template>
-      </ManageCollectionToolbar>
+      </CollectionToolbar>
       <UAlert
         v-if="checkMessage"
         color="neutral"
@@ -296,7 +298,7 @@ async function runChecks() {
         </article>
       </div>
 
-      <ManageCollectionFooter
+      <CollectionFooter
         v-if="total"
         v-model:page="page"
         v-model:size="size"
@@ -305,7 +307,7 @@ async function runChecks() {
         label="检查选择与分页"
       >
         <template #selection>
-          <ManagePageSelection
+          <CollectionPageSelection
             :model-value="isPageSelected"
             :indeterminate="isPageIndeterminate"
             label="选择当前页站点"
@@ -317,7 +319,7 @@ async function runChecks() {
               : `共 ${total} 项；未选择时检查全部筛选结果`
           }}</span>
         </template>
-      </ManageCollectionFooter>
+      </CollectionFooter>
     </ManageClientBoundary>
   </div>
 </template>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { PageHeader } from '@yueli/ui/dashboard/pattern'
+import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
-  ManageCollectionToolbar,
   ManageEmpty,
   ManageIconPicker,
   SkeletonList,
 } from "@platform/manage/components";
+import { CollectionToolbar } from "@yueli/ui/collection/pattern";
 import { z } from "zod";
 import type {
   NavigationCategory,
@@ -208,7 +208,7 @@ async function remove() {
     />
 
     <ManageClientBoundary :rows="6">
-      <ManageCollectionToolbar
+      <CollectionToolbar
         v-model:search="search"
         search-placeholder="搜索分类、主题或描述…"
       />

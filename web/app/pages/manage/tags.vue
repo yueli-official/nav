@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { PageHeader } from '@yueli/ui/dashboard/pattern'
+import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
-  ManageCollectionFooter,
-  ManageCollectionToolbar,
   ManageEmpty,
   SkeletonList,
 } from "@platform/manage/components";
+import {
+  CollectionFooter,
+  CollectionToolbar,
+} from "@yueli/ui/collection/pattern";
 import { z } from "zod";
 import type { NavigationTag, NavigationTagsResponse } from "~/types/navigation";
 
@@ -142,7 +144,7 @@ async function remove() {
     />
 
     <ManageClientBoundary :rows="6">
-      <ManageCollectionToolbar
+      <CollectionToolbar
         v-model:search="search"
         search-placeholder="搜索标签名称…"
       />
@@ -206,7 +208,7 @@ async function remove() {
         </article>
       </div>
 
-      <ManageCollectionFooter
+      <CollectionFooter
         v-if="tags.length"
         v-model:page="page"
         v-model:size="size"
@@ -217,7 +219,7 @@ async function remove() {
         <template #selection
           ><span class="text-xs">共 {{ tags.length }} 个标签</span></template
         >
-      </ManageCollectionFooter>
+      </CollectionFooter>
     </ManageClientBoundary>
 
     <USlideover v-model:open="panelOpen" title="重命名或合并标签">

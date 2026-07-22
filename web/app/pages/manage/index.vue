@@ -1,25 +1,21 @@
 <script setup lang="ts">
-import { PageHeader } from '@yueli/ui/dashboard/pattern'
+import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
-  ManageActiveFilters,
   ManageClientBoundary,
-  ManageCollectionFooter,
-  ManageCollectionToolbar,
-  ManageEmpty,
-  ManageLifecycleTabs,
-  ManagePageSelection,
-  ManageRowShell,
-  ManageSortDirectionButton,
   ManageTaxonomyChips,
-  SkeletonList,
 } from "@platform/manage/components";
 import {
-  manageCollectionQueryFingerprint,
-  serializeManageCollectionQuery,
-  type ManageCollectionDefinition,
-} from "@platform/manage/collection";
-import { useManageCollectionState } from "@platform/manage/use-manage-collection-state";
-import { useManageSelection } from "@platform/manage/use-manage-selection";
+  createCollectionRouteQueryCodec,
+  createJsonCollectionQueryPolicy,
+  type CollectionControl,
+  type CollectionControlValue,
+  type CollectionPanelMessages,
+  type CollectionPanelState,
+  type CollectionWorkflow,
+} from "@yueli/ui/collection";
+import { useVueCollectionWorkflow } from "@yueli/ui/collection/vue";
+import { createVueRouterCollectionQuerySync } from "@yueli/ui/collection/vue-router";
+import { CollectionPanel } from "@yueli/ui/collection/pattern";
 import { rel } from "@platform/ui/date";
 import type {
   AdminNavigationLink,
@@ -38,89 +34,195 @@ const emptyCounts: NavigationLifecycleCounts = {
   draft: 0,
   archived: 0,
 };
-const collectionDefinition = {
-  resourceKind: "navigation-link",
-  statuses: ["", "published", "draft", "archived"],
-  views: ["list"],
-  sortKeys: ["updated", "title", "published", "default"],
-  pageSizes: [15, 30, 60],
-  defaultStatus: "",
-  defaultView: "list",
-  defaultSort: "updated",
-  defaultDirection: "desc",
-  defaultPageSize: 15,
-  pagination: "server",
-  selection: "page",
-  filters: ["category", "group", "tag"],
-  quickEditFields: ["title", "url", "status", "category", "group", "tags"],
-  bulkActions: ["publish", "draft", "archive", "delete"],
-} as const satisfies ManageCollectionDefinition;
-
 const { isAdmin, user } = useAuth();
 const { call } = useApi();
-const route = useRoute();
 const router = useRouter();
-const {
-  status,
-  searchInput,
-  q,
-  page,
-  size,
-  sort,
-  direction,
-  state: collectionState,
-  filterModel,
-} = useManageCollectionState({
-  definition: collectionDefinition,
-  routeQuery: computed(() => route.query),
-  replaceQuery: (query) => router.replace({ query }),
-});
-
-const categoryId = filterModel("category", ALL);
-const groupId = filterModel("group", ALL);
-const tag = filterModel("tag", ALL);
-const editorOpen = ref(false);
-const editingLink = ref<AdminNavigationLink>();
-const { data, pending, error, refresh } = await useAsyncData(
-  "admin-navigation-links",
-  () =>
-    call<AdminNavigationResponse>("/api/v1/admin/nav/links", {
-      query: {
-        q: q.value || undefined,
-        status: status.value || undefined,
-        categoryId: categoryId.value === ALL ? undefined : categoryId.value,
-        groupId: groupId.value === ALL ? undefined : groupId.value,
-        tag: tag.value === ALL ? undefined : tag.value,
-        sort: sort.value,
-        direction: direction.value,
-        page: page.value,
-        size: size.value,
+type LinkStatus = "" | "published" | "draft" | "archived";
+type LinkSort = "updated" | "title" | "published" | "default";
+type LinkDirection = "asc" | "desc";
+interface LinkCollectionQuery {
+  q: string;
+  status: LinkStatus;
+  page: number;
+  size: number;
+  sort: LinkSort;
+  direction: LinkDirection;
+  category: string;
+  group: string;
+  tag: string;
+}
+const statuses = ["", "published", "draft", "archived"] as const;
+const sorts = ["updated", "title", "published", "default"] as const;
+const directions = ["asc", "desc"] as const;
+const pageSizes = [15, 30, 60] as const;
+const defaultQuery: LinkCollectionQuery = {
+  q: "",
+  status: "",
+  page: 1,
+  size: 15,
+  sort: "updated",
+  direction: "desc",
+  category: ALL,
+  group: ALL,
+  tag: ALL,
+};
+const categories = ref<NavigationCategory[]>([]);
+const tags = ref<AdminNavigationResponse["tags"]>([]);
+const counts = ref<NavigationLifecycleCounts>(emptyCounts);
+async function loadLinks(
+  nextQuery: Readonly<LinkCollectionQuery>,
+  activeWorkflow: CollectionWorkflow<
+    AdminNavigationLink,
+    string,
+    LinkCollectionQuery
+  >,
+) {
+  const token = activeWorkflow.beginLoad();
+  try {
+    const data = await call<AdminNavigationResponse>(
+      "/api/v1/admin/nav/links",
+      {
+        query: {
+          q: nextQuery.q || undefined,
+          status: nextQuery.status || undefined,
+          categoryId:
+            nextQuery.category === ALL ? undefined : nextQuery.category,
+          groupId: nextQuery.group === ALL ? undefined : nextQuery.group,
+          tag: nextQuery.tag === ALL ? undefined : nextQuery.tag,
+          sort: nextQuery.sort,
+          direction: nextQuery.direction,
+          page: nextQuery.page,
+          size: nextQuery.size,
+        },
       },
-    }),
-  {
-    server: false,
-    watch: [q, status, categoryId, groupId, tag, sort, direction, page, size],
-    default: () => ({
-      links: [],
-      categories: [],
-      tags: [],
-      counts: emptyCounts,
-      total: 0,
-      page: 1,
-      size: 15,
-    }),
+    );
+    const lastPage = Math.max(1, Math.ceil(data.total / nextQuery.size));
+    if (nextQuery.page > lastPage) {
+      activeWorkflow.setQuery({ ...nextQuery, page: lastPage });
+      return;
+    }
+    categories.value = data.categories ?? [];
+    tags.value = data.tags ?? [];
+    counts.value = data.counts ?? emptyCounts;
+    activeWorkflow.resolveLoad(token, {
+      items: data.links ?? [],
+      total: data.total ?? 0,
+    });
+  } catch {
+    activeWorkflow.rejectLoad(token, {
+      key: "nav.links.collection.load_failed",
+    });
+  }
+}
+const querySync = createVueRouterCollectionQuerySync({
+  router,
+  codec: createCollectionRouteQueryCodec({
+    q: { kind: "string", default: defaultQuery.q, maxLength: 200 },
+    status: { kind: "enum", values: statuses, default: defaultQuery.status },
+    page: { kind: "positive-integer", default: defaultQuery.page },
+    size: {
+      kind: "positive-integer",
+      values: pageSizes,
+      default: defaultQuery.size,
+    },
+    sort: { kind: "enum", values: sorts, default: defaultQuery.sort },
+    direction: {
+      kind: "enum",
+      values: directions,
+      default: defaultQuery.direction,
+    },
+    category: {
+      kind: "string",
+      default: defaultQuery.category,
+      maxLength: 200,
+    },
+    group: { kind: "string", default: defaultQuery.group, maxLength: 200 },
+    tag: { kind: "string", default: defaultQuery.tag, maxLength: 200 },
+  }),
+});
+const {
+  snapshot: linkCollection,
+  workflow: linkWorkflow,
+  reload: refresh,
+} = useVueCollectionWorkflow({
+  initialQuery: defaultQuery,
+  queryPolicy: createJsonCollectionQueryPolicy<LinkCollectionQuery>(),
+  keyOf: (link: AdminNavigationLink) => link.id,
+  querySync,
+  dataQueryKey: (query) => JSON.stringify(query),
+  load: loadLinks,
+});
+const collectionQuery = computed(() => linkCollection.value.query);
+function updateCollectionQuery(
+  patch: Partial<LinkCollectionQuery>,
+  resetPage = true,
+) {
+  linkWorkflow.setQuery({
+    ...collectionQuery.value,
+    ...patch,
+    ...(resetPage ? { page: 1 } : {}),
+  });
+}
+const status = computed({
+  get: () => collectionQuery.value.status,
+  set: (value: LinkStatus) => updateCollectionQuery({ status: value }),
+});
+const page = computed({
+  get: () => collectionQuery.value.page,
+  set: (value: number) => updateCollectionQuery({ page: value }, false),
+});
+const size = computed({
+  get: () => collectionQuery.value.size,
+  set: (value: number) => updateCollectionQuery({ size: value }),
+});
+const sort = computed({
+  get: () => collectionQuery.value.sort,
+  set: (value: LinkSort) => updateCollectionQuery({ sort: value }),
+});
+const direction = computed({
+  get: () => collectionQuery.value.direction,
+  set: (value: LinkDirection) => updateCollectionQuery({ direction: value }),
+});
+const categoryId = computed({
+  get: () => collectionQuery.value.category,
+  set: (value: string) =>
+    updateCollectionQuery({ category: value, group: ALL }),
+});
+const groupId = computed({
+  get: () => collectionQuery.value.group,
+  set: (value: string) => updateCollectionQuery({ group: value }),
+});
+const tag = computed({
+  get: () => collectionQuery.value.tag,
+  set: (value: string) => updateCollectionQuery({ tag: value }),
+});
+const searchInput = ref(collectionQuery.value.q);
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+watch(searchInput, (value) => {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchTimer = setTimeout(
+    () => updateCollectionQuery({ q: value.trim() }),
+    300,
+  );
+});
+watch(
+  () => collectionQuery.value.q,
+  (value) => {
+    if (searchInput.value !== value) searchInput.value = value;
   },
 );
-
-const links = computed(() => data.value?.links ?? []);
-const categories = computed<NavigationCategory[]>(
-  () => data.value?.categories ?? [],
-);
-const total = computed(() => data.value?.total ?? 0);
-const counts = computed(() => data.value?.counts ?? emptyCounts);
-const totalPages = computed(() =>
-  Math.max(1, Math.ceil(total.value / size.value)),
-);
+onScopeDispose(() => {
+  if (searchTimer) clearTimeout(searchTimer);
+});
+function submitSearch(value: string) {
+  if (searchTimer) clearTimeout(searchTimer);
+  searchInput.value = value;
+  updateCollectionQuery({ q: value.trim() });
+}
+const editorOpen = ref(false);
+const editingLink = ref<AdminNavigationLink>();
+const links = computed(() => linkCollection.value.items);
+const total = computed(() => linkCollection.value.total);
 const selectedCategory = computed(() =>
   categories.value.find((item) => item.id === categoryId.value),
 );
@@ -137,7 +239,7 @@ const groupItems = computed(() => [
 ]);
 const tagItems = computed(() => [
   { label: "全部标签", value: ALL },
-  ...(data.value?.tags ?? []).map((item) => ({
+  ...tags.value.map((item) => ({
     label: `${item.name} · ${item.linkCount}`,
     value: item.name,
   })),
@@ -148,52 +250,12 @@ const sortItems = [
   { label: "发布日期", value: "published" },
   { label: "手动顺序", value: "default" },
 ];
-const tabs = computed(() => [
-  { key: "", label: "全部", count: counts.value.all },
-  { key: "published", label: "已发布", count: counts.value.published },
-  { key: "draft", label: "草稿", count: counts.value.draft },
-  { key: "archived", label: "归档", count: counts.value.archived },
-]);
 watch(categoryId, () => {
   if (!groupItems.value.some((item) => item.value === groupId.value))
     groupId.value = ALL;
 });
-watch(
-  totalPages,
-  (lastPage) => {
-    if (page.value > lastPage) page.value = lastPage;
-  },
-  { flush: "sync" },
-);
-
-const activeFilters = computed(() => [
-  ...(categoryId.value !== ALL
-    ? [
-        {
-          key: "category",
-          label: `分类：${categoryItems.value.find((item) => item.value === categoryId.value)?.label}`,
-        },
-      ]
-    : []),
-  ...(groupId.value !== ALL
-    ? [
-        {
-          key: "group",
-          label: `主题：${groupItems.value.find((item) => item.value === groupId.value)?.label}`,
-        },
-      ]
-    : []),
-  ...(tag.value !== ALL ? [{ key: "tag", label: `标签：${tag.value}` }] : []),
-]);
-function removeFilter(key: string) {
-  if (key === "category") categoryId.value = ALL;
-  if (key === "group") groupId.value = ALL;
-  if (key === "tag") tag.value = ALL;
-}
 function clearFilters() {
-  categoryId.value = ALL;
-  groupId.value = ALL;
-  tag.value = ALL;
+  updateCollectionQuery({ status: "", category: ALL, group: ALL, tag: ALL });
 }
 
 function categoryLabel(link: AdminNavigationLink) {
@@ -211,26 +273,143 @@ function openEdit(link: AdminNavigationLink) {
   editingLink.value = link;
   editorOpen.value = true;
 }
-const selectionResetKey = computed(() =>
-  manageCollectionQueryFingerprint(
-    serializeManageCollectionQuery(collectionState.value, collectionDefinition),
-  ),
+const selectedIds = computed<readonly string[]>(() =>
+  linkCollection.value.selection.mode === "keys"
+    ? linkCollection.value.selection.keys
+    : [],
 );
-const {
-  selectedIds,
-  selectionCount,
-  isPageSelected,
-  isPageIndeterminate,
-  isSelected,
-  toggleOne,
-  togglePage,
-  replace: replaceSelection,
-  clear: clearSelection,
-} = useManageSelection({
-  visibleIds: computed(() => links.value.map((link) => link.id)),
-  filteredTotal: total,
-  resetKey: selectionResetKey,
-});
+const selectionCount = computed(() => linkCollection.value.selection.count);
+const isPageSelected = computed(() => linkCollection.value.isPageSelected);
+const isPageIndeterminate = computed(
+  () => linkCollection.value.isPageIndeterminate,
+);
+function toggleOne(id: string) {
+  linkWorkflow.toggleKey(id);
+}
+function togglePage(selected: boolean) {
+  linkWorkflow.togglePage(selected);
+}
+function clearSelection() {
+  linkWorkflow.clearSelection();
+}
+function replaceSelection(ids: readonly string[]) {
+  linkWorkflow.clearSelection();
+  for (const id of ids) linkWorkflow.toggleKey(id);
+}
+const statusItems = computed(() => [
+  { value: "", label: `全部 · ${counts.value.all}` },
+  { value: "published", label: `已发布 · ${counts.value.published}` },
+  { value: "draft", label: `草稿 · ${counts.value.draft}` },
+  { value: "archived", label: `归档 · ${counts.value.archived}` },
+]);
+const controls = computed<CollectionControl[]>(() => [
+  {
+    kind: "select",
+    id: "status",
+    label: "状态",
+    value: status.value,
+    options: statusItems.value,
+    class: "w-32",
+  },
+  {
+    kind: "select",
+    id: "category",
+    label: "分类",
+    value: categoryId.value,
+    options: categoryItems.value,
+    searchPlaceholder: "搜索分类…",
+    icon: "i-tabler-folders",
+    class: "w-36",
+  },
+  {
+    kind: "select",
+    id: "group",
+    label: "主题",
+    value: groupId.value,
+    options: groupItems.value,
+    searchPlaceholder: "搜索主题…",
+    icon: "i-tabler-layout-list",
+    class: "w-36",
+  },
+  {
+    kind: "select",
+    id: "tag",
+    label: "标签",
+    value: tag.value,
+    options: tagItems.value,
+    searchPlaceholder: "搜索标签…",
+    icon: "i-tabler-hash",
+    class: "w-36",
+  },
+  {
+    kind: "select",
+    id: "sort",
+    label: "排序字段",
+    value: sort.value,
+    options: sortItems,
+    icon: "i-tabler-arrows-sort",
+    class: "w-32",
+  },
+  {
+    kind: "direction",
+    id: "direction",
+    label: "排序方向",
+    value: direction.value,
+    ascendingLabel: "切换为倒序",
+    descendingLabel: "切换为正序",
+  },
+]);
+const activeFilterCount = computed(
+  () =>
+    [
+      status.value !== "",
+      categoryId.value !== ALL,
+      groupId.value !== ALL,
+      tag.value !== ALL,
+    ].filter(Boolean).length,
+);
+function changeControl(id: string, value: CollectionControlValue) {
+  if (typeof value !== "string") return;
+  if (id === "status" && statuses.includes(value as LinkStatus))
+    status.value = value as LinkStatus;
+  if (id === "category") categoryId.value = value;
+  if (id === "group") groupId.value = value;
+  if (id === "tag") tag.value = value;
+  if (id === "sort" && sorts.includes(value as LinkSort))
+    sort.value = value as LinkSort;
+  if (id === "direction" && directions.includes(value as LinkDirection))
+    direction.value = value as LinkDirection;
+}
+const messages: CollectionPanelMessages = {
+  searchPlaceholder: "搜索名称、网址或简介…",
+  searchAction: "搜索",
+  filtersAction: "筛选",
+  activeFilters: (count) => `筛选（${count}）`,
+  clearFilters: "清除筛选",
+  selectPage: "选择当前页站点",
+  selectItem: (label) => `选择站点：${label}`,
+  bulkRegion: "站点批量操作",
+  selected: (count) => `已选择 ${count} 个站点`,
+  selectAllResults: "选择全部结果",
+  clearSelection: "取消选择",
+  emptyTitle: "没有匹配的站点",
+  emptyDescription: "请调整搜索或筛选条件后重试。",
+  errorTitle: "站点列表加载失败",
+  retry: "重新加载",
+  showing: (first, last, count) => `显示 ${first}–${last}，共 ${count} 个`,
+  pageSize: "每页",
+  pageSizeControl: "每页站点数量",
+  pageSizeOption: (value) => `${value} 个`,
+};
+const panelState = computed<CollectionPanelState>(() =>
+  linkCollection.value.issue
+    ? "error"
+    : ["idle", "loading", "refreshing"].includes(linkCollection.value.loadState)
+      ? "loading"
+      : "ready",
+);
+const linkKey = (link: AdminNavigationLink) => link.id;
+const linkLabel = (link: AdminNavigationLink) => link.title;
 const batchItems = [
   { label: "发布", value: "publish" },
   { label: "转为草稿", value: "draft" },
@@ -241,6 +420,9 @@ const batchAction = ref<string>();
 const batchBusy = ref(false);
 const batchMessage = ref("");
 const batchDeleteOpen = ref(false);
+function dismissBatchMessage() {
+  batchMessage.value = "";
+}
 async function applyBatch() {
   if (
     !isAdmin.value ||
@@ -313,146 +495,113 @@ async function executeBatch() {
     />
 
     <ManageClientBoundary :rows="6">
-      <div class="space-y-5" :inert="batchBusy" :aria-busy="batchBusy">
-        <ManageLifecycleTabs v-model="status" :items="tabs" />
-
-        <ManageCollectionToolbar
+      <div class="space-y-3" :inert="batchBusy" :aria-busy="batchBusy">
+        <CollectionPanel
           v-model:search="searchInput"
-          search-placeholder="搜索名称、网址或简介…"
-          :filter-count="activeFilters.length"
+          :items="links"
+          :item-key="linkKey"
+          :item-label="linkLabel"
+          :controls="controls"
+          :messages="messages"
+          :state="panelState"
+          error-message="请确认 Nav API、数据库和登录状态正常。"
+          :total="total"
+          :page="page"
+          :page-size="size"
+          :page-sizes="pageSizes"
+          :active-filter-count="activeFilterCount"
+          :selection-count="selectionCount"
+          :page-selected="isPageSelected"
+          :page-indeterminate="isPageIndeterminate"
+          :is-selected="linkWorkflow.isSelected"
+          :is-item-selectable="() => isAdmin && !batchBusy"
+          label="站点列表"
+          selectable
+          @search="submitSearch"
+          @control-change="changeControl"
+          @clear-filters="clearFilters"
+          @retry="refresh"
+          @toggle-page="togglePage"
+          @toggle-item="toggleOne"
+          @clear-selection="clearSelection"
+          @page-change="page = $event"
+          @page-size-change="size = $event"
         >
-          <template #filters>
-            <USelectMenu
-              v-model="categoryId"
-              :items="categoryItems"
-              value-key="value"
-              :search-input="{ placeholder: '搜索分类…' }"
-              icon="i-tabler-folders"
-              size="sm"
-              aria-label="筛选分类"
-            />
-            <USelectMenu
-              v-model="groupId"
-              :items="groupItems"
-              value-key="value"
-              :search-input="{ placeholder: '搜索主题…' }"
-              icon="i-tabler-layout-list"
-              size="sm"
-              aria-label="筛选主题"
-            />
-            <USelectMenu
-              v-model="tag"
-              :items="tagItems"
-              value-key="value"
-              :search-input="{ placeholder: '搜索标签…' }"
-              icon="i-tabler-hash"
-              size="sm"
-              aria-label="筛选标签"
-            />
-            <USelect
-              v-model="sort"
-              :items="sortItems"
-              value-key="value"
-              icon="i-tabler-arrows-sort"
-              size="sm"
-              aria-label="排序字段"
-            />
-            <ManageSortDirectionButton v-model="direction" />
+          <template #columns>
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
+              <span>站点、网址与分类</span
+              ><span class="hidden w-36 text-right md:block"
+                >更新时间与操作</span
+              >
+            </div>
           </template>
-        </ManageCollectionToolbar>
-
-        <ManageActiveFilters
-          :items="activeFilters"
-          @remove="removeFilter"
-          @clear="clearFilters"
-        />
-
-        <UAlert
-          v-if="error && !links.length"
-          color="error"
-          icon="i-tabler-alert-circle"
-          title="站点列表加载失败"
-          description="请确认 Nav API、数据库和登录状态正常。"
-        >
-          <template #actions
-            ><UButton
-              label="重试"
-              color="error"
+          <template #bulk-actions>
+            <USelect
+              v-model="batchAction"
+              :items="batchItems"
+              value-key="value"
+              placeholder="批量操作"
+              size="xs"
+              class="w-28"
+              :disabled="!isAdmin"
+            />
+            <UButton
+              label="应用"
+              size="xs"
+              color="primary"
               variant="soft"
-              size="sm"
-              @click="() => refresh()"
-          /></template>
-        </UAlert>
-        <SkeletonList v-else-if="pending" :rows="6" />
-        <ManageEmpty
-          v-else-if="!links.length"
-          icon="i-tabler-world-off"
-          :text="
-            q || activeFilters.length
-              ? '没有匹配的站点'
-              : '这个状态下还没有站点'
-          "
-        />
-
-        <div
-          v-else
-          class="overflow-hidden rounded-xl border border-default bg-default"
-        >
-          <ManageRowShell
-            v-for="link in links"
-            :key="link.id"
-            :selected="isSelected(link.id)"
-            :selection-disabled="batchBusy || !isAdmin"
-            :selection-label="`选择站点：${link.title}`"
-            @select="toggleOne(link.id)"
-          >
-            <template #media>
+              :disabled="!batchAction || !isAdmin"
+              :loading="batchBusy"
+              @click="applyBatch"
+            />
+          </template>
+          <template #item="{ item: link }">
+            <div
+              class="grid min-w-0 gap-3 sm:grid-cols-[3rem_minmax(0,1fr)] md:grid-cols-[3rem_minmax(0,1fr)_9rem_auto] md:items-center"
+            >
               <span
-                class="grid size-12 place-items-center rounded-lg bg-primary/10 font-display font-semibold text-primary"
+                class="hidden size-12 place-items-center rounded-lg bg-primary/10 font-display font-semibold text-primary sm:grid"
                 >{{ link.title.slice(0, 1) }}</span
               >
-            </template>
-            <div class="min-w-0">
-              <div class="flex flex-wrap items-center gap-2">
-                <button
-                  type="button"
-                  class="truncate text-left text-sm font-semibold text-highlighted hover:text-primary disabled:cursor-default disabled:hover:text-highlighted"
-                  :disabled="!isAdmin"
-                  @click="openEdit(link)"
-                >
-                  {{ link.title }}
-                </button>
-                <UBadge
-                  v-if="link.featured"
-                  label="精选"
-                  color="primary"
-                  variant="subtle"
-                  size="sm"
-                />
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    class="truncate text-left text-sm font-semibold text-highlighted hover:text-primary disabled:cursor-default"
+                    :disabled="!isAdmin"
+                    @click="openEdit(link)"
+                  >
+                    {{ link.title }}</button
+                  ><UBadge
+                    v-if="link.featured"
+                    label="精选"
+                    color="primary"
+                    variant="subtle"
+                    size="sm"
+                  />
+                </div>
+                <p class="mt-0.5 truncate text-xs text-muted">{{ link.url }}</p>
+                <p class="mt-1 line-clamp-1 text-sm text-toned">
+                  {{ link.description }}
+                </p>
+                <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <span class="text-xs text-muted">{{
+                    categoryLabel(link)
+                  }}</span
+                  ><ManageTaxonomyChips
+                    :items="
+                      link.tags.map((item) => ({
+                        key: item,
+                        label: item,
+                        kind: 'tag',
+                      }))
+                    "
+                  />
+                </div>
               </div>
-              <p class="mt-0.5 truncate text-xs text-muted">{{ link.url }}</p>
-              <p class="mt-1 line-clamp-1 text-sm text-toned">
-                {{ link.description }}
-              </p>
-              <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
-                <span class="text-xs text-muted">{{
-                  categoryLabel(link)
-                }}</span>
-                <ManageTaxonomyChips
-                  :items="
-                    link.tags.map((item) => ({
-                      key: item,
-                      label: item,
-                      kind: 'tag',
-                    }))
-                  "
-                />
-              </div>
-            </div>
-            <template #meta>
-              <div class="text-xs md:w-36 md:text-right">
-                <ClientOnly>
-                  <p class="text-muted">
+              <div class="text-xs md:text-right">
+                <ClientOnly
+                  ><p class="text-muted">
                     {{
                       link.updatedAt
                         ? `更新 ${rel(link.updatedAt)}`
@@ -466,95 +615,54 @@ async function executeBatch() {
                         : "尚未发布"
                     }}
                   </p>
-                  <template #fallback><p class="text-dimmed">…</p></template>
-                </ClientOnly>
+                  <template #fallback
+                    ><p class="text-dimmed">…</p></template
+                  ></ClientOnly
+                >
               </div>
-            </template>
-            <template #actions>
-              <UTooltip text="打开站点"
-                ><UButton
-                  :to="link.url"
-                  external
-                  target="_blank"
-                  icon="i-tabler-external-link"
-                  color="neutral"
-                  variant="ghost"
-                  size="sm"
-                  square
-                  :aria-label="`打开 ${link.title}`"
-              /></UTooltip>
-              <UTooltip text="编辑"
-                ><UButton
-                  icon="i-tabler-pencil"
-                  color="neutral"
-                  variant="ghost"
-                  size="sm"
-                  square
-                  :aria-label="`编辑 ${link.title}`"
-                  :disabled="!isAdmin"
-                  @click="openEdit(link)"
-              /></UTooltip>
-            </template>
-          </ManageRowShell>
-        </div>
-
-        <ManageCollectionFooter
-          v-if="total > 0 || links.length"
-          v-model:page="page"
-          v-model:size="size"
-          :total="total"
-          :total-pages="totalPages"
-          :page-size-options="[15, 30, 60]"
-          label="站点选择、批量操作与分页"
-        >
-          <template #selection>
-            <ManagePageSelection
-              :model-value="isPageSelected"
-              :indeterminate="isPageIndeterminate"
-              :disabled="batchBusy || !isAdmin"
-              label="选择当前页站点"
-              @update:model-value="togglePage"
-            />
-            <span
-              v-if="batchMessage"
-              class="rounded-lg bg-elevated px-2.5 py-1.5 text-xs text-default"
-              >{{ batchMessage }}</span
-            >
-            <template v-if="selectionCount">
-              <span class="text-sm text-default"
-                >已选 {{ selectionCount }}</span
-              >
-              <USelect
-                v-model="batchAction"
-                :items="batchItems"
-                value-key="value"
-                placeholder="批量操作"
-                size="sm"
-                class="w-28"
-                :disabled="batchBusy || !isAdmin"
-                aria-label="批量操作"
-              />
-              <UButton
-                label="应用"
-                size="sm"
-                color="primary"
-                variant="soft"
-                :disabled="!batchAction"
-                :loading="batchBusy"
-                @click="applyBatch"
-              />
-              <UButton
-                label="取消"
-                size="sm"
-                color="neutral"
-                variant="ghost"
-                :disabled="batchBusy"
-                @click="clearSelection"
-              />
-            </template>
-            <span v-else class="text-xs">共 {{ total }} 个站点</span>
+              <div class="flex justify-end gap-1">
+                <UTooltip text="打开站点"
+                  ><UButton
+                    :to="link.url"
+                    external
+                    target="_blank"
+                    icon="i-tabler-external-link"
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    square
+                    :aria-label="`打开 ${link.title}`" /></UTooltip
+                ><UTooltip text="编辑"
+                  ><UButton
+                    icon="i-tabler-pencil"
+                    color="neutral"
+                    variant="ghost"
+                    size="xs"
+                    square
+                    :aria-label="`编辑 ${link.title}`"
+                    :disabled="!isAdmin"
+                    @click="openEdit(link)"
+                /></UTooltip>
+              </div>
+            </div>
           </template>
-        </ManageCollectionFooter>
+        </CollectionPanel>
+        <div
+          v-if="batchMessage"
+          class="flex items-center justify-between gap-2 rounded-lg border border-default bg-elevated px-3 py-2.5 text-xs text-default"
+          role="status"
+        >
+          <span>{{ batchMessage }}</span
+          ><UButton
+            icon="i-tabler-x"
+            color="neutral"
+            variant="ghost"
+            size="xs"
+            square
+            aria-label="关闭批量结果"
+            @click="dismissBatchMessage"
+          />
+        </div>
       </div>
     </ManageClientBoundary>
 
