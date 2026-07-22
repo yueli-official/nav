@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ActionFeedbackButton } from "@platform/manage/components";
-import { useActionFeedback } from "@platform/manage/use-action-feedback";
 import { createPlatformNotifier } from "@platform/ui/feedback";
+import { useActionFeedback } from "@yueli/ui/feedback";
+import { ActionFeedbackButton } from "@yueli/ui/feedback/pattern";
 import { z } from "zod";
 import type {
   AdminNavigationLink,

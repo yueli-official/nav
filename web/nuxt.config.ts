@@ -2,7 +2,7 @@ const siteBrand = process.env.NUXT_PUBLIC_SITE_BRAND || "月离导航";
 
 export default defineNuxtConfig({
   extends: ["@platform/auth", "@platform/site", "@platform/manage"],
-  modules: ["@nuxt/ui"],
+  modules: ["@nuxt/ui", "@yueli/ui"],
   css: ["~/assets/css/main.css"],
   app: {
     head: {

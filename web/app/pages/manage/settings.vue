@@ -4,7 +4,7 @@ import {
   platformSettingsSaveMessages,
   usePlatformSettingsProtection,
 } from "@platform/manage/settings";
-import { useActionFeedback } from "@platform/manage/use-action-feedback";
+import { useActionFeedback } from "@yueli/ui/feedback";
 import {
   SettingSection,
   SettingsLayout,
