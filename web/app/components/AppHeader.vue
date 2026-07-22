@@ -9,7 +9,7 @@ const { openSearch } = useNavigationSearch();
 
 <template>
   <header
-    class="platform-topbar sticky top-0 z-30 border-b border-default bg-default/88 backdrop-blur-xl"
+    class="yueli-topbar sticky top-0 z-30 border-b border-default bg-default/88 backdrop-blur-xl"
   >
     <div
       class="mx-auto flex h-16 w-full items-center gap-3 px-4 sm:px-6 lg:px-8"

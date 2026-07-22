@@ -10,7 +10,7 @@
   --nav-hero-wash: color-mix(
     in srgb,
     var(--ui-primary) 8%,
-    var(--platform-surface-page)
+    var(--yueli-surface-page)
   );
 }
 
@@ -20,7 +20,7 @@
   --nav-hero-wash: color-mix(
     in srgb,
     var(--ui-primary) 7%,
-    var(--platform-surface-page)
+    var(--yueli-surface-page)
   );
 }
 
@@ -30,7 +30,7 @@ html {
 
 body {
   min-width: 320px;
-  background: var(--platform-surface-page);
+  background: var(--yueli-surface-page);
 }
 
 .nav-hero-surface {

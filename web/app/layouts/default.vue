@@ -25,7 +25,7 @@ defineShortcuts({
 </script>
 
 <template>
-  <div class="platform-app-shell flex min-h-dvh flex-col text-default">
+  <div class="yueli-app-shell flex min-h-dvh flex-col text-default">
     <AppHeader
       :width-class="mainWidth"
       :brand-name="data?.site.name"

@@ -19,7 +19,7 @@ const contextLabel = computed(() => {
     :context-label="contextLabel"
     home-to="/manage"
     storage-key="nav-manage"
-    shell-class="platform-app-shell"
+    shell-class="yueli-app-shell"
     :show-back-to-top="showBackToTop"
   >
     <template #sidebar>
