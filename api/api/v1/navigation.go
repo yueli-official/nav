@@ -1,8 +1,14 @@
 package v1
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/yueli-official/foundation/go/siteprofile"
+)
 
 type SiteView struct {
+	Revision          uint64 `json:"revision"`
+	RuntimeRevision   uint64 `json:"runtimeRevision"`
+	ETag              string `json:"etag"`
 	Name              string `json:"name"`
 	Title             string `json:"title"`
 	Description       string `json:"description"`
@@ -340,12 +346,12 @@ type AdminDeleteTagRes struct {
 	Changed int `json:"changed"`
 }
 
-type SiteSettingsInput struct {
-	Name              string `json:"name" v:"required|length:1,120"`
-	Title             string `json:"title" v:"required|length:1,200"`
-	Description       string `json:"description" v:"required|length:1,500"`
-	SearchPlaceholder string `json:"searchPlaceholder" v:"required|length:1,200"`
-	FooterTagline     string `json:"footerTagline" v:"required|length:1,300"`
+type AdminSiteSettingsView struct {
+	Snapshot          siteprofile.Snapshot   `json:"snapshot"`
+	Schema            siteprofile.FormSchema `json:"schema"`
+	SearchPlaceholder string                 `json:"searchPlaceholder" v:"required|length:1,200"`
+	RuntimeRevision   uint64                 `json:"runtimeRevision"`
+	ETag              string                 `json:"etag"`
 }
 
 type AdminGetSettingsReq struct {
@@ -353,14 +359,15 @@ type AdminGetSettingsReq struct {
 }
 
 type AdminGetSettingsRes struct {
-	Settings SiteView `json:"settings"`
+	Settings AdminSiteSettingsView `json:"settings"`
 }
 
 type AdminUpdateSettingsReq struct {
-	g.Meta `path:"/api/v1/admin/nav/settings" method:"PATCH" tags:"Admin Nav" summary:"Update navigation site settings"`
-	SiteSettingsInput
+	g.Meta            `path:"/api/v1/admin/nav/settings" method:"PUT" tags:"Admin Nav" summary:"Update navigation site settings"`
+	Profile           siteprofile.Profile `json:"profile"`
+	SearchPlaceholder string              `json:"searchPlaceholder" v:"required|length:1,200"`
 }
 
 type AdminUpdateSettingsRes struct {
-	Settings SiteView `json:"settings"`
+	Settings AdminSiteSettingsView `json:"settings"`
 }

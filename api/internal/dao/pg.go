@@ -72,11 +72,8 @@ type groupInsertMutation struct {
 
 type siteSettingsMutation struct {
 	ID                int         `orm:"id"`
-	Name              string      `orm:"name"`
-	Title             string      `orm:"title"`
-	Description       string      `orm:"description"`
 	SearchPlaceholder string      `orm:"search_placeholder"`
-	FooterTagline     string      `orm:"footer_tagline"`
+	RuntimeRevision   uint64      `orm:"runtime_revision"`
 	UpdatedAt         *gtime.Time `orm:"updated_at"`
 }
 
@@ -476,8 +473,26 @@ func (p *PG) SiteSettings(ctx context.Context) (*model.SiteSettings, error) {
 	return &settings, nil
 }
 
+func (p *PG) LegacySiteSettings(ctx context.Context) (*model.LegacySiteSettings, error) {
+	record, err := p.db.Model(tSettings).Ctx(ctx).Where("id", 1).One()
+	if err != nil {
+		return nil, gerror.Wrap(err, "get legacy navigation site settings")
+	}
+	if record.IsEmpty() {
+		return nil, nil
+	}
+	var settings model.LegacySiteSettings
+	if err := record.Struct(&settings); err != nil {
+		return nil, gerror.Wrap(err, "scan legacy navigation site settings")
+	}
+	return &settings, nil
+}
+
 func (p *PG) UpsertSiteSettings(ctx context.Context, settings *model.SiteSettings) error {
-	data := siteSettingsMutation{ID: 1, Name: settings.Name, Title: settings.Title, Description: settings.Description, SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline, UpdatedAt: gtime.Now()}
+	data := siteSettingsMutation{
+		ID: 1, SearchPlaceholder: settings.SearchPlaceholder,
+		RuntimeRevision: settings.RuntimeRevision, UpdatedAt: gtime.Now(),
+	}
 	_, err := p.db.Model(tSettings).Ctx(ctx).Data(data).OnConflict("id").Save()
 	return gerror.Wrap(err, "save navigation site settings")
 }

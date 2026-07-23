@@ -2,13 +2,16 @@ package controller
 
 import (
 	"context"
+	"strings"
 	"time"
 
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	v1 "platform/products/nav/api/api/v1"
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/dao"
 	"platform/products/nav/api/internal/model"
+	"platform/products/nav/api/internal/naverr"
 )
 
 type Public struct {
@@ -24,6 +27,7 @@ func (c *Public) GetCatalog(ctx context.Context, _ *v1.GetCatalogReq) (*v1.GetCa
 	if err != nil {
 		return nil, err
 	}
+	setPublicProfileHeaders(ctx, value.Site.ETag)
 	return catalogResponse(value), nil
 }
 
@@ -32,6 +36,7 @@ func (c *Public) GetGroup(ctx context.Context, req *v1.GetGroupReq) (*v1.GetGrou
 	if err != nil {
 		return nil, err
 	}
+	setPublicProfileHeaders(ctx, page.Site.ETag)
 	items := make([]v1.LinkView, 0, len(page.Links))
 	for _, link := range page.Links {
 		items = append(items, linkView(link, false))
@@ -40,10 +45,7 @@ func (c *Public) GetGroup(ctx context.Context, req *v1.GetGroupReq) (*v1.GetGrou
 	group := groupView(page.Group)
 	group.LinkCount = page.Total
 	return &v1.GetGroupRes{
-		Site: settingsView(&model.SiteSettings{
-			Name: page.Site.Name, Title: page.Site.Title, Description: page.Site.Description,
-			SearchPlaceholder: page.Site.SearchPlaceholder, FooterTagline: page.Site.FooterTagline,
-		}),
+		Site:     siteView(page.Site),
 		Category: category, Group: group, Items: items,
 		Total: page.Total, Page: page.Page, Size: page.Size,
 	}, nil
@@ -281,22 +283,37 @@ func (c *Admin) AdminGetSettings(ctx context.Context, _ *v1.AdminGetSettingsReq)
 	if err := requireAdmin(ctx); err != nil {
 		return nil, err
 	}
-	settings, err := c.service.Settings(ctx)
+	settings, err := c.service.AdminSiteSettings(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.AdminGetSettingsRes{Settings: settingsView(settings)}, nil
+	setAdminProfileHeaders(ctx, settings.ETag)
+	return &v1.AdminGetSettingsRes{Settings: adminSiteSettingsView(settings)}, nil
 }
 
 func (c *Admin) AdminUpdateSettings(ctx context.Context, req *v1.AdminUpdateSettingsReq) (*v1.AdminUpdateSettingsRes, error) {
 	if err := requireAdmin(ctx); err != nil {
 		return nil, err
 	}
-	settings, err := c.service.UpdateSettings(ctx, model.SiteSettings{Name: req.Name, Title: req.Title, Description: req.Description, SearchPlaceholder: req.SearchPlaceholder, FooterTagline: req.FooterTagline})
+	current, err := c.service.AdminSiteSettings(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &v1.AdminUpdateSettingsRes{Settings: settingsView(settings)}, nil
+	ifMatch := strings.TrimSpace(g.RequestFromCtx(ctx).Header.Get("If-Match"))
+	if ifMatch == "" {
+		return nil, naverr.PreconditionRequired()
+	}
+	if ifMatch != current.ETag {
+		return nil, naverr.RevisionConflict()
+	}
+	settings, err := c.service.SaveAdminSiteSettings(
+		ctx, current.Snapshot.Revision, current.RuntimeRevision, req.Profile, req.SearchPlaceholder,
+	)
+	if err != nil {
+		return nil, err
+	}
+	setAdminProfileHeaders(ctx, settings.ETag)
+	return &v1.AdminUpdateSettingsRes{Settings: adminSiteSettingsView(settings)}, nil
 }
 
 func (c *Admin) AdminCreateLink(ctx context.Context, req *v1.AdminCreateLinkReq) (*v1.AdminCreateLinkRes, error) {
@@ -351,6 +368,9 @@ func catalogResponse(value *catalog.Catalog) *v1.GetCatalogRes {
 	return &v1.GetCatalogRes{
 		Version: 1,
 		Site: v1.SiteView{
+			Revision:          value.Site.Revision,
+			RuntimeRevision:   value.Site.RuntimeRevision,
+			ETag:              value.Site.ETag,
 			Name:              value.Site.Name,
 			Title:             value.Site.Title,
 			Description:       value.Site.Description,
@@ -382,8 +402,33 @@ func groupView(group *model.Group) v1.GroupView {
 	return v1.GroupView{ID: group.ID, CategoryID: group.CategoryID, Title: group.Title, Description: group.Description, SortOrder: group.SortOrder, Items: []v1.LinkView{}}
 }
 
-func settingsView(settings *model.SiteSettings) v1.SiteView {
-	return v1.SiteView{Name: settings.Name, Title: settings.Title, Description: settings.Description, SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline}
+func siteView(settings catalog.Site) v1.SiteView {
+	return v1.SiteView{
+		Revision: settings.Revision, ETag: settings.ETag,
+		RuntimeRevision: settings.RuntimeRevision,
+		Name:            settings.Name, Title: settings.Title, Description: settings.Description,
+		SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline,
+	}
+}
+
+func adminSiteSettingsView(settings catalog.AdminSiteSettings) v1.AdminSiteSettingsView {
+	return v1.AdminSiteSettingsView{
+		Snapshot: settings.Snapshot, Schema: settings.Schema,
+		SearchPlaceholder: settings.SearchPlaceholder,
+		RuntimeRevision:   settings.RuntimeRevision, ETag: settings.ETag,
+	}
+}
+
+func setAdminProfileHeaders(ctx context.Context, etag string) {
+	request := g.RequestFromCtx(ctx)
+	request.Response.Header().Set("ETag", etag)
+	request.Response.Header().Set("Cache-Control", "private, no-store")
+}
+
+func setPublicProfileHeaders(ctx context.Context, etag string) {
+	request := g.RequestFromCtx(ctx)
+	request.Response.Header().Set("ETag", etag)
+	request.Response.Header().Set("Cache-Control", "public, no-cache")
 }
 
 func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView {

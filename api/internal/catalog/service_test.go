@@ -12,6 +12,7 @@ import (
 	"platform/products/nav/api/internal/dao"
 	"platform/products/nav/api/internal/model"
 	"platform/products/nav/api/internal/naverr"
+	"platform/products/nav/api/internal/navprofile"
 )
 
 type countingChecker struct {
@@ -146,7 +147,8 @@ func (f *fakeStore) UpsertSiteSettings(context.Context, *model.SiteSettings) err
 
 func TestSettingsRequiresProvisionedConfiguration(t *testing.T) {
 	service := New(&fakeStore{}, Site{Name: "compiled fallback must not be used"})
-	_, err := service.Settings(context.Background())
+	service.SetSiteProfile(navprofile.NewMemory())
+	_, err := service.PublicSite(context.Background())
 	var coded *errs.Coded
 	if !errors.As(err, &coded) || coded.Code != naverr.CodeNotInitialized {
 		t.Fatalf("error = %#v, want nav.not_initialized", err)

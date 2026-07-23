@@ -2,6 +2,11 @@ package catalog
 
 import (
 	"context"
+	"crypto/sha256"
+	"database/sql"
+	"encoding/hex"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
@@ -11,10 +16,12 @@ import (
 
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/google/uuid"
+	"github.com/yueli-official/foundation/go/siteprofile"
 
 	"platform/products/nav/api/internal/dao"
 	"platform/products/nav/api/internal/model"
 	"platform/products/nav/api/internal/naverr"
+	"platform/products/nav/api/internal/navprofile"
 )
 
 const StatusPublished = "published"
@@ -54,11 +61,28 @@ type Store interface {
 }
 
 type Site struct {
+	Revision          uint64
+	RuntimeRevision   uint64
+	ETag              string
 	Name              string
 	Title             string
 	Description       string
 	SearchPlaceholder string
 	FooterTagline     string
+}
+
+type AdminSiteSettings struct {
+	Snapshot          siteprofile.Snapshot
+	Schema            siteprofile.FormSchema
+	SearchPlaceholder string
+	RuntimeRevision   uint64
+	ETag              string
+}
+
+type profileSettingsStore interface {
+	LegacySiteSettings(context.Context) (*model.LegacySiteSettings, error)
+	SaveSiteSettingsWithHook(context.Context, string, uint64, dao.TransactionHook) error
+	CutoverSiteSettingsWithHook(context.Context, string, dao.TransactionHook) error
 }
 
 type LinkInput struct {
@@ -111,6 +135,11 @@ type Service struct {
 	site          Site
 	checker       LinkChecker
 	faviconClient *http.Client
+	profiles      *navprofile.Manager
+}
+
+func (s *Service) SetSiteProfile(profiles *navprofile.Manager) {
+	s.profiles = profiles
 }
 
 func New(store Store, site Site) *Service {
@@ -153,12 +182,12 @@ func (s *Service) PublicGroup(ctx context.Context, groupID string, page, size in
 	if err != nil {
 		return nil, err
 	}
-	settings, err := s.Settings(ctx)
+	settings, err := s.PublicSite(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &GroupPage{
-		Site:     Site{Name: settings.Name, Title: settings.Title, Description: settings.Description, SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline},
+		Site:     settings,
 		Category: categories[categoryIndex], Group: group, Links: links, Total: total, Page: page, Size: size,
 	}, nil
 }
@@ -511,30 +540,134 @@ func (s *Service) DeleteTag(ctx context.Context, name string) (int, error) {
 	return s.store.DeleteTag(ctx, name)
 }
 
-func (s *Service) Settings(ctx context.Context) (*model.SiteSettings, error) {
+func (s *Service) PublicSite(ctx context.Context) (Site, error) {
+	if s.profiles == nil {
+		return Site{}, errors.New("navigation site profile module is not configured")
+	}
 	settings, err := s.store.SiteSettings(ctx)
 	if err != nil {
-		return nil, err
+		return Site{}, err
 	}
-	if settings != nil {
-		return settings, nil
+	if settings == nil {
+		return Site{}, naverr.NotInitialized("site_settings")
 	}
-	return nil, naverr.NotInitialized("site_settings")
+	projection, err := s.profiles.PublicAt(ctx)
+	if err != nil {
+		return Site{}, err
+	}
+	return siteFromSnapshot(projection.Snapshot, *settings), nil
 }
 
-func (s *Service) UpdateSettings(ctx context.Context, input model.SiteSettings) (*model.SiteSettings, error) {
-	settings := &model.SiteSettings{
-		Name: strings.TrimSpace(input.Name), Title: strings.TrimSpace(input.Title),
-		Description: strings.TrimSpace(input.Description), SearchPlaceholder: strings.TrimSpace(input.SearchPlaceholder),
-		FooterTagline: strings.TrimSpace(input.FooterTagline),
+func (s *Service) AdminSiteSettings(ctx context.Context) (AdminSiteSettings, error) {
+	if s.profiles == nil {
+		return AdminSiteSettings{}, errors.New("navigation site profile module is not configured")
 	}
-	if settings.Name == "" || settings.Title == "" || settings.Description == "" || settings.SearchPlaceholder == "" || settings.FooterTagline == "" {
-		return nil, naverr.Validation("settings", "required", nil)
+	settings, err := s.store.SiteSettings(ctx)
+	if err != nil {
+		return AdminSiteSettings{}, err
 	}
-	if err := s.store.UpsertSiteSettings(ctx, settings); err != nil {
-		return nil, err
+	if settings == nil {
+		return AdminSiteSettings{}, naverr.NotInitialized("site_settings")
 	}
-	return settings, nil
+	snapshot, err := s.profiles.Get(ctx)
+	if err != nil {
+		return AdminSiteSettings{}, err
+	}
+	runtimeRevision := normalizedRuntimeRevision(settings.RuntimeRevision)
+	return AdminSiteSettings{
+		Snapshot: snapshot, Schema: s.profiles.Schema(),
+		SearchPlaceholder: settings.SearchPlaceholder, RuntimeRevision: runtimeRevision,
+		ETag: consumerETag(snapshot.ETag, runtimeRevision, settings.SearchPlaceholder),
+	}, nil
+}
+
+func (s *Service) SaveAdminSiteSettings(
+	ctx context.Context,
+	expected siteprofile.Revision,
+	expectedRuntimeRevision uint64,
+	profile siteprofile.Profile,
+	searchPlaceholder string,
+) (AdminSiteSettings, error) {
+	searchPlaceholder = strings.TrimSpace(searchPlaceholder)
+	if searchPlaceholder == "" {
+		return AdminSiteSettings{}, naverr.Validation("searchPlaceholder", "required", nil)
+	}
+	store, ok := s.store.(profileSettingsStore)
+	if !ok {
+		return AdminSiteSettings{}, errors.New("navigation store does not support atomic site profile settings")
+	}
+	err := store.SaveSiteSettingsWithHook(ctx, searchPlaceholder, expectedRuntimeRevision, func(ctx context.Context, tx *sql.Tx) error {
+		_, replaceErr := s.profiles.ReplaceTx(ctx, tx, siteprofile.ReplaceCommand{
+			ExpectedRevision: expected,
+			Profile:          profile,
+		})
+		return replaceErr
+	})
+	if errors.Is(err, dao.ErrSiteSettingsRevisionConflict) {
+		return AdminSiteSettings{}, naverr.RevisionConflict()
+	}
+	if err != nil {
+		return AdminSiteSettings{}, mapSiteProfileError(err)
+	}
+	return s.AdminSiteSettings(ctx)
+}
+
+func (s *Service) EnsureSiteProfile(ctx context.Context) error {
+	if s.profiles == nil {
+		return errors.New("navigation site profile module is not configured")
+	}
+	if _, err := s.profiles.Get(ctx); err == nil {
+		store, ok := s.store.(profileSettingsStore)
+		if !ok {
+			return errors.New("navigation store does not support site profile cutover")
+		}
+		settings, settingsErr := s.store.SiteSettings(ctx)
+		if settingsErr != nil {
+			return settingsErr
+		}
+		if settings == nil || strings.TrimSpace(settings.SearchPlaceholder) == "" {
+			return naverr.NotInitialized("site_settings")
+		}
+		return store.CutoverSiteSettingsWithHook(ctx, settings.SearchPlaceholder, nil)
+	} else if !errors.Is(err, siteprofile.ErrNotInitialized) {
+		return err
+	}
+	store, ok := s.store.(profileSettingsStore)
+	if !ok {
+		return errors.New("navigation store does not support site profile cutover")
+	}
+	legacy, err := store.LegacySiteSettings(ctx)
+	if err != nil {
+		return err
+	}
+	if legacy == nil {
+		legacy = &model.LegacySiteSettings{
+			Name: s.site.Name, Title: s.site.Title, Description: s.site.Description,
+			SearchPlaceholder: s.site.SearchPlaceholder, FooterTagline: s.site.FooterTagline,
+		}
+	}
+	if strings.TrimSpace(legacy.SearchPlaceholder) == "" {
+		return naverr.Validation("searchPlaceholder", "required", nil)
+	}
+	return store.CutoverSiteSettingsWithHook(ctx, legacy.SearchPlaceholder, func(ctx context.Context, tx *sql.Tx) error {
+		_, replaceErr := s.profiles.ReplaceTx(ctx, tx, siteprofile.ReplaceCommand{
+			Profile: profileFromLegacy(*legacy),
+		})
+		return replaceErr
+	})
+}
+
+func mapSiteProfileError(err error) error {
+	var conflict *siteprofile.RevisionConflictError
+	var validation *siteprofile.ValidationError
+	switch {
+	case errors.As(err, &conflict):
+		return naverr.RevisionConflict()
+	case errors.As(err, &validation):
+		return naverr.Validation("profile", "invalid", map[string]any{"message": validation.Error()})
+	default:
+		return err
+	}
 }
 
 func (s *Service) catalog(ctx context.Context, filter dao.LinkFilter) (*Catalog, error) {
@@ -550,11 +683,53 @@ func (s *Service) catalog(ctx context.Context, filter dao.LinkFilter) (*Catalog,
 	if err != nil {
 		return nil, err
 	}
-	settings, settingsErr := s.Settings(ctx)
+	settings, settingsErr := s.PublicSite(ctx)
 	if settingsErr != nil {
 		return nil, settingsErr
 	}
-	return &Catalog{Site: Site{Name: settings.Name, Title: settings.Title, Description: settings.Description, SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline}, Categories: categories, Groups: groups, Links: links}, nil
+	return &Catalog{Site: settings, Categories: categories, Groups: groups, Links: links}, nil
+}
+
+func siteFromSnapshot(snapshot siteprofile.Snapshot, settings model.SiteSettings) Site {
+	runtimeRevision := normalizedRuntimeRevision(settings.RuntimeRevision)
+	return Site{
+		Revision: uint64(snapshot.Revision), RuntimeRevision: runtimeRevision,
+		ETag: consumerETag(snapshot.ETag, runtimeRevision, settings.SearchPlaceholder),
+		Name: snapshot.Profile.Identity.Name, Title: snapshot.Profile.Identity.Tagline,
+		Description: snapshot.Profile.Identity.Description, SearchPlaceholder: settings.SearchPlaceholder,
+		FooterTagline: snapshot.Profile.Footer.Tagline,
+	}
+}
+
+func normalizedRuntimeRevision(value uint64) uint64 {
+	if value == 0 {
+		return 1
+	}
+	return value
+}
+
+func consumerETag(profileETag string, runtimeRevision uint64, searchPlaceholder string) string {
+	sum := sha256.Sum256([]byte(fmt.Sprintf(
+		"%s:%d:%s", profileETag, runtimeRevision, strings.TrimSpace(searchPlaceholder),
+	)))
+	return fmt.Sprintf(`"nav-settings-r%d-%s"`, runtimeRevision, hex.EncodeToString(sum[:8]))
+}
+
+func profileFromLegacy(settings model.LegacySiteSettings) siteprofile.Profile {
+	return siteprofile.Profile{
+		Identity: siteprofile.Identity{
+			Name: strings.TrimSpace(settings.Name), Tagline: strings.TrimSpace(settings.Title),
+			Description: strings.TrimSpace(settings.Description),
+		},
+		Branding:     siteprofile.Branding{},
+		Announcement: siteprofile.Announcement{},
+		Support:      siteprofile.Support{Contacts: []siteprofile.Contact{}},
+		Footer: siteprofile.Footer{
+			Tagline:    strings.TrimSpace(settings.FooterTagline),
+			LinkGroups: []siteprofile.LinkGroup{}, Social: []siteprofile.SocialLink{},
+			Legal: []siteprofile.Link{}, Compliance: siteprofile.Compliance{Records: []siteprofile.ComplianceRecord{}},
+		},
+	}
 }
 
 func validateCategory(input model.Category) (*model.Category, error) {

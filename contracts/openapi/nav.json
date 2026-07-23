@@ -1,6 +1,440 @@
 {
   "components": {
     "schemas": {
+      "github.com.yueli-official.foundation.go.siteprofile.Announcement": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+            "description": ""
+          },
+          "dismissible": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "endsAt": {
+            "format": "*time.Time",
+            "type": "string"
+          },
+          "startsAt": {
+            "format": "*time.Time",
+            "type": "string"
+          },
+          "text": {
+            "format": "string",
+            "type": "string"
+          },
+          "tone": {
+            "format": "siteprofile.AnnouncementTone",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Branding": {
+        "properties": {
+          "darkLogo": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          },
+          "favicon": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          },
+          "logo": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Compliance": {
+        "properties": {
+          "extraText": {
+            "format": "string",
+            "type": "string"
+          },
+          "records": {
+            "format": "[]siteprofile.ComplianceRecord",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.ComplianceRecord",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.ComplianceRecord": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "number": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Contact": {
+        "properties": {
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "siteprofile.ContactKind",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "value": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FieldOption": {
+        "properties": {
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "value": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Footer": {
+        "properties": {
+          "compliance": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Compliance",
+            "description": ""
+          },
+          "copyright": {
+            "format": "string",
+            "type": "string"
+          },
+          "legal": {
+            "format": "[]siteprofile.Link",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "linkGroups": {
+            "format": "[]siteprofile.LinkGroup",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.LinkGroup",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "social": {
+            "format": "[]siteprofile.SocialLink",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.SocialLink",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "tagline": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormField": {
+        "properties": {
+          "control": {
+            "format": "siteprofile.FieldControl",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "itemFields": {
+            "format": "[]siteprofile.FormField",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormField",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "maxItems": {
+            "format": "int",
+            "type": "integer"
+          },
+          "maxLength": {
+            "format": "int",
+            "type": "integer"
+          },
+          "options": {
+            "format": "[]siteprofile.FieldOption",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FieldOption",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "path": {
+            "format": "string",
+            "type": "string"
+          },
+          "required": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormSchema": {
+        "properties": {
+          "digest": {
+            "format": "siteprofile.Digest",
+            "type": "string"
+          },
+          "sections": {
+            "format": "[]siteprofile.FormSection",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormSection",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "version": {
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormSection": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "fields": {
+            "format": "[]siteprofile.FormField",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormField",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Identity": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          },
+          "tagline": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Link": {
+        "properties": {
+          "href": {
+            "format": "string",
+            "type": "string"
+          },
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.LinkGroup": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "links": {
+            "format": "[]siteprofile.Link",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Profile": {
+        "properties": {
+          "announcement": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Announcement",
+            "description": ""
+          },
+          "branding": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Branding",
+            "description": ""
+          },
+          "footer": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Footer",
+            "description": ""
+          },
+          "identity": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Identity",
+            "description": ""
+          },
+          "support": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Support",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Snapshot": {
+        "properties": {
+          "documentDigest": {
+            "format": "siteprofile.Digest",
+            "type": "string"
+          },
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
+            "description": ""
+          },
+          "revision": {
+            "format": "siteprofile.Revision",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "updatedAt": {
+            "format": "time.Time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.SocialLink": {
+        "properties": {
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "platform": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Support": {
+        "properties": {
+          "contacts": {
+            "format": "[]siteprofile.Contact",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Contact",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Visual": {
+        "properties": {
+          "alt": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "siteprofile.VisualKind",
+            "type": "string"
+          },
+          "ref": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.AdminBulkLinksReq": {
         "properties": {
           "action": {
@@ -299,7 +733,7 @@
       "platform.products.nav.api.api.v1.AdminGetSettingsRes": {
         "properties": {
           "settings": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminSiteSettingsView",
             "description": ""
           }
         },
@@ -593,6 +1027,36 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.AdminSiteSettingsView": {
+        "properties": {
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "runtimeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormSchema",
+            "description": ""
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Snapshot",
+            "description": ""
+          }
+        },
+        "required": [
+          "searchPlaceholder"
+        ],
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.AdminUpdateCategoryReq": {
         "properties": {
           "description": {
@@ -773,31 +1237,11 @@
       },
       "platform.products.nav.api.api.v1.AdminUpdateSettingsReq": {
         "properties": {
-          "description": {
-            "format": "string",
-            "maxLength": 500,
-            "minLength": 1,
-            "type": "string"
-          },
-          "footerTagline": {
-            "format": "string",
-            "maxLength": 300,
-            "minLength": 1,
-            "type": "string"
-          },
-          "name": {
-            "format": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "type": "string"
+          "profile": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
+            "description": ""
           },
           "searchPlaceholder": {
-            "format": "string",
-            "maxLength": 200,
-            "minLength": 1,
-            "type": "string"
-          },
-          "title": {
             "format": "string",
             "maxLength": 200,
             "minLength": 1,
@@ -805,18 +1249,14 @@
           }
         },
         "required": [
-          "name",
-          "title",
-          "description",
-          "searchPlaceholder",
-          "footerTagline"
+          "searchPlaceholder"
         ],
         "type": "object"
       },
       "platform.products.nav.api.api.v1.AdminUpdateSettingsRes": {
         "properties": {
           "settings": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminSiteSettingsView",
             "description": ""
           }
         },
@@ -1192,6 +1632,10 @@
             "format": "string",
             "type": "string"
           },
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
           "footerTagline": {
             "format": "string",
             "type": "string"
@@ -1199,6 +1643,14 @@
           "name": {
             "format": "string",
             "type": "string"
+          },
+          "revision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "runtimeRevision": {
+            "format": "uint64",
+            "type": "integer"
           },
           "searchPlaceholder": {
             "format": "string",
@@ -1937,7 +2389,7 @@
           "Admin Nav"
         ]
       },
-      "patch": {
+      "put": {
         "requestBody": {
           "content": {
             "application/json": {

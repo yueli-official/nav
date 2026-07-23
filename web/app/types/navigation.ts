@@ -1,3 +1,8 @@
+import type {
+  SiteProfileFormSchema,
+  SiteProfileSnapshot,
+} from "@yueli/site-profile/types";
+
 export type NavigationItemKind =
   | "official"
   | "tool"
@@ -40,6 +45,9 @@ export interface NavigationCategory {
 }
 
 export interface NavigationSiteCopy {
+  revision: number;
+  runtimeRevision: number;
+  etag: string;
   name: string;
   title: string;
   description: string;
@@ -153,5 +161,11 @@ export interface NavigationTagsResponse {
 }
 
 export interface NavigationSettingsResponse {
-  settings: NavigationSiteCopy;
+  settings: {
+    snapshot: SiteProfileSnapshot;
+    schema: SiteProfileFormSchema;
+    searchPlaceholder: string;
+    runtimeRevision: number;
+    etag: string;
+  };
 }

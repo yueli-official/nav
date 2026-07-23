@@ -16,11 +16,17 @@ type Tag struct {
 }
 
 type SiteSettings struct {
-	Name              string `json:"name" orm:"name"`
-	Title             string `json:"title" orm:"title"`
-	Description       string `json:"description" orm:"description"`
 	SearchPlaceholder string `json:"searchPlaceholder" orm:"search_placeholder"`
-	FooterTagline     string `json:"footerTagline" orm:"footer_tagline"`
+	RuntimeRevision   uint64 `json:"runtimeRevision" orm:"runtime_revision"`
+}
+
+type LegacySiteSettings struct {
+	Name              string
+	Title             string
+	Description       string
+	SearchPlaceholder string
+	RuntimeRevision   uint64
+	FooterTagline     string
 }
 
 type Group struct {

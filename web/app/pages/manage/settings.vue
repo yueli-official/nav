@@ -4,6 +4,11 @@ import {
   platformSettingsSaveMessages,
   usePlatformSettingsProtection,
 } from "@platform/manage/settings";
+import { SiteProfileEditor } from "@yueli/site-profile";
+import type {
+  SiteProfile,
+  SiteProfileReplaceResult,
+} from "@yueli/site-profile/types";
 import { useActionFeedback } from "@yueli/ui/feedback";
 import {
   SettingSection,
@@ -11,11 +16,7 @@ import {
   SettingsSaveDock,
 } from "@yueli/ui/settings/pattern";
 import { useVueSettingsWorkflow } from "@yueli/ui/settings/vue";
-import { z } from "zod";
-import type {
-  NavigationSettingsResponse,
-  NavigationSiteCopy,
-} from "~/types/navigation";
+import type { NavigationSettingsResponse } from "~/types/navigation";
 
 definePageMeta({ layout: "manage", middleware: "auth" });
 useSeoMeta({ title: "站点设置 · 月离导航" });
@@ -56,20 +57,23 @@ const sections = [
 const activeSection = computed(
   () => sections.find((item) => item.key === section.value) ?? sections[0],
 );
-const form = reactive<NavigationSiteCopy>({
-  name: "",
-  title: "",
-  description: "",
-  searchPlaceholder: "",
-  footerTagline: "",
+const profileForm = reactive<SiteProfile>({
+  identity: { name: "", tagline: "", description: "" },
+  branding: {},
+  announcement: { enabled: false, dismissible: false },
+  support: { contacts: [] },
+  footer: {
+    tagline: "",
+    copyright: "",
+    linkGroups: [],
+    social: [],
+    legal: [],
+    compliance: { records: [] },
+  },
 });
-const schema = z.object({
-  name: z.string().trim().min(1, "请输入站点名称").max(120),
-  title: z.string().trim().min(1, "请输入首页标题").max(200),
-  description: z.string().trim().min(1, "请输入站点介绍").max(500),
-  searchPlaceholder: z.string().trim().min(1, "请输入搜索提示文案").max(160),
-  footerTagline: z.string().trim().min(1, "请输入页脚标语").max(300),
-});
+const searchPlaceholder = ref("");
+const profileEditor = shallowRef<SiteProfileEditor>();
+const settingsETag = ref("");
 const settingsForm = useTemplateRef<{ submit: () => Promise<void> }>(
   "settings-form",
 );
@@ -81,8 +85,14 @@ const {
   reset: resetSave,
 } = useActionFeedback();
 const settingsState = useVueSettingsWorkflow({
-  snapshot: () => form,
-  restore: (snapshot) => Object.assign(form, snapshot),
+  snapshot: () => ({
+    profile: profileForm,
+    searchPlaceholder: searchPlaceholder.value,
+  }),
+  restore: (snapshot) => {
+    applyProfile(snapshot.profile);
+    searchPlaceholder.value = snapshot.searchPlaceholder;
+  },
 });
 usePlatformSettingsProtection(() => settingsState.dirty.value);
 
@@ -95,7 +105,13 @@ watch(
   data,
   (value) => {
     if (!value?.settings) return;
-    Object.assign(form, value.settings);
+    profileEditor.value = new SiteProfileEditor(
+      value.settings.schema,
+      value.settings.snapshot,
+    );
+    applyProfile(profileEditor.value.draft);
+    searchPlaceholder.value = value.settings.searchPlaceholder;
+    settingsETag.value = value.settings.etag;
     nextTick(settingsState.capture);
   },
   { immediate: true },
@@ -119,10 +135,27 @@ async function save() {
   markSaving();
   saveError.value = "";
   try {
-    await call<NavigationSettingsResponse>("/api/v1/admin/nav/settings", {
-      method: "PATCH",
-      body: { ...form },
-    });
+    if (!profileEditor.value) throw new Error("站点资料尚未加载");
+    profileEditor.value.replaceDraft(toRaw(profileForm));
+    const request = profileEditor.value.request(settingsETag.value);
+    const response = await call<NavigationSettingsResponse>(
+      "/api/v1/admin/nav/settings",
+      {
+        method: request.method,
+        headers: request.headers,
+        body: {
+          profile: request.body.profile,
+          searchPlaceholder: searchPlaceholder.value,
+        },
+      },
+    );
+    profileEditor.value.apply({
+      snapshot: response.settings.snapshot,
+      changed: true,
+    } satisfies SiteProfileReplaceResult);
+    settingsETag.value = response.settings.etag;
+    applyProfile(profileEditor.value.draft);
+    searchPlaceholder.value = response.settings.searchPlaceholder;
     await refresh();
     settingsState.capture();
     markSaved();
@@ -131,6 +164,10 @@ async function save() {
     const apiError = failure as { data?: { message?: string } };
     saveError.value = apiError.data?.message || "保存失败，请稍后重试。";
   }
+}
+
+function applyProfile(profile: SiteProfile) {
+  Object.assign(profileForm, structuredClone(profile));
 }
 function submitSettings() {
   void settingsForm.value?.submit();
@@ -145,8 +182,7 @@ function discard() {
 <template>
   <UForm
     ref="settings-form"
-    :schema="schema"
-    :state="form"
+    :state="{ profile: profileForm, searchPlaceholder }"
     class="contents"
     @submit="save"
   >
@@ -223,7 +259,11 @@ function discard() {
               description="显示在公开页左上角，并作为页面标题的品牌名称。"
               required
             >
-              <UInput v-model="form.name" :disabled="!isAdmin" class="w-full" />
+              <UInput
+                v-model="profileForm.identity.name"
+                :disabled="!isAdmin"
+                class="w-full"
+              />
             </UFormField>
             <UFormField
               name="title"
@@ -232,7 +272,7 @@ function discard() {
               required
             >
               <UInput
-                v-model="form.title"
+                v-model="profileForm.identity.tagline"
                 :disabled="!isAdmin"
                 class="w-full"
               />
@@ -244,7 +284,7 @@ function discard() {
               required
             >
               <UTextarea
-                v-model="form.description"
+                v-model="profileForm.identity.description"
                 :disabled="!isAdmin"
                 :rows="4"
                 class="w-full"
@@ -318,7 +358,7 @@ function discard() {
               required
             >
               <UInput
-                v-model="form.searchPlaceholder"
+                v-model="searchPlaceholder"
                 :disabled="!isAdmin"
                 icon="i-tabler-search"
                 class="w-full"
@@ -353,7 +393,7 @@ function discard() {
             required
           >
             <UTextarea
-              v-model="form.footerTagline"
+              v-model="profileForm.footer.tagline"
               :disabled="!isAdmin"
               :rows="3"
               class="w-full"

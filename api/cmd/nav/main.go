@@ -11,9 +11,11 @@ import (
 	"platform/gokit/authsetup"
 	"platform/gokit/observability"
 	"platform/gokit/openapiexport"
+	"platform/gokit/postgresdb"
 	"platform/products/nav/api/internal/appconfig"
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/dao"
+	"platform/products/nav/api/internal/navprofile"
 	"platform/products/nav/api/internal/server"
 )
 
@@ -27,7 +29,9 @@ func main() {
 
 	httpServer := g.Server()
 	if os.Getenv("PLATFORM_OPENAPI_OUTPUT") != "" {
-		server.Configure(httpServer, server.Deps{Catalog: catalog.New(nil, siteMeta("月离导航"))})
+		openAPICatalog := catalog.New(nil, siteMeta("月离导航"))
+		openAPICatalog.SetSiteProfile(navprofile.NewMemory())
+		server.Configure(httpServer, server.Deps{Catalog: openAPICatalog})
 		if handled, exportErr := openapiexport.ExportIfRequested(httpServer); handled {
 			if exportErr != nil {
 				panic(exportErr)
@@ -37,6 +41,19 @@ func main() {
 	}
 
 	service := catalog.New(dao.NewPG(g.DB()), siteMeta(appconfig.SiteBrand(ctx)))
+	profileDB, err := postgresdb.OpenDefault(ctx)
+	if err != nil {
+		panic(err)
+	}
+	defer profileDB.Close()
+	profiles, err := navprofile.NewPostgres(profileDB)
+	if err != nil {
+		panic(err)
+	}
+	service.SetSiteProfile(profiles)
+	if err := service.EnsureSiteProfile(ctx); err != nil {
+		panic(err)
+	}
 	jwks := appconfig.LoadJWKS(ctx)
 	verifier, err := authsetup.NewRemoteVerifier(authsetup.RemoteVerifierConfig{
 		JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience,

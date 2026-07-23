@@ -146,7 +146,7 @@ func TestPGLinkRoundTrip(t *testing.T) {
 	}
 
 	settings, err := store.SiteSettings(ctx)
-	if err != nil || settings == nil || settings.Name == "" {
+	if err != nil || settings == nil || settings.SearchPlaceholder == "" {
 		t.Fatalf("site settings=%#v err=%v", settings, err)
 	}
 	if err := store.UpsertSiteSettings(ctx, settings); err != nil {
