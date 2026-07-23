@@ -25,3 +25,7 @@ func LoadJWKS(ctx context.Context) JWKS {
 func SiteBrand(ctx context.Context) string {
 	return g.Cfg().MustGet(ctx, "nav.brand", "月离导航").String()
 }
+
+func SiteSlug(ctx context.Context) string {
+	return g.Cfg().MustGet(ctx, "nav.siteSlug", "nav").String()
+}

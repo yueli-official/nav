@@ -16,10 +16,12 @@ import (
 
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/google/uuid"
+	"github.com/yueli-official/foundation/go/audit"
 	"github.com/yueli-official/foundation/go/siteprofile"
 
 	"platform/products/nav/api/internal/dao"
 	"platform/products/nav/api/internal/model"
+	"platform/products/nav/api/internal/navaudit"
 	"platform/products/nav/api/internal/naverr"
 	"platform/products/nav/api/internal/navprofile"
 )
@@ -136,6 +138,7 @@ type Service struct {
 	checker       LinkChecker
 	faviconClient *http.Client
 	profiles      *navprofile.Manager
+	audit         *navaudit.Journal
 }
 
 func (s *Service) SetSiteProfile(profiles *navprofile.Manager) {
@@ -336,8 +339,17 @@ func (s *Service) CreateLink(ctx context.Context, input LinkInput) (*model.Link,
 	if exists {
 		return nil, naverr.Conflict(link.ID)
 	}
-	if err := s.store.InsertLink(ctx, link); err != nil {
-		return nil, err
+	var insertErr error
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		insertErr = store.InsertLinkWithHook(
+			ctx, link,
+			s.linkAuditHook(ctx, navigationAction(link.Status), "nav.link", link.ID, linkDigest(link), 0),
+		)
+	} else {
+		insertErr = s.store.InsertLink(ctx, link)
+	}
+	if insertErr != nil {
+		return nil, insertErr
 	}
 	created, err := s.store.LinkByID(ctx, link.ID)
 	if err != nil {
@@ -355,7 +367,15 @@ func (s *Service) UpdateLink(ctx context.Context, id string, input LinkInput) (*
 	if err != nil {
 		return nil, err
 	}
-	updated, err := s.store.UpdateLink(ctx, link)
+	var updated bool
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		updated, err = store.UpdateLinkWithHook(
+			ctx, link,
+			s.linkAuditHook(ctx, navigationAction(link.Status), "nav.link", link.ID, linkDigest(link), 0),
+		)
+	} else {
+		updated, err = s.store.UpdateLink(ctx, link)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -373,7 +393,17 @@ func (s *Service) UpdateLink(ctx context.Context, id string, input LinkInput) (*
 }
 
 func (s *Service) DeleteLink(ctx context.Context, id string) error {
-	deleted, err := s.store.DeleteLink(ctx, strings.TrimSpace(id))
+	id = strings.TrimSpace(id)
+	var deleted bool
+	var err error
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		deleted, err = store.DeleteLinkWithHook(
+			ctx, id,
+			s.linkAuditHook(ctx, navaudit.ActionNavigationDeleted, "nav.link", id, "", 0),
+		)
+	} else {
+		deleted, err = s.store.DeleteLink(ctx, id)
+	}
 	if err != nil {
 		return err
 	}
@@ -420,9 +450,23 @@ func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (B
 	var changed int
 	var err error
 	if action == "delete" {
-		changed, err = s.store.BulkDeleteLinks(ctx, eligible)
+		if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+			changed, err = store.BulkDeleteLinksWithHook(
+				ctx, eligible,
+				s.linkAuditHook(ctx, navaudit.ActionNavigationDeleted, "nav.link_batch", uuid.NewString(), "", len(eligible)),
+			)
+		} else {
+			changed, err = s.store.BulkDeleteLinks(ctx, eligible)
+		}
 	} else {
-		changed, err = s.store.BulkUpdateLinks(ctx, eligible, status)
+		if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+			changed, err = store.BulkUpdateLinksWithHook(
+				ctx, eligible, status,
+				s.linkAuditHook(ctx, navigationAction(status), "nav.link_batch", uuid.NewString(), "", len(eligible)),
+			)
+		} else {
+			changed, err = s.store.BulkUpdateLinks(ctx, eligible, status)
+		}
 	}
 	if err != nil {
 		return BulkResult{}, err
@@ -445,8 +489,14 @@ func (s *Service) CreateCategory(ctx context.Context, input model.Category) (*mo
 		return nil, err
 	}
 	category.ID = uuid.NewString()
-	if err := s.store.InsertCategory(ctx, category); err != nil {
-		return nil, err
+	var insertErr error
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		insertErr = store.InsertCategoryWithHook(ctx, category, s.taxonomyAuditHook(ctx, "category", category.ID, 0))
+	} else {
+		insertErr = s.store.InsertCategory(ctx, category)
+	}
+	if insertErr != nil {
+		return nil, insertErr
 	}
 	return category, nil
 }
@@ -457,7 +507,12 @@ func (s *Service) UpdateCategory(ctx context.Context, id string, input model.Cat
 	if err != nil {
 		return nil, err
 	}
-	updated, err := s.store.UpdateCategory(ctx, category)
+	var updated bool
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		updated, err = store.UpdateCategoryWithHook(ctx, category, s.taxonomyAuditHook(ctx, "category", category.ID, 0))
+	} else {
+		updated, err = s.store.UpdateCategory(ctx, category)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -468,7 +523,14 @@ func (s *Service) UpdateCategory(ctx context.Context, id string, input model.Cat
 }
 
 func (s *Service) DeleteCategory(ctx context.Context, id string) error {
-	deleted, err := s.store.DeleteCategory(ctx, strings.TrimSpace(id))
+	id = strings.TrimSpace(id)
+	var deleted bool
+	var err error
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		deleted, err = store.DeleteCategoryWithHook(ctx, id, s.taxonomyAuditHook(ctx, "category", id, 0))
+	} else {
+		deleted, err = s.store.DeleteCategory(ctx, id)
+	}
 	if err != nil {
 		return err
 	}
@@ -484,8 +546,14 @@ func (s *Service) CreateGroup(ctx context.Context, input model.Group) (*model.Gr
 		return nil, err
 	}
 	group.ID = uuid.NewString()
-	if err := s.store.InsertGroup(ctx, group); err != nil {
-		return nil, err
+	var insertErr error
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		insertErr = store.InsertGroupWithHook(ctx, group, s.taxonomyAuditHook(ctx, "group", group.ID, 0))
+	} else {
+		insertErr = s.store.InsertGroup(ctx, group)
+	}
+	if insertErr != nil {
+		return nil, insertErr
 	}
 	return group, nil
 }
@@ -496,7 +564,12 @@ func (s *Service) UpdateGroup(ctx context.Context, id string, input model.Group)
 	if err != nil {
 		return nil, err
 	}
-	updated, err := s.store.UpdateGroup(ctx, group)
+	var updated bool
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		updated, err = store.UpdateGroupWithHook(ctx, group, s.taxonomyAuditHook(ctx, "group", group.ID, 0))
+	} else {
+		updated, err = s.store.UpdateGroup(ctx, group)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -507,7 +580,14 @@ func (s *Service) UpdateGroup(ctx context.Context, id string, input model.Group)
 }
 
 func (s *Service) DeleteGroup(ctx context.Context, id string) error {
-	deleted, err := s.store.DeleteGroup(ctx, strings.TrimSpace(id))
+	id = strings.TrimSpace(id)
+	var deleted bool
+	var err error
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		deleted, err = store.DeleteGroupWithHook(ctx, id, s.taxonomyAuditHook(ctx, "group", id, 0))
+	} else {
+		deleted, err = s.store.DeleteGroup(ctx, id)
+	}
 	if err != nil {
 		return err
 	}
@@ -529,6 +609,9 @@ func (s *Service) RenameTag(ctx context.Context, source, target string) (int, er
 	if strings.EqualFold(source, target) {
 		return 0, naverr.Validation("target", "different", nil)
 	}
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		return store.RenameTagWithHook(ctx, source, target, s.taxonomyAuditHook(ctx, "tag", source, 0))
+	}
 	return s.store.RenameTag(ctx, source, target)
 }
 
@@ -536,6 +619,9 @@ func (s *Service) DeleteTag(ctx context.Context, name string) (int, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
 		return 0, naverr.Validation("name", "required", nil)
+	}
+	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
+		return store.DeleteTagWithHook(ctx, name, s.taxonomyAuditHook(ctx, "tag", name, 0))
 	}
 	return s.store.DeleteTag(ctx, name)
 }
@@ -597,11 +683,25 @@ func (s *Service) SaveAdminSiteSettings(
 		return AdminSiteSettings{}, errors.New("navigation store does not support atomic site profile settings")
 	}
 	err := store.SaveSiteSettingsWithHook(ctx, searchPlaceholder, expectedRuntimeRevision, func(ctx context.Context, tx *sql.Tx) error {
-		_, replaceErr := s.profiles.ReplaceTx(ctx, tx, siteprofile.ReplaceCommand{
+		result, replaceErr := s.profiles.ReplaceTx(ctx, tx, siteprofile.ReplaceCommand{
 			ExpectedRevision: expected,
 			Profile:          profile,
 		})
-		return replaceErr
+		if replaceErr != nil {
+			return replaceErr
+		}
+		if s.audit == nil || !result.Changed {
+			return nil
+		}
+		hook := s.audit.Hook(
+			ctx, navaudit.ActionSiteProfilePublished, uuid.NewString(),
+			audit.Target{Type: "nav.site_profile", ID: "default"},
+			navaudit.Evidence{
+				Revision: uint64(result.Snapshot.Revision),
+				Digest:   string(result.Snapshot.DocumentDigest),
+			},
+		)
+		return hook(ctx, tx)
 	})
 	if errors.Is(err, dao.ErrSiteSettingsRevisionConflict) {
 		return AdminSiteSettings{}, naverr.RevisionConflict()

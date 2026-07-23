@@ -295,8 +295,14 @@ func (p *PG) Tags(ctx context.Context, query string) ([]*model.Tag, error) {
 }
 
 func (p *PG) RenameTag(ctx context.Context, source, target string) (int, error) {
+	return p.RenameTagWithHook(ctx, source, target, nil)
+}
+
+func (p *PG) RenameTagWithHook(ctx context.Context, source, target string, hook TransactionHook) (int, error) {
 	needle, _ := json.Marshal([]string{source})
-	result, err := p.db.Exec(ctx, `
+	changed := 0
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Ctx(ctx).Exec(`
 		UPDATE nav_links
 		SET tags = (
 			SELECT COALESCE(jsonb_agg(value), '[]'::jsonb)
@@ -306,16 +312,28 @@ func (p *PG) RenameTag(ctx context.Context, source, target string) (int, error) 
 			) normalized
 		), updated_at = NOW()
 		WHERE tags @> ?::jsonb`, source, target, string(needle))
-	if err != nil {
-		return 0, gerror.Wrap(err, "rename navigation tag")
-	}
-	changed, err := result.RowsAffected()
-	return int(changed), gerror.Wrap(err, "read navigation tag rename result")
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		changed = int(affected)
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return changed, gerror.Wrap(err, "rename navigation tag")
 }
 
 func (p *PG) DeleteTag(ctx context.Context, name string) (int, error) {
+	return p.DeleteTagWithHook(ctx, name, nil)
+}
+
+func (p *PG) DeleteTagWithHook(ctx context.Context, name string, hook TransactionHook) (int, error) {
 	needle, _ := json.Marshal([]string{name})
-	result, err := p.db.Exec(ctx, `
+	changed := 0
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Ctx(ctx).Exec(`
 		UPDATE nav_links
 		SET tags = (
 			SELECT COALESCE(jsonb_agg(tag), '[]'::jsonb)
@@ -323,11 +341,17 @@ func (p *PG) DeleteTag(ctx context.Context, name string) (int, error) {
 			WHERE tag <> ?
 		), updated_at = NOW()
 		WHERE tags @> ?::jsonb`, name, string(needle))
-	if err != nil {
-		return 0, gerror.Wrap(err, "delete navigation tag")
-	}
-	changed, err := result.RowsAffected()
-	return int(changed), gerror.Wrap(err, "read navigation tag delete result")
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		changed = int(affected)
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return changed, gerror.Wrap(err, "delete navigation tag")
 }
 
 func (p *PG) GroupBelongsToCategory(ctx context.Context, groupID, categoryID string) (bool, error) {
@@ -341,44 +365,107 @@ func (p *PG) LinkExists(ctx context.Context, id string) (bool, error) {
 }
 
 func (p *PG) InsertLink(ctx context.Context, link *model.Link) error {
-	_, err := p.db.Model(tLinks).Ctx(ctx).Data(insertMutation(link)).Insert()
+	return p.InsertLinkWithHook(ctx, link, nil)
+}
+
+func (p *PG) InsertLinkWithHook(ctx context.Context, link *model.Link, hook TransactionHook) error {
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		if _, err := tx.Model(tLinks).Ctx(ctx).Data(insertMutation(link)).Insert(); err != nil {
+			return err
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
 	return gerror.Wrap(err, "insert navigation link")
 }
 
 func (p *PG) UpdateLink(ctx context.Context, link *model.Link) (bool, error) {
-	result, err := p.db.Model(tLinks).Ctx(ctx).Where("id", link.ID).Data(mutation(link)).Update()
-	if err != nil {
-		return false, gerror.Wrap(err, "update navigation link")
-	}
-	affected, err := result.RowsAffected()
-	return affected > 0, gerror.Wrap(err, "read navigation update result")
+	return p.UpdateLinkWithHook(ctx, link, nil)
+}
+
+func (p *PG) UpdateLinkWithHook(ctx context.Context, link *model.Link, hook TransactionHook) (bool, error) {
+	updated := false
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Model(tLinks).Ctx(ctx).Where("id", link.ID).Data(mutation(link)).Update()
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		updated = affected > 0
+		if !updated {
+			return nil
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return updated, gerror.Wrap(err, "update navigation link")
 }
 
 func (p *PG) DeleteLink(ctx context.Context, id string) (bool, error) {
-	result, err := p.db.Model(tLinks).Ctx(ctx).Where("id", id).Delete()
-	if err != nil {
-		return false, gerror.Wrap(err, "delete navigation link")
-	}
-	affected, err := result.RowsAffected()
-	return affected > 0, gerror.Wrap(err, "read navigation delete result")
+	return p.DeleteLinkWithHook(ctx, id, nil)
+}
+
+func (p *PG) DeleteLinkWithHook(ctx context.Context, id string, hook TransactionHook) (bool, error) {
+	deleted := false
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Model(tLinks).Ctx(ctx).Where("id", id).Delete()
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		deleted = affected > 0
+		if !deleted {
+			return nil
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return deleted, gerror.Wrap(err, "delete navigation link")
 }
 
 func (p *PG) BulkUpdateLinks(ctx context.Context, ids []string, status string) (int, error) {
-	result, err := p.db.Model(tLinks).Ctx(ctx).WhereIn("id", ids).Data(linkStatusMutation{Status: status, UpdatedAt: gtime.Now()}).Update()
-	if err != nil {
-		return 0, gerror.Wrap(err, "bulk update navigation links")
-	}
-	changed, err := result.RowsAffected()
-	return int(changed), gerror.Wrap(err, "read navigation bulk update result")
+	return p.BulkUpdateLinksWithHook(ctx, ids, status, nil)
+}
+
+func (p *PG) BulkUpdateLinksWithHook(ctx context.Context, ids []string, status string, hook TransactionHook) (int, error) {
+	changed := 0
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Model(tLinks).Ctx(ctx).WhereIn("id", ids).Data(linkStatusMutation{Status: status, UpdatedAt: gtime.Now()}).Update()
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		changed = int(affected)
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return changed, gerror.Wrap(err, "bulk update navigation links")
 }
 
 func (p *PG) BulkDeleteLinks(ctx context.Context, ids []string) (int, error) {
-	result, err := p.db.Model(tLinks).Ctx(ctx).WhereIn("id", ids).Delete()
-	if err != nil {
-		return 0, gerror.Wrap(err, "bulk delete navigation links")
-	}
-	changed, err := result.RowsAffected()
-	return int(changed), gerror.Wrap(err, "read navigation bulk delete result")
+	return p.BulkDeleteLinksWithHook(ctx, ids, nil)
+}
+
+func (p *PG) BulkDeleteLinksWithHook(ctx context.Context, ids []string, hook TransactionHook) (int, error) {
+	changed := 0
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Model(tLinks).Ctx(ctx).WhereIn("id", ids).Delete()
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		changed = int(affected)
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return changed, gerror.Wrap(err, "bulk delete navigation links")
 }
 
 type linkStatusMutation struct {
@@ -387,41 +474,90 @@ type linkStatusMutation struct {
 }
 
 func (p *PG) InsertCategory(ctx context.Context, category *model.Category) error {
-	_, err := p.db.Model(tCategories).Ctx(ctx).Data(categoryInsertMutation{ID: category.ID, Title: category.Title, Description: category.Description, Icon: category.Icon, SortOrder: category.SortOrder}).Insert()
+	return p.InsertCategoryWithHook(ctx, category, nil)
+}
+
+func (p *PG) InsertCategoryWithHook(ctx context.Context, category *model.Category, hook TransactionHook) error {
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		if _, err := tx.Model(tCategories).Ctx(ctx).Data(categoryInsertMutation{ID: category.ID, Title: category.Title, Description: category.Description, Icon: category.Icon, SortOrder: category.SortOrder}).Insert(); err != nil {
+			return err
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
 	return gerror.Wrap(err, "insert navigation category")
 }
 
 func (p *PG) UpdateCategory(ctx context.Context, category *model.Category) (bool, error) {
-	result, err := p.db.Model(tCategories).Ctx(ctx).Where("id", category.ID).Data(categoryData(category)).Update()
-	if err != nil {
-		return false, gerror.Wrap(err, "update navigation category")
-	}
-	changed, err := result.RowsAffected()
-	return changed > 0, gerror.Wrap(err, "read navigation category update result")
+	return p.UpdateCategoryWithHook(ctx, category, nil)
+}
+
+func (p *PG) UpdateCategoryWithHook(ctx context.Context, category *model.Category, hook TransactionHook) (bool, error) {
+	updated := false
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		result, err := tx.Model(tCategories).Ctx(ctx).Where("id", category.ID).Data(categoryData(category)).Update()
+		if err != nil {
+			return err
+		}
+		changed, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		updated = changed > 0
+		if !updated {
+			return nil
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return updated, gerror.Wrap(err, "update navigation category")
 }
 
 func (p *PG) DeleteCategory(ctx context.Context, id string) (bool, error) {
-	count, err := p.db.Model(tGroups).Ctx(ctx).Where("category_id", id).Count()
-	if err != nil {
-		return false, gerror.Wrap(err, "count navigation category groups")
-	}
-	if count > 0 {
-		return false, nil
-	}
-	result, err := p.db.Model(tCategories).Ctx(ctx).Where("id", id).Delete()
-	if err != nil {
-		return false, gerror.Wrap(err, "delete navigation category")
-	}
-	changed, err := result.RowsAffected()
-	return changed > 0, gerror.Wrap(err, "read navigation category delete result")
+	return p.DeleteCategoryWithHook(ctx, id, nil)
+}
+
+func (p *PG) DeleteCategoryWithHook(ctx context.Context, id string, hook TransactionHook) (bool, error) {
+	deleted := false
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		count, err := tx.Model(tGroups).Ctx(ctx).Where("category_id", id).Count()
+		if err != nil || count > 0 {
+			return err
+		}
+		result, err := tx.Model(tCategories).Ctx(ctx).Where("id", id).Delete()
+		if err != nil {
+			return err
+		}
+		changed, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		deleted = changed > 0
+		if !deleted {
+			return nil
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return deleted, gerror.Wrap(err, "delete navigation category")
 }
 
 func (p *PG) InsertGroup(ctx context.Context, group *model.Group) error {
-	_, err := p.db.Model(tGroups).Ctx(ctx).Data(groupInsertMutation{ID: group.ID, CategoryID: group.CategoryID, Title: group.Title, Description: group.Description, SortOrder: group.SortOrder}).Insert()
+	return p.InsertGroupWithHook(ctx, group, nil)
+}
+
+func (p *PG) InsertGroupWithHook(ctx context.Context, group *model.Group, hook TransactionHook) error {
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		if _, err := tx.Model(tGroups).Ctx(ctx).Data(groupInsertMutation{ID: group.ID, CategoryID: group.CategoryID, Title: group.Title, Description: group.Description, SortOrder: group.SortOrder}).Insert(); err != nil {
+			return err
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
 	return gerror.Wrap(err, "insert navigation group")
 }
 
 func (p *PG) UpdateGroup(ctx context.Context, group *model.Group) (bool, error) {
+	return p.UpdateGroupWithHook(ctx, group, nil)
+}
+
+func (p *PG) UpdateGroupWithHook(ctx context.Context, group *model.Group, hook TransactionHook) (bool, error) {
 	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
 		result, updateErr := tx.Model(tGroups).Ctx(ctx).Where("id", group.ID).Data(groupData(group)).Update()
 		if updateErr != nil {
@@ -437,25 +573,40 @@ func (p *PG) UpdateGroup(ctx context.Context, group *model.Group) (bool, error) 
 		_, updateErr = tx.Model(tLinks).Ctx(ctx).Where("group_id", group.ID).Data(struct {
 			CategoryID string `orm:"category_id"`
 		}{CategoryID: group.CategoryID}).Update()
-		return updateErr
+		if updateErr != nil {
+			return updateErr
+		}
+		return runTransactionHook(ctx, tx, hook)
 	})
 	return err == nil, gerror.Wrap(err, "update navigation group")
 }
 
 func (p *PG) DeleteGroup(ctx context.Context, id string) (bool, error) {
-	count, err := p.db.Model(tLinks).Ctx(ctx).Where("group_id", id).Count()
-	if err != nil {
-		return false, gerror.Wrap(err, "count navigation group links")
-	}
-	if count > 0 {
-		return false, nil
-	}
-	result, err := p.db.Model(tGroups).Ctx(ctx).Where("id", id).Delete()
-	if err != nil {
-		return false, gerror.Wrap(err, "delete navigation group")
-	}
-	changed, err := result.RowsAffected()
-	return changed > 0, gerror.Wrap(err, "read navigation group delete result")
+	return p.DeleteGroupWithHook(ctx, id, nil)
+}
+
+func (p *PG) DeleteGroupWithHook(ctx context.Context, id string, hook TransactionHook) (bool, error) {
+	deleted := false
+	err := p.db.Transaction(ctx, func(ctx context.Context, tx gdb.TX) error {
+		count, err := tx.Model(tLinks).Ctx(ctx).Where("group_id", id).Count()
+		if err != nil || count > 0 {
+			return err
+		}
+		result, err := tx.Model(tGroups).Ctx(ctx).Where("id", id).Delete()
+		if err != nil {
+			return err
+		}
+		changed, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		deleted = changed > 0
+		if !deleted {
+			return nil
+		}
+		return runTransactionHook(ctx, tx, hook)
+	})
+	return deleted, gerror.Wrap(err, "delete navigation group")
 }
 
 func (p *PG) SiteSettings(ctx context.Context) (*model.SiteSettings, error) {

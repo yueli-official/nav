@@ -15,6 +15,7 @@ import (
 	"platform/products/nav/api/internal/appconfig"
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/dao"
+	"platform/products/nav/api/internal/navaudit"
 	"platform/products/nav/api/internal/navprofile"
 	"platform/products/nav/api/internal/server"
 )
@@ -46,6 +47,11 @@ func main() {
 		panic(err)
 	}
 	defer profileDB.Close()
+	auditJournal, err := navaudit.New(ctx, profileDB, appconfig.SiteSlug(ctx))
+	if err != nil {
+		panic(err)
+	}
+	service.SetAudit(auditJournal)
 	profiles, err := navprofile.NewPostgres(profileDB)
 	if err != nil {
 		panic(err)

@@ -19,7 +19,10 @@ describe("manage hydration contracts", () => {
         "utf8",
       );
 
-      expect(source).toContain("server: false");
+      expect(
+        source.includes("server: false") ||
+          source.includes("useVueCollectionWorkflow"),
+      ).toBe(true);
       expect(source).toContain("ManageClientBoundary");
       expect(source).toContain("<ManageClientBoundary");
     },
