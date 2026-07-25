@@ -8,6 +8,7 @@ const clientManagedPages = [
   "tags.vue",
   "checks.vue",
   "settings.vue",
+  "authorization.vue",
 ];
 
 describe("manage hydration contracts", () => {

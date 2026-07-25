@@ -5,6 +5,8 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	"github.com/yueli-official/foundation/go/authorization"
+	authorizationpostgres "github.com/yueli-official/foundation/go/authorization/postgres"
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 
@@ -16,6 +18,7 @@ import (
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/dao"
 	"platform/products/nav/api/internal/navaudit"
+	"platform/products/nav/api/internal/navauthz"
 	"platform/products/nav/api/internal/navprofile"
 	"platform/products/nav/api/internal/server"
 )
@@ -60,6 +63,35 @@ func main() {
 	if err := service.EnsureSiteProfile(ctx); err != nil {
 		panic(err)
 	}
+	definition, err := authorization.Compile(navauthz.Definition())
+	if err != nil {
+		panic(err)
+	}
+	bootstrapSubs := appconfig.BootstrapAdministratorSubs(ctx)
+	protected := make([]authorization.SubjectRef, 0, len(bootstrapSubs))
+	for _, sub := range bootstrapSubs {
+		if sub != "" {
+			protected = append(protected, authorization.SubjectRef{Kind: authorization.SubjectUser, ID: sub})
+		}
+	}
+	authz, err := authorizationpostgres.New(ctx, definition, authorizationpostgres.Options{
+		DB: profileDB, InstanceKey: "nav:" + appconfig.SiteSlug(ctx),
+		Memory: authorization.MemoryOptions{
+			RootScopeID: navauthz.RootScopeID, ProtectedSubjects: protected,
+			Constraints: navauthz.ConstraintEvaluators(),
+			Predicates:  navauthz.PredicateEvaluators(),
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+	if authz.InstanceWasCreated() && len(protected) == 0 {
+		panic("nav authorization bootstrap requires at least one administrator subject")
+	}
+	if err := navauthz.SyncResourceScopes(ctx, profileDB, authz); err != nil {
+		panic(err)
+	}
+	authorizationService := navauthz.New(authz, profileDB)
 	jwks := appconfig.LoadJWKS(ctx)
 	verifier, err := authsetup.NewRemoteVerifier(authsetup.RemoteVerifierConfig{
 		JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience,
@@ -69,7 +101,9 @@ func main() {
 		panic(err)
 	}
 
-	server.Configure(httpServer, server.Deps{Verifier: verifier, Catalog: service})
+	server.Configure(httpServer, server.Deps{
+		Verifier: verifier, Catalog: service, Authorization: authorizationService,
+	})
 	g.Log().Info(ctx, "nav service starting")
 	httpServer.Run()
 }

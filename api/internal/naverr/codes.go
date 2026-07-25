@@ -9,12 +9,13 @@ import (
 )
 
 var (
-	CodeNotFound             = errs.Register("nav.not_found", http.StatusNotFound)
-	CodeForbidden            = errs.Register("nav.forbidden", http.StatusForbidden)
-	CodeConflict             = errs.Register("nav.conflict", http.StatusConflict)
-	CodeNotInitialized       = errs.Register("nav.not_initialized", 503)
-	CodeRevisionConflict     = errs.Register("nav.site_profile_revision_conflict", 412)
-	CodePreconditionRequired = errs.Register("nav.site_profile_precondition_required", 428)
+	CodeNotFound                 = errs.Register("nav.not_found", http.StatusNotFound)
+	CodeForbidden                = errs.Register("nav.forbidden", http.StatusForbidden)
+	CodeConflict                 = errs.Register("nav.conflict", http.StatusConflict)
+	CodeNotInitialized           = errs.Register("nav.not_initialized", 503)
+	CodeAuthorizationUnavailable = errs.Register("nav.authorization_unavailable", 503)
+	CodeRevisionConflict         = errs.Register("nav.site_profile_revision_conflict", 412)
+	CodePreconditionRequired     = errs.Register("nav.site_profile_precondition_required", 428)
 )
 
 func NotFound(id string) *errs.Coded {
@@ -35,6 +36,10 @@ func FaviconNotFound(id string) *errs.Coded {
 
 func Forbidden() *errs.Coded {
 	return errs.New(CodeForbidden, "forbidden", nil)
+}
+
+func AuthorizationUnavailable() *errs.Coded {
+	return errs.New(CodeAuthorizationUnavailable, "navigation authorization is unavailable", nil)
 }
 
 func Validation(field, code string, params map[string]any) *errs.Coded {

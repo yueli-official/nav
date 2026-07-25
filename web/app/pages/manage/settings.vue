@@ -21,7 +21,8 @@ import type { NavigationSettingsResponse } from "~/types/navigation";
 definePageMeta({ layout: "manage", middleware: "auth" });
 useSeoMeta({ title: "站点设置 · 月离导航" });
 
-const { isAdmin } = useAuth();
+const { can } = useMe();
+const canManageSettings = computed(() => can("nav.settings.manage"));
 const { call } = useApi();
 const route = useRoute();
 const router = useRouter();
@@ -131,7 +132,7 @@ watch(section, (value) => {
 });
 
 async function save() {
-  if (!isAdmin.value) return;
+  if (!canManageSettings.value) return;
   markSaving();
   saveError.value = "";
   try {
@@ -180,34 +181,42 @@ function discard() {
 </script>
 
 <template>
-  <UForm
-    ref="settings-form"
-    :state="{ profile: profileForm, searchPlaceholder }"
-    class="contents"
-    @submit="save"
+  <YAdminPage
+    id="settings"
+    title="站点设置"
+    description="管理公开站点资料、精选说明、搜索提示与页脚内容。"
+    icon="i-tabler-settings"
+    main-id="manage-main"
+    body-class="mx-auto w-full max-w-screen-2xl"
   >
-    <ManageClientBoundary :rows="4">
+    <template #actions>
+      <UButton
+        to="/"
+        target="_blank"
+        color="neutral"
+        variant="soft"
+        icon="i-tabler-external-link"
+        label="查看公开站点"
+      />
+    </template>
+    <UForm
+      ref="settings-form"
+      :state="{ profile: profileForm, searchPlaceholder }"
+      class="contents"
+      @submit="save"
+    >
+      <ManageClientBoundary :rows="4">
       <SettingsLayout
         v-model:active-section="section"
         :title="activeSection.label"
         :description="activeSection.description"
         :sections="sections"
         navigation-label="设置分区"
+        :show-header="false"
       >
-        <template #actions>
-          <UButton
-            to="/"
-            target="_blank"
-            color="neutral"
-            variant="soft"
-            icon="i-tabler-external-link"
-            label="查看公开站点"
-          />
-        </template>
-
         <template #notice>
           <UAlert
-            v-if="!isAdmin"
+            v-if="!canManageSettings"
             color="neutral"
             variant="subtle"
             icon="i-tabler-lock"
@@ -261,7 +270,7 @@ function discard() {
             >
               <UInput
                 v-model="profileForm.identity.name"
-                :disabled="!isAdmin"
+                :disabled="!canManageSettings"
                 class="w-full"
               />
             </UFormField>
@@ -273,7 +282,7 @@ function discard() {
             >
               <UInput
                 v-model="profileForm.identity.tagline"
-                :disabled="!isAdmin"
+                :disabled="!canManageSettings"
                 class="w-full"
               />
             </UFormField>
@@ -285,7 +294,7 @@ function discard() {
             >
               <UTextarea
                 v-model="profileForm.identity.description"
-                :disabled="!isAdmin"
+                :disabled="!canManageSettings"
                 :rows="4"
                 class="w-full"
               />
@@ -359,7 +368,7 @@ function discard() {
             >
               <UInput
                 v-model="searchPlaceholder"
-                :disabled="!isAdmin"
+                :disabled="!canManageSettings"
                 icon="i-tabler-search"
                 class="w-full"
               />
@@ -394,7 +403,7 @@ function discard() {
           >
             <UTextarea
               v-model="profileForm.footer.tagline"
-              :disabled="!isAdmin"
+              :disabled="!canManageSettings"
               :rows="3"
               class="w-full"
             />
@@ -405,13 +414,14 @@ function discard() {
           :dirty="settingsState.dirty.value"
           :status="saveStatus"
           :error="saveError"
-          :disabled="!isAdmin"
+          :disabled="!canManageSettings"
           :messages="platformSettingsSaveMessages"
           dock-class="lg:left-60"
           @discard="discard"
           @save="submitSettings"
         />
       </SettingsLayout>
-    </ManageClientBoundary>
-  </UForm>
+      </ManageClientBoundary>
+    </UForm>
+  </YAdminPage>
 </template>

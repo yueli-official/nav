@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
   ManageEmpty,
@@ -17,7 +16,8 @@ import type {
 definePageMeta({ layout: "manage", middleware: "auth" });
 useSeoMeta({ title: "分类与主题 · 月离导航" });
 
-const { isAdmin } = useAuth();
+const { can } = useMe();
+const canManageStructure = computed(() => can("nav.structure.manage"));
 const { call } = useApi();
 const search = ref("");
 const panelOpen = ref(false);
@@ -90,7 +90,7 @@ const visibleCategories = computed(() => {
 });
 
 function openCategory(category?: NavigationCategory) {
-  if (!isAdmin.value) return;
+  if (!canManageStructure.value) return;
   entityKind.value = "category";
   currentId.value = category?.id ?? "";
   Object.assign(form, {
@@ -104,7 +104,7 @@ function openCategory(category?: NavigationCategory) {
   panelOpen.value = true;
 }
 function openGroup(category: NavigationCategory, group?: NavigationGroup) {
-  if (!isAdmin.value) return;
+  if (!canManageStructure.value) return;
   entityKind.value = "group";
   currentId.value = group?.id ?? "";
   Object.assign(form, {
@@ -118,7 +118,7 @@ function openGroup(category: NavigationCategory, group?: NavigationGroup) {
   panelOpen.value = true;
 }
 async function save() {
-  if (!isAdmin.value || saving.value) return;
+  if (!canManageStructure.value || saving.value) return;
   saving.value = true;
   saveError.value = "";
   const base = entityKind.value === "category" ? "categories" : "groups";
@@ -153,7 +153,7 @@ async function save() {
   }
 }
 function confirmDelete(kind: "category" | "group", id: string, name: string) {
-  if (!isAdmin.value) return;
+  if (!canManageStructure.value) return;
   deleteKind.value = kind;
   deleteId.value = id;
   deleteName.value = name;
@@ -161,7 +161,7 @@ function confirmDelete(kind: "category" | "group", id: string, name: string) {
   deleteOpen.value = true;
 }
 async function remove() {
-  if (!isAdmin.value || deleting.value) return;
+  if (!canManageStructure.value || deleting.value) return;
   deleting.value = true;
   deleteError.value = "";
   try {
@@ -186,21 +186,23 @@ async function remove() {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <PageHeader title="分类与主题">
-      <template #subtitle
-        >维护前台左侧导航结构；分类是一级入口，主题用于组织同类站点。</template
-      >
+  <YAdminPage
+    id="structure"
+    title="分类与主题"
+    description="维护公开导航结构；分类是一级入口，主题用于组织同类站点。"
+    icon="i-tabler-folders"
+    main-id="manage-main"
+    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+  >
       <template #actions
         ><UButton
           icon="i-tabler-folder-plus"
           label="新建分类"
-          :disabled="!isAdmin"
+          :disabled="!canManageStructure"
           @click="openCategory()"
       /></template>
-    </PageHeader>
     <UAlert
-      v-if="!isAdmin"
+      v-if="!canManageStructure"
       color="warning"
       icon="i-tabler-lock"
       title="当前账号没有管理权限"
@@ -264,7 +266,7 @@ async function remove() {
                 color="neutral"
                 variant="soft"
                 size="sm"
-                :disabled="!isAdmin"
+                :disabled="!canManageStructure"
                 @click="openGroup(category)"
               />
               <UTooltip text="编辑分类"
@@ -275,7 +277,7 @@ async function remove() {
                   size="sm"
                   square
                   :aria-label="`编辑分类：${category.title}`"
-                  :disabled="!isAdmin"
+                  :disabled="!canManageStructure"
                   @click="openCategory(category)"
               /></UTooltip>
             </div>
@@ -313,7 +315,7 @@ async function remove() {
                   size="sm"
                   square
                   :aria-label="`编辑主题：${group.title}`"
-                  :disabled="!isAdmin"
+                  :disabled="!canManageStructure"
                   @click="openGroup(category, group)"
                 />
               </div>
@@ -391,7 +393,7 @@ async function remove() {
               icon="i-tabler-trash"
               color="error"
               variant="soft"
-              :disabled="!isAdmin"
+              :disabled="!canManageStructure"
               @click="confirmDelete(entityKind, currentId, form.title)"
             />
           </div>
@@ -434,5 +436,5 @@ async function remove() {
           /></div
       ></template>
     </UModal>
-  </div>
+  </YAdminPage>
 </template>

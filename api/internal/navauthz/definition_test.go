@@ -4,9 +4,55 @@ import (
 	"context"
 	"testing"
 
+	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
 	"platform/products/nav/api/internal/navauthz"
 )
+
+func TestServiceReconcilesEnabledAutomaticCuratorOnFirstAuthenticatedAccess(t *testing.T) {
+	admin := authorization.SubjectRef{Kind: authorization.SubjectUser, ID: "admin"}
+	module, err := authorization.NewMemory(
+		authorization.MustCompile(navauthz.Definition()),
+		authorization.MemoryOptions{
+			RootScopeID: navauthz.RootScopeID, ProtectedSubjects: []authorization.SubjectRef{admin},
+			Constraints: navauthz.ConstraintEvaluators(), Predicates: navauthz.PredicateEvaluators(),
+		},
+	)
+	if err != nil {
+		t.Fatalf("NewMemory() error = %v", err)
+	}
+	ctx := context.Background()
+	draft, err := module.CreatePolicyDraft(ctx, authorization.CreatePolicyDraftCommand{
+		Actor: admin, ScopeID: navauthz.RootScopeID, ExpectedActiveRevision: 1,
+	})
+	if err != nil {
+		t.Fatalf("CreatePolicyDraft() error = %v", err)
+	}
+	if _, err := module.SetAutomaticRuleEnabled(ctx, authorization.SetAutomaticRuleEnabledCommand{
+		Actor: admin, Revision: draft.Number,
+		Rule: navauthz.AutomaticRegistrationCuratorKey, Enabled: true,
+	}); err != nil {
+		t.Fatalf("SetAutomaticRuleEnabled() error = %v", err)
+	}
+	if _, err := module.ActivatePolicy(ctx, authorization.ActivatePolicyCommand{
+		Actor: admin, Revision: draft.Number, ExpectedActiveRevision: 1,
+	}); err != nil {
+		t.Fatalf("ActivatePolicy() error = %v", err)
+	}
+	service := navauthz.New(module, nil)
+	userContext := foundationauth.NewContext(ctx, &foundationauth.Principal{Subject: "registered-user"})
+	access, err := service.EffectiveAccess(userContext)
+	if err != nil {
+		t.Fatalf("EffectiveAccess() error = %v", err)
+	}
+	found := false
+	for _, grant := range access.Grants {
+		found = found || grant.Role == navauthz.RoleCurator && grant.Source == authorization.GrantSourceAutomatic
+	}
+	if !found {
+		t.Fatalf("EffectiveAccess() grants = %#v, want automatic curator", access.Grants)
+	}
+}
 
 func TestDefinitionSupportsSubmitterQueriesAndScopedDelegation(t *testing.T) {
 	admin := authorization.SubjectRef{Kind: authorization.SubjectUser, ID: "admin"}
@@ -17,6 +63,7 @@ func TestDefinitionSupportsSubmitterQueriesAndScopedDelegation(t *testing.T) {
 		authorization.MemoryOptions{
 			RootScopeID: navauthz.RootScopeID, ProtectedSubjects: []authorization.SubjectRef{admin},
 			Constraints: navauthz.ConstraintEvaluators(),
+			Predicates:  navauthz.PredicateEvaluators(),
 		},
 	)
 	if err != nil {

@@ -50,6 +50,7 @@ type Link struct {
 	Featured         bool        `json:"featured" orm:"featured"`
 	Status           string      `json:"status" orm:"status"`
 	SortOrder        int         `json:"sortOrder" orm:"sort_order"`
+	SubmitterSub     string      `json:"submitterSub" orm:"submitter_sub"`
 	ClickCount       int64       `json:"clickCount" orm:"click_count"`
 	LastClickedAt    *gtime.Time `json:"lastClickedAt" orm:"last_clicked_at"`
 	HealthStatus     string      `json:"healthStatus" orm:"health_status"`

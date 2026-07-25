@@ -20,16 +20,20 @@ const (
 )
 
 type LinkFilter struct {
-	Query      string
-	CategoryID string
-	GroupID    string
-	Status     string
-	Tag        string
-	Health     string
-	Sort       string
-	Direction  string
-	Page       int
-	Size       int
+	Query           string
+	CategoryID      string
+	GroupID         string
+	Status          string
+	Tag             string
+	Health          string
+	Sort            string
+	Direction       string
+	Page            int
+	Size            int
+	SubmitterSub    string
+	AllowedGroupIDs []string
+	OwnedGroupIDs   []string
+	OwnedAll        bool
 }
 
 type linkHealthMutation struct {
@@ -78,34 +82,36 @@ type siteSettingsMutation struct {
 }
 
 type linkMutation struct {
-	CategoryID  string      `orm:"category_id"`
-	GroupID     string      `orm:"group_id"`
-	Title       string      `orm:"title"`
-	URL         string      `orm:"url"`
-	Description string      `orm:"description"`
-	Tags        string      `orm:"tags"`
-	Keywords    string      `orm:"keywords"`
-	Kind        string      `orm:"kind"`
-	Featured    bool        `orm:"featured"`
-	Status      string      `orm:"status"`
-	SortOrder   int         `orm:"sort_order"`
-	UpdatedAt   *gtime.Time `orm:"updated_at,omitempty"`
+	CategoryID   string      `orm:"category_id"`
+	GroupID      string      `orm:"group_id"`
+	Title        string      `orm:"title"`
+	URL          string      `orm:"url"`
+	Description  string      `orm:"description"`
+	Tags         string      `orm:"tags"`
+	Keywords     string      `orm:"keywords"`
+	Kind         string      `orm:"kind"`
+	Featured     bool        `orm:"featured"`
+	Status       string      `orm:"status"`
+	SortOrder    int         `orm:"sort_order"`
+	SubmitterSub string      `orm:"submitter_sub"`
+	UpdatedAt    *gtime.Time `orm:"updated_at,omitempty"`
 }
 
 type linkInsertMutation struct {
-	ID          string      `orm:"id"`
-	CategoryID  string      `orm:"category_id"`
-	GroupID     string      `orm:"group_id"`
-	Title       string      `orm:"title"`
-	URL         string      `orm:"url"`
-	Description string      `orm:"description"`
-	Tags        string      `orm:"tags"`
-	Keywords    string      `orm:"keywords"`
-	Kind        string      `orm:"kind"`
-	Featured    bool        `orm:"featured"`
-	Status      string      `orm:"status"`
-	SortOrder   int         `orm:"sort_order"`
-	UpdatedAt   *gtime.Time `orm:"updated_at,omitempty"`
+	ID           string      `orm:"id"`
+	CategoryID   string      `orm:"category_id"`
+	GroupID      string      `orm:"group_id"`
+	Title        string      `orm:"title"`
+	URL          string      `orm:"url"`
+	Description  string      `orm:"description"`
+	Tags         string      `orm:"tags"`
+	Keywords     string      `orm:"keywords"`
+	Kind         string      `orm:"kind"`
+	Featured     bool        `orm:"featured"`
+	Status       string      `orm:"status"`
+	SortOrder    int         `orm:"sort_order"`
+	SubmitterSub string      `orm:"submitter_sub"`
+	UpdatedAt    *gtime.Time `orm:"updated_at,omitempty"`
 }
 
 type PG struct {
@@ -171,15 +177,19 @@ func (p *PG) CountLinks(ctx context.Context, filter LinkFilter) (int, error) {
 	return count, gerror.Wrap(err, "count navigation links")
 }
 
-func (p *PG) LinkStatusCounts(ctx context.Context) (map[string]int, error) {
+func (p *PG) LinkStatusCounts(ctx context.Context, filter LinkFilter) (map[string]int, error) {
 	counts := map[string]int{}
-	all, err := p.db.Model(tLinks).Ctx(ctx).Count()
+	filter.Status = ""
+	filter.Page = 0
+	filter.Size = 0
+	all, err := p.linkQuery(ctx, filter).Count()
 	if err != nil {
 		return nil, gerror.Wrap(err, "count all navigation links")
 	}
 	counts["all"] = all
 	for _, status := range []string{"published", "draft", "archived"} {
-		count, countErr := p.db.Model(tLinks).Ctx(ctx).Where("status", status).Count()
+		filter.Status = status
+		count, countErr := p.linkQuery(ctx, filter).Count()
 		if countErr != nil {
 			return nil, gerror.Wrap(countErr, "count navigation links by status")
 		}
@@ -198,6 +208,26 @@ func (p *PG) linkQuery(ctx context.Context, filter LinkFilter) *gdb.Model {
 	}
 	if filter.GroupID != "" {
 		query = query.Where("group_id", filter.GroupID)
+	}
+	if filter.OwnedAll && strings.TrimSpace(filter.SubmitterSub) != "" {
+		query = query.Where("submitter_sub", strings.TrimSpace(filter.SubmitterSub))
+	} else if len(filter.AllowedGroupIDs) > 0 || len(filter.OwnedGroupIDs) > 0 {
+		parts := make([]string, 0, 2)
+		args := make([]any, 0, len(filter.AllowedGroupIDs)+len(filter.OwnedGroupIDs)+1)
+		if len(filter.AllowedGroupIDs) > 0 {
+			parts = append(parts, "group_id IN ("+queryPlaceholders(len(filter.AllowedGroupIDs))+")")
+			for _, id := range filter.AllowedGroupIDs {
+				args = append(args, id)
+			}
+		}
+		if len(filter.OwnedGroupIDs) > 0 {
+			parts = append(parts, "(group_id IN ("+queryPlaceholders(len(filter.OwnedGroupIDs))+") AND submitter_sub = ?)")
+			for _, id := range filter.OwnedGroupIDs {
+				args = append(args, id)
+			}
+			args = append(args, strings.TrimSpace(filter.SubmitterSub))
+		}
+		query = query.Where("("+strings.Join(parts, " OR ")+")", args...)
 	}
 	if strings.TrimSpace(filter.Tag) != "" {
 		tag, _ := json.Marshal([]string{strings.TrimSpace(filter.Tag)})
@@ -219,6 +249,13 @@ func (p *PG) linkQuery(ctx context.Context, filter LinkFilter) *gdb.Model {
 		query = query.WhereIn("health_status", []string{"redirected", "broken", "timeout", "error"})
 	}
 	return query
+}
+
+func queryPlaceholders(count int) string {
+	if count <= 0 {
+		return ""
+	}
+	return strings.TrimSuffix(strings.Repeat("?,", count), ",")
 }
 
 func (p *PG) LinkHealthCounts(ctx context.Context) (map[string]int, error) {
@@ -660,18 +697,19 @@ func mutation(link *model.Link) linkMutation {
 	tags, _ := json.Marshal(link.Tags)
 	keywords, _ := json.Marshal(link.Keywords)
 	return linkMutation{
-		CategoryID:  link.CategoryID,
-		GroupID:     link.GroupID,
-		Title:       link.Title,
-		URL:         link.URL,
-		Description: link.Description,
-		Tags:        string(tags),
-		Keywords:    string(keywords),
-		Kind:        link.Kind,
-		Featured:    link.Featured,
-		Status:      link.Status,
-		SortOrder:   link.SortOrder,
-		UpdatedAt:   gtime.Now(),
+		CategoryID:   link.CategoryID,
+		GroupID:      link.GroupID,
+		Title:        link.Title,
+		URL:          link.URL,
+		Description:  link.Description,
+		Tags:         string(tags),
+		Keywords:     string(keywords),
+		Kind:         link.Kind,
+		Featured:     link.Featured,
+		Status:       link.Status,
+		SortOrder:    link.SortOrder,
+		SubmitterSub: link.SubmitterSub,
+		UpdatedAt:    gtime.Now(),
 	}
 }
 
@@ -682,7 +720,8 @@ func insertMutation(link *model.Link) linkInsertMutation {
 		Title: data.Title, URL: data.URL, Description: data.Description,
 		Tags: data.Tags, Keywords: data.Keywords, Kind: data.Kind,
 		Featured: data.Featured, Status: data.Status, SortOrder: data.SortOrder,
-		UpdatedAt: data.UpdatedAt,
+		SubmitterSub: data.SubmitterSub,
+		UpdatedAt:    data.UpdatedAt,
 	}
 }
 

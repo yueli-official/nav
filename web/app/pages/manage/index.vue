@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
   ManageTaxonomyChips,
@@ -34,9 +33,13 @@ const emptyCounts: NavigationLifecycleCounts = {
   draft: 0,
   archived: 0,
 };
-const { isAdmin, user } = useAuth();
+const { can } = useMe();
+const canSubmit = computed(() => can("nav.link.submit"));
+const canUpdate = computed(() => can("nav.link.update"));
+const canModerate = computed(() => can("nav.link.moderate"));
 const { call } = useApi();
 const router = useRouter();
+const route = useRoute();
 type LinkStatus = "" | "published" | "draft" | "archived";
 type LinkSort = "updated" | "title" | "published" | "default";
 type LinkDirection = "asc" | "desc";
@@ -264,15 +267,22 @@ function categoryLabel(link: AdminNavigationLink) {
   return [category?.title, group?.title].filter(Boolean).join(" / ");
 }
 function openCreate() {
-  if (!isAdmin.value) return;
+  if (!canSubmit.value) return;
   editingLink.value = undefined;
   editorOpen.value = true;
 }
 function openEdit(link: AdminNavigationLink) {
-  if (!isAdmin.value) return;
+  if (!canUpdate.value) return;
   editingLink.value = link;
   editorOpen.value = true;
 }
+watch(
+  [() => route.query.action, canSubmit],
+  ([action, allowed]) => {
+    if (action === "create" && allowed && !editorOpen.value) openCreate();
+  },
+  { immediate: true },
+);
 const selectedIds = computed<readonly string[]>(() =>
   linkCollection.value.selection.mode === "keys"
     ? linkCollection.value.selection.keys
@@ -297,7 +307,7 @@ function replaceSelection(ids: readonly string[]) {
   for (const id of ids) linkWorkflow.toggleKey(id);
 }
 const statusItems = computed(() => [
-  { value: "", label: `全部 · ${counts.value.all}` },
+  { value: ALL, label: `全部 · ${counts.value.all}` },
   { value: "published", label: `已发布 · ${counts.value.published}` },
   { value: "draft", label: `草稿 · ${counts.value.draft}` },
   { value: "archived", label: `归档 · ${counts.value.archived}` },
@@ -307,7 +317,7 @@ const controls = computed<CollectionControl[]>(() => [
     kind: "select",
     id: "status",
     label: "状态",
-    value: status.value,
+    value: status.value || ALL,
     options: statusItems.value,
     class: "w-32",
   },
@@ -370,8 +380,11 @@ const activeFilterCount = computed(
 );
 function changeControl(id: string, value: CollectionControlValue) {
   if (typeof value !== "string") return;
-  if (id === "status" && statuses.includes(value as LinkStatus))
-    status.value = value as LinkStatus;
+  if (id === "status") {
+    if (value === ALL) status.value = "";
+    else if (statuses.includes(value as LinkStatus))
+      status.value = value as LinkStatus;
+  }
   if (id === "category") categoryId.value = value;
   if (id === "group") groupId.value = value;
   if (id === "tag") tag.value = value;
@@ -425,7 +438,7 @@ function dismissBatchMessage() {
 }
 async function applyBatch() {
   if (
-    !isAdmin.value ||
+    !canModerate.value ||
     !batchAction.value ||
     !selectedIds.value.length ||
     batchBusy.value
@@ -468,30 +481,29 @@ async function executeBatch() {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <PageHeader title="站点管理">
-      <template #subtitle>
-        已登录：<span class="text-default">{{
-          user?.name || user?.email
-        }}</span>
-        · 搜索、筛选并批量维护导航入口。
-      </template>
+  <YAdminPage
+    id="links"
+    title="站点链接"
+    description="搜索、筛选并维护导航入口；审核动作与内容维护相互独立。"
+    icon="i-tabler-world-www"
+    main-id="manage-main"
+    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+  >
       <template #actions>
         <UButton
           icon="i-tabler-plus"
           label="添加站点"
-          :disabled="!isAdmin"
+          :disabled="!canSubmit"
           @click="openCreate"
         />
       </template>
-    </PageHeader>
 
     <UAlert
-      v-if="!isAdmin"
+      v-if="!canUpdate && !canSubmit"
       color="warning"
       icon="i-tabler-lock"
       title="当前账号没有管理权限"
-      description="仅 Nav 管理员可以修改站点内容。"
+      description="当前账号没有可用的链接维护范围。"
     />
 
     <ManageClientBoundary :rows="6">
@@ -514,7 +526,7 @@ async function executeBatch() {
           :page-selected="isPageSelected"
           :page-indeterminate="isPageIndeterminate"
           :is-selected="linkWorkflow.isSelected"
-          :is-item-selectable="() => isAdmin && !batchBusy"
+          :is-item-selectable="() => canModerate && !batchBusy"
           label="站点列表"
           selectable
           @search="submitSearch"
@@ -543,14 +555,14 @@ async function executeBatch() {
               placeholder="批量操作"
               size="xs"
               class="w-28"
-              :disabled="!isAdmin"
+              :disabled="!canModerate"
             />
             <UButton
               label="应用"
               size="xs"
               color="primary"
               variant="soft"
-              :disabled="!batchAction || !isAdmin"
+              :disabled="!batchAction || !canModerate"
               :loading="batchBusy"
               @click="applyBatch"
             />
@@ -568,7 +580,7 @@ async function executeBatch() {
                   <button
                     type="button"
                     class="truncate text-left text-sm font-semibold text-highlighted hover:text-primary disabled:cursor-default"
-                    :disabled="!isAdmin"
+                    :disabled="!canUpdate"
                     @click="openEdit(link)"
                   >
                     {{ link.title }}</button
@@ -640,7 +652,7 @@ async function executeBatch() {
                     size="xs"
                     square
                     :aria-label="`编辑 ${link.title}`"
-                    :disabled="!isAdmin"
+                    :disabled="!canUpdate"
                     @click="openEdit(link)"
                 /></UTooltip>
               </div>
@@ -670,6 +682,8 @@ async function executeBatch() {
       v-model:open="editorOpen"
       :categories="categories"
       :link="editingLink"
+      :can-moderate="canModerate"
+      :can-delete="canModerate"
       @saved="() => refresh()"
       @deleted="() => refresh()"
     />
@@ -705,5 +719,5 @@ async function executeBatch() {
           /></div
       ></template>
     </UModal>
-  </div>
+  </YAdminPage>
 </template>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
   ManageEmpty,
@@ -29,7 +28,8 @@ const emptyCounts: NavigationHealthCounts = {
   error: 0,
 };
 const { call } = useApi();
-const { isAdmin } = useAuth();
+const { can } = useMe();
+const canRunChecks = computed(() => can("nav.health_check.run"));
 const search = ref("");
 const q = ref("");
 const health = ref("");
@@ -148,7 +148,7 @@ function toggle(id: string, value: boolean) {
   selected.value = next;
 }
 async function runChecks() {
-  if (!isAdmin.value || !total.value || checking.value) return;
+  if (!canRunChecks.value || !total.value || checking.value) return;
   checking.value = true;
   checkMessage.value = "";
   try {
@@ -178,21 +178,23 @@ async function runChecks() {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <PageHeader title="站点检查">
-      <template #subtitle
-        >定期验证站点可访问性；异常结果集中在“待处理”，便于修正或归档。</template
-      >
+  <YAdminPage
+    id="checks"
+    title="链接检查"
+    description="验证站点可访问性；异常结果集中到待处理队列，保留单项重试与批量检查语义。"
+    icon="i-tabler-heartbeat"
+    main-id="manage-main"
+    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+  >
       <template #actions>
         <UButton
           icon="i-tabler-heartbeat"
           :label="checkButtonLabel"
           :loading="checking"
-          :disabled="!isAdmin || !total"
+          :disabled="!canRunChecks || !total"
           @click="runChecks"
         />
       </template>
-    </PageHeader>
 
     <ManageClientBoundary :rows="8">
       <ManageTabs v-model="health" :items="tabs" />
@@ -288,7 +290,7 @@ async function runChecks() {
               size="sm"
               square
               :aria-label="`重新检查 ${link.title}`"
-              :disabled="checking || !isAdmin"
+              :disabled="checking || !canRunChecks"
               @click="
                 selected = new Set([link.id]);
                 runChecks();
@@ -321,5 +323,5 @@ async function runChecks() {
         </template>
       </CollectionFooter>
     </ManageClientBoundary>
-  </div>
+  </YAdminPage>
 </template>

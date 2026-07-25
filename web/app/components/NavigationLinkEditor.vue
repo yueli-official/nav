@@ -10,9 +10,11 @@ import type {
   NavigationStatus,
 } from "~/types/navigation";
 
-const { categories, link } = defineProps<{
+const { categories, link, canModerate, canDelete } = defineProps<{
   categories: NavigationCategory[];
   link?: AdminNavigationLink;
+  canModerate: boolean;
+  canDelete: boolean;
 }>();
 const emit = defineEmits<{
   saved: [link: AdminNavigationLink];
@@ -99,7 +101,7 @@ watch(
       keywords: [...(link?.keywords ?? [])],
       kind: link?.kind ?? "tool",
       featured: link?.featured ?? false,
-      status: link?.status ?? "published",
+      status: link?.status ?? "draft",
       sortOrder: link?.sortOrder ?? 0,
     });
   },
@@ -145,7 +147,7 @@ async function save() {
 }
 
 async function remove() {
-  if (!link || deleting.value) return;
+  if (!link || !canDelete || deleting.value) return;
   deleting.value = true;
   deleteError.value = "";
   try {
@@ -168,6 +170,7 @@ async function remove() {
 }
 
 function openDelete() {
+  if (!canDelete) return;
   deleteError.value = "";
   deleteOpen.value = true;
 }
@@ -266,6 +269,7 @@ function closeDelete() {
                 :items="statusItems"
                 value-key="value"
                 class="w-full"
+                :disabled="!canModerate"
               />
             </UFormField>
             <UFormField label="排序">
@@ -273,7 +277,11 @@ function closeDelete() {
             </UFormField>
           </div>
 
-          <USwitch v-model="form.featured" label="加入首页精选" />
+          <USwitch
+            v-model="form.featured"
+            label="加入首页精选"
+            :disabled="!canModerate"
+          />
 
           <UAlert
             v-if="saveError"
@@ -287,7 +295,7 @@ function closeDelete() {
             class="flex flex-col-reverse gap-2 border-t border-default pt-5 sm:flex-row sm:items-center"
           >
             <UButton
-              v-if="link"
+              v-if="link && canDelete"
               type="button"
               label="删除站点"
               icon="i-tabler-trash"

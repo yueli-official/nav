@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PageHeader } from "@yueli/ui/dashboard/pattern";
 import {
   ManageClientBoundary,
   ManageEmpty,
@@ -16,7 +15,8 @@ definePageMeta({ layout: "manage", middleware: "auth" });
 useSeoMeta({ title: "标签管理 · 月离导航" });
 
 const { call } = useApi();
-const { isAdmin } = useAuth();
+const { can } = useMe();
+const canManageStructure = computed(() => can("nav.structure.manage"));
 const search = ref("");
 const q = ref("");
 const page = ref(1);
@@ -70,7 +70,7 @@ watch(
 );
 
 function openEdit(tag: NavigationTag) {
-  if (!isAdmin.value) return;
+  if (!canManageStructure.value) return;
   current.value = tag;
   renameForm.target = tag.name;
   operationError.value = "";
@@ -78,7 +78,7 @@ function openEdit(tag: NavigationTag) {
 }
 async function rename() {
   if (
-    !isAdmin.value ||
+    !canManageStructure.value ||
     !current.value ||
     !renameForm.target.trim() ||
     renameForm.target.trim() === current.value.name ||
@@ -102,13 +102,13 @@ async function rename() {
   }
 }
 function confirmDelete(tag: NavigationTag) {
-  if (!isAdmin.value) return;
+  if (!canManageStructure.value) return;
   current.value = tag;
   operationError.value = "";
   deleteOpen.value = true;
 }
 async function remove() {
-  if (!isAdmin.value || !current.value || saving.value) return;
+  if (!canManageStructure.value || !current.value || saving.value) return;
   saving.value = true;
   operationError.value = "";
   try {
@@ -129,14 +129,16 @@ async function remove() {
 </script>
 
 <template>
-  <div class="space-y-6">
-    <PageHeader title="标签管理">
-      <template #subtitle
-        >标签从站点内容中产生；在这里统一重命名、合并重复词或解除关联。</template
-      >
-    </PageHeader>
+  <YAdminPage
+    id="tags"
+    title="标签治理"
+    description="统一重命名、合并重复词或解除关联；变更会作用于所有关联链接。"
+    icon="i-tabler-hash"
+    main-id="manage-main"
+    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+  >
     <UAlert
-      v-if="!isAdmin"
+      v-if="!canManageStructure"
       color="warning"
       icon="i-tabler-lock"
       title="当前账号没有管理权限"
@@ -176,7 +178,7 @@ async function remove() {
           <button
             type="button"
             class="flex min-w-0 items-center gap-3 text-left disabled:cursor-default"
-            :disabled="!isAdmin"
+            :disabled="!canManageStructure"
             @click="openEdit(tag)"
           >
             <span
@@ -201,7 +203,7 @@ async function remove() {
                 size="sm"
                 square
                 :aria-label="`编辑标签：${tag.name}`"
-                :disabled="!isAdmin"
+                :disabled="!canManageStructure"
                 @click="openEdit(tag)"
             /></UTooltip>
           </div>
@@ -271,7 +273,7 @@ async function remove() {
               icon="i-tabler-trash"
               color="error"
               variant="soft"
-              :disabled="!isAdmin || !current"
+              :disabled="!canManageStructure || !current"
               @click="current && confirmDelete(current)"
             />
           </div>
@@ -317,5 +319,5 @@ async function remove() {
           /></div
       ></template>
     </UModal>
-  </div>
+  </YAdminPage>
 </template>

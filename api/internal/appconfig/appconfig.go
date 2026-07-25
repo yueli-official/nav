@@ -29,3 +29,9 @@ func SiteBrand(ctx context.Context) string {
 func SiteSlug(ctx context.Context) string {
 	return g.Cfg().MustGet(ctx, "nav.siteSlug", "nav").String()
 }
+
+// BootstrapAdministratorSubs seeds protected grants only when the
+// consumer-owned authorization instance is first created.
+func BootstrapAdministratorSubs(ctx context.Context) []string {
+	return g.Cfg().MustGet(ctx, "nav.authorization.bootstrapAdministratorSubs").Strings()
+}

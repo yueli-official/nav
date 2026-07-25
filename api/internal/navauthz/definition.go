@@ -30,7 +30,10 @@ const (
 
 	RelationSubmitter authorization.RelationKind = "submitter"
 
-	ConstraintNormalRoleOwnsLink authorization.ConstraintKey = "nav.normal_role_owns_link"
+	ConstraintNormalRoleOwnsLink    authorization.ConstraintKey = "nav.normal_role_owns_link"
+	PredicateRegistrationCurator    authorization.PredicateKey  = "nav.registration_auto_curator"
+	TriggerUserRegistered           authorization.TriggerKey    = "identity.user.registered"
+	AutomaticRegistrationCuratorKey                             = "nav.registration_curator"
 )
 
 func CategoryScopeID(id string) authorization.ScopeID {
@@ -112,7 +115,8 @@ func Definition() authorization.Definition {
 				},
 				Assignment: authorization.AssignmentPolicy{Sources: []authorization.GrantSource{
 					authorization.GrantSourceApplication, authorization.GrantSourceInvitation,
-					authorization.GrantSourceDirect, authorization.GrantSourceGroup,
+					authorization.GrantSourceDirect, authorization.GrantSourceAutomatic,
+					authorization.GrantSourceGroup,
 				}},
 			},
 		},
@@ -120,6 +124,20 @@ func Definition() authorization.Definition {
 			Key: ConstraintNormalRoleOwnsLink, Version: 1, Mode: authorization.ConstraintSource,
 			Capabilities: []authorization.CapabilityKey{CapabilityLinkUpdate}, AllNormalRoles: true,
 		}},
+		Automatic: []authorization.AutomaticRuleDefinition{{
+			Key: AutomaticRegistrationCuratorKey, Trigger: TriggerUserRegistered,
+			Predicate: PredicateRegistrationCurator, Role: RoleCurator, Enabled: false,
+		}},
+	}
+}
+
+func PredicateEvaluators() map[authorization.PredicateKey]authorization.PredicateEvaluator {
+	return map[authorization.PredicateKey]authorization.PredicateEvaluator{
+		PredicateRegistrationCurator: authorization.PredicateFunc(
+			func(_ context.Context, input authorization.PredicateInput) bool {
+				return input.Subject.Kind == authorization.SubjectUser
+			},
+		),
 	}
 }
 

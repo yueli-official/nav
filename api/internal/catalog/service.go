@@ -38,7 +38,7 @@ type Store interface {
 	LinksByIDs(context.Context, []string) ([]*model.Link, error)
 	LinkByID(context.Context, string) (*model.Link, error)
 	CountLinks(context.Context, dao.LinkFilter) (int, error)
-	LinkStatusCounts(context.Context) (map[string]int, error)
+	LinkStatusCounts(context.Context, dao.LinkFilter) (map[string]int, error)
 	LinkHealthCounts(context.Context) (map[string]int, error)
 	Tags(context.Context, string) ([]*model.Tag, error)
 	GroupBelongsToCategory(context.Context, string, string) (bool, error)
@@ -88,18 +88,19 @@ type profileSettingsStore interface {
 }
 
 type LinkInput struct {
-	ID          string
-	CategoryID  string
-	GroupID     string
-	Title       string
-	URL         string
-	Description string
-	Tags        []string
-	Keywords    []string
-	Kind        string
-	Featured    bool
-	Status      string
-	SortOrder   int
+	ID           string
+	CategoryID   string
+	GroupID      string
+	Title        string
+	URL          string
+	Description  string
+	Tags         []string
+	Keywords     []string
+	Kind         string
+	Featured     bool
+	Status       string
+	SortOrder    int
+	SubmitterSub string
 }
 
 type Catalog struct {
@@ -215,7 +216,7 @@ func (s *Service) AdminLinks(ctx context.Context, filter dao.LinkFilter) (*Admin
 	if err != nil {
 		return nil, err
 	}
-	counts, err := s.store.LinkStatusCounts(ctx)
+	counts, err := s.store.LinkStatusCounts(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
@@ -357,6 +358,17 @@ func (s *Service) CreateLink(ctx context.Context, input LinkInput) (*model.Link,
 	}
 	if created != nil {
 		return created, nil
+	}
+	return link, nil
+}
+
+func (s *Service) Link(ctx context.Context, id string) (*model.Link, error) {
+	link, err := s.store.LinkByID(ctx, strings.TrimSpace(id))
+	if err != nil {
+		return nil, err
+	}
+	if link == nil {
+		return nil, naverr.NotFound(id)
 	}
 	return link, nil
 }
@@ -882,6 +894,7 @@ func (s *Service) validate(ctx context.Context, input LinkInput) (*model.Link, e
 	input.Description = strings.TrimSpace(input.Description)
 	input.Kind = strings.TrimSpace(input.Kind)
 	input.Status = strings.TrimSpace(input.Status)
+	input.SubmitterSub = strings.TrimSpace(input.SubmitterSub)
 	if input.Title == "" {
 		return nil, naverr.Validation("title", "required", nil)
 	}
@@ -915,18 +928,19 @@ func (s *Service) validate(ctx context.Context, input LinkInput) (*model.Link, e
 		return nil, naverr.Validation("groupId", "category_mismatch", map[string]any{"categoryId": input.CategoryID})
 	}
 	return &model.Link{
-		ID:          input.ID,
-		CategoryID:  input.CategoryID,
-		GroupID:     input.GroupID,
-		Title:       input.Title,
-		URL:         input.URL,
-		Description: input.Description,
-		Tags:        normalize(input.Tags, 6),
-		Keywords:    normalize(input.Keywords, 12),
-		Kind:        input.Kind,
-		Featured:    input.Featured,
-		Status:      input.Status,
-		SortOrder:   input.SortOrder,
+		ID:           input.ID,
+		CategoryID:   input.CategoryID,
+		GroupID:      input.GroupID,
+		Title:        input.Title,
+		URL:          input.URL,
+		Description:  input.Description,
+		Tags:         normalize(input.Tags, 6),
+		Keywords:     normalize(input.Keywords, 12),
+		Kind:         input.Kind,
+		Featured:     input.Featured,
+		Status:       input.Status,
+		SortOrder:    input.SortOrder,
+		SubmitterSub: input.SubmitterSub,
 	}, nil
 }
 

@@ -7,10 +7,12 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/yueli-official/foundation/go/authorization"
 	v1 "platform/products/nav/api/api/v1"
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/dao"
 	"platform/products/nav/api/internal/model"
+	"platform/products/nav/api/internal/navauthz"
 	"platform/products/nav/api/internal/naverr"
 )
 
@@ -81,12 +83,22 @@ func NewAdmin(service *catalog.Service) *Admin {
 }
 
 func (c *Admin) AdminListLinks(ctx context.Context, req *v1.AdminListLinksReq) (*v1.AdminListLinksRes, error) {
-	if err := requireAdmin(ctx); err != nil {
-		return nil, err
+	service := authorizationService(ctx)
+	if service == nil {
+		return nil, naverr.AuthorizationUnavailable()
+	}
+	access, err := service.ManageLinkFilter(ctx)
+	if err != nil {
+		return nil, naverr.AuthorizationUnavailable()
+	}
+	if !access.All && !access.OwnedAll && len(access.UnrestrictedGroups) == 0 && len(access.OwnedGroups) == 0 {
+		return nil, naverr.Forbidden()
 	}
 	page, err := c.service.AdminLinks(ctx, dao.LinkFilter{
 		Query: req.Q, CategoryID: req.CategoryID, GroupID: req.GroupID, Status: req.Status,
 		Tag: req.Tag, Sort: req.Sort, Direction: req.Direction, Page: req.Page, Size: req.Size,
+		SubmitterSub: access.SubjectID, AllowedGroupIDs: access.UnrestrictedGroups,
+		OwnedGroupIDs: access.OwnedGroups, OwnedAll: access.OwnedAll,
 	})
 	if err != nil {
 		return nil, err
@@ -111,7 +123,7 @@ func (c *Admin) AdminListLinks(ctx context.Context, req *v1.AdminListLinksReq) (
 }
 
 func (c *Admin) AdminListChecks(ctx context.Context, req *v1.AdminListChecksReq) (*v1.AdminListChecksRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityHealthCheckRun, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	page, err := c.service.AdminChecks(ctx, dao.LinkFilter{Query: req.Q, Health: req.Health, Page: req.Page, Size: req.Size})
@@ -134,7 +146,7 @@ func (c *Admin) AdminListChecks(ctx context.Context, req *v1.AdminListChecksReq)
 }
 
 func (c *Admin) AdminRunChecks(ctx context.Context, req *v1.AdminRunChecksReq) (*v1.AdminRunChecksRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityHealthCheckRun, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	var (
@@ -157,18 +169,39 @@ func (c *Admin) AdminRunChecks(ctx context.Context, req *v1.AdminRunChecksReq) (
 }
 
 func (c *Admin) AdminBulkLinks(ctx context.Context, req *v1.AdminBulkLinksReq) (*v1.AdminBulkLinksRes, error) {
-	if err := requireAdmin(ctx); err != nil {
-		return nil, err
+	eligible := make([]string, 0, len(req.IDs))
+	failed := make([]string, 0)
+	for _, id := range req.IDs {
+		link, err := c.service.Link(ctx, id)
+		if err != nil {
+			failed = append(failed, id)
+			continue
+		}
+		if err := ensureLinkScope(ctx, link.ID, link.GroupID, link.CategoryID); err != nil {
+			return nil, err
+		}
+		if err := requireCapability(
+			ctx, navauthz.CapabilityLinkModerate, navauthz.LinkScopeID(link.ID),
+			navauthz.LinkResource(link.ID, link.SubmitterSub),
+		); err != nil {
+			failed = append(failed, id)
+			continue
+		}
+		eligible = append(eligible, id)
 	}
-	result, err := c.service.BulkLinks(ctx, req.IDs, req.Action)
+	if len(eligible) == 0 {
+		return &v1.AdminBulkLinksRes{FailedIDs: failed}, nil
+	}
+	result, err := c.service.BulkLinks(ctx, eligible, req.Action)
 	if err != nil {
 		return nil, err
 	}
+	result.FailedIDs = append(result.FailedIDs, failed...)
 	return &v1.AdminBulkLinksRes{Changed: result.Changed, FailedIDs: result.FailedIDs}, nil
 }
 
 func (c *Admin) AdminListStructure(ctx context.Context, _ *v1.AdminListStructureReq) (*v1.AdminListStructureRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	structure, err := c.service.AdminStructure(ctx)
@@ -179,18 +212,24 @@ func (c *Admin) AdminListStructure(ctx context.Context, _ *v1.AdminListStructure
 }
 
 func (c *Admin) AdminCreateCategory(ctx context.Context, req *v1.AdminCreateCategoryReq) (*v1.AdminCreateCategoryRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	category, err := c.service.CreateCategory(ctx, categoryInput(req.CategoryInput))
 	if err != nil {
 		return nil, err
 	}
+	if err := ensureCategoryScope(ctx, category.ID); err != nil {
+		return nil, err
+	}
 	return &v1.AdminCreateCategoryRes{Category: categoryView(category)}, nil
 }
 
 func (c *Admin) AdminUpdateCategory(ctx context.Context, req *v1.AdminUpdateCategoryReq) (*v1.AdminUpdateCategoryRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := ensureCategoryScope(ctx, req.ID); err != nil {
+		return nil, err
+	}
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.CategoryScopeID(req.ID), authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	category, err := c.service.UpdateCategory(ctx, req.ID, categoryInput(req.CategoryInput))
@@ -201,7 +240,10 @@ func (c *Admin) AdminUpdateCategory(ctx context.Context, req *v1.AdminUpdateCate
 }
 
 func (c *Admin) AdminDeleteCategory(ctx context.Context, req *v1.AdminDeleteCategoryReq) (*v1.AdminDeleteCategoryRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := ensureCategoryScope(ctx, req.ID); err != nil {
+		return nil, err
+	}
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.CategoryScopeID(req.ID), authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	if err := c.service.DeleteCategory(ctx, req.ID); err != nil {
@@ -211,29 +253,41 @@ func (c *Admin) AdminDeleteCategory(ctx context.Context, req *v1.AdminDeleteCate
 }
 
 func (c *Admin) AdminCreateGroup(ctx context.Context, req *v1.AdminCreateGroupReq) (*v1.AdminCreateGroupRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := ensureCategoryScope(ctx, req.CategoryID); err != nil {
+		return nil, err
+	}
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.CategoryScopeID(req.CategoryID), authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	group, err := c.service.CreateGroup(ctx, groupInput(req.GroupInput))
 	if err != nil {
 		return nil, err
 	}
+	if err := ensureGroupScope(ctx, group.ID, group.CategoryID); err != nil {
+		return nil, err
+	}
 	return &v1.AdminCreateGroupRes{Group: groupView(group)}, nil
 }
 
 func (c *Admin) AdminUpdateGroup(ctx context.Context, req *v1.AdminUpdateGroupReq) (*v1.AdminUpdateGroupRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := ensureCategoryScope(ctx, req.CategoryID); err != nil {
+		return nil, err
+	}
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.CategoryScopeID(req.CategoryID), authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	group, err := c.service.UpdateGroup(ctx, req.ID, groupInput(req.GroupInput))
 	if err != nil {
 		return nil, err
 	}
+	if err := reparentGroupScope(ctx, group.ID, group.CategoryID); err != nil {
+		return nil, err
+	}
 	return &v1.AdminUpdateGroupRes{Group: groupView(group)}, nil
 }
 
 func (c *Admin) AdminDeleteGroup(ctx context.Context, req *v1.AdminDeleteGroupReq) (*v1.AdminDeleteGroupRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	if err := c.service.DeleteGroup(ctx, req.ID); err != nil {
@@ -243,7 +297,7 @@ func (c *Admin) AdminDeleteGroup(ctx context.Context, req *v1.AdminDeleteGroupRe
 }
 
 func (c *Admin) AdminListTags(ctx context.Context, req *v1.AdminListTagsReq) (*v1.AdminListTagsRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	tags, err := c.service.Tags(ctx, req.Q)
@@ -258,7 +312,7 @@ func (c *Admin) AdminListTags(ctx context.Context, req *v1.AdminListTagsReq) (*v
 }
 
 func (c *Admin) AdminRenameTag(ctx context.Context, req *v1.AdminRenameTagReq) (*v1.AdminRenameTagRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	changed, err := c.service.RenameTag(ctx, req.Source, req.Target)
@@ -269,7 +323,7 @@ func (c *Admin) AdminRenameTag(ctx context.Context, req *v1.AdminRenameTagReq) (
 }
 
 func (c *Admin) AdminDeleteTag(ctx context.Context, req *v1.AdminDeleteTagReq) (*v1.AdminDeleteTagRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilityStructureManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	changed, err := c.service.DeleteTag(ctx, req.Name)
@@ -280,7 +334,7 @@ func (c *Admin) AdminDeleteTag(ctx context.Context, req *v1.AdminDeleteTagReq) (
 }
 
 func (c *Admin) AdminGetSettings(ctx context.Context, _ *v1.AdminGetSettingsReq) (*v1.AdminGetSettingsRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilitySettingsManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	settings, err := c.service.AdminSiteSettings(ctx)
@@ -292,7 +346,7 @@ func (c *Admin) AdminGetSettings(ctx context.Context, _ *v1.AdminGetSettingsReq)
 }
 
 func (c *Admin) AdminUpdateSettings(ctx context.Context, req *v1.AdminUpdateSettingsReq) (*v1.AdminUpdateSettingsRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := requireCapability(ctx, navauthz.CapabilitySettingsManage, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
 		return nil, err
 	}
 	current, err := c.service.AdminSiteSettings(ctx)
@@ -317,29 +371,80 @@ func (c *Admin) AdminUpdateSettings(ctx context.Context, req *v1.AdminUpdateSett
 }
 
 func (c *Admin) AdminCreateLink(ctx context.Context, req *v1.AdminCreateLinkReq) (*v1.AdminCreateLinkRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	if err := ensureGroupScope(ctx, req.GroupID, req.CategoryID); err != nil {
 		return nil, err
 	}
-	link, err := c.service.CreateLink(ctx, input(req.LinkInput))
+	if err := requireCapability(ctx, navauthz.CapabilityLinkSubmit, navauthz.GroupScopeID(req.GroupID), authorization.ResourceFacts{}); err != nil {
+		return nil, err
+	}
+	if (req.Status != "" && req.Status != "draft") || req.Featured {
+		if err := requireCapability(ctx, navauthz.CapabilityLinkModerate, navauthz.GroupScopeID(req.GroupID), authorization.ResourceFacts{}); err != nil {
+			return nil, err
+		}
+	}
+	value := input(req.LinkInput)
+	value.SubmitterSub = authorizationService(ctx).Subject(ctx).ID
+	link, err := c.service.CreateLink(ctx, value)
 	if err != nil {
+		return nil, err
+	}
+	if err := ensureLinkScope(ctx, link.ID, link.GroupID, link.CategoryID); err != nil {
 		return nil, err
 	}
 	return &v1.AdminCreateLinkRes{Link: linkView(link, true)}, nil
 }
 
 func (c *Admin) AdminUpdateLink(ctx context.Context, req *v1.AdminUpdateLinkReq) (*v1.AdminUpdateLinkRes, error) {
-	if err := requireAdmin(ctx); err != nil {
-		return nil, err
-	}
-	link, err := c.service.UpdateLink(ctx, req.ID, input(req.LinkInput))
+	current, err := c.service.Link(ctx, req.ID)
 	if err != nil {
 		return nil, err
+	}
+	if err := ensureLinkScope(ctx, current.ID, current.GroupID, current.CategoryID); err != nil {
+		return nil, err
+	}
+	resource := navauthz.LinkResource(current.ID, current.SubmitterSub)
+	if err := requireCapability(ctx, navauthz.CapabilityLinkUpdate, navauthz.LinkScopeID(current.ID), resource); err != nil {
+		return nil, err
+	}
+	if req.GroupID != current.GroupID {
+		if err := ensureGroupScope(ctx, req.GroupID, req.CategoryID); err != nil {
+			return nil, err
+		}
+		if err := requireCapability(ctx, navauthz.CapabilityLinkSubmit, navauthz.GroupScopeID(req.GroupID), authorization.ResourceFacts{}); err != nil {
+			return nil, err
+		}
+	}
+	if req.Status != current.Status || req.Featured != current.Featured {
+		if err := requireCapability(ctx, navauthz.CapabilityLinkModerate, navauthz.LinkScopeID(current.ID), resource); err != nil {
+			return nil, err
+		}
+	}
+	value := input(req.LinkInput)
+	value.SubmitterSub = current.SubmitterSub
+	link, err := c.service.UpdateLink(ctx, req.ID, value)
+	if err != nil {
+		return nil, err
+	}
+	if link.GroupID != current.GroupID {
+		if err := reparentLinkScope(ctx, link.ID, link.GroupID, link.CategoryID); err != nil {
+			return nil, err
+		}
 	}
 	return &v1.AdminUpdateLinkRes{Link: linkView(link, true)}, nil
 }
 
 func (c *Admin) AdminDeleteLink(ctx context.Context, req *v1.AdminDeleteLinkReq) (*v1.AdminDeleteLinkRes, error) {
-	if err := requireAdmin(ctx); err != nil {
+	link, err := c.service.Link(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+	if err := ensureLinkScope(ctx, link.ID, link.GroupID, link.CategoryID); err != nil {
+		return nil, err
+	}
+	if err := requireCapability(
+		ctx, navauthz.CapabilityLinkModerate, navauthz.LinkScopeID(link.ID),
+		navauthz.LinkResource(link.ID, link.SubmitterSub),
+	); err != nil {
 		return nil, err
 	}
 	if err := c.service.DeleteLink(ctx, req.ID); err != nil {

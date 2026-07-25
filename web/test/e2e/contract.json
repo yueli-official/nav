@@ -4,8 +4,8 @@
   "public": { "path": "/", "readySelector": "main" },
   "manage": {
     "path": "/manage",
-    "heading": "站点管理",
-    "readySelector": "main h1",
+    "heading": "站点链接",
+    "readySelector": "#manage-main",
     "settings": { "path": "/manage/settings", "fieldLabel": "导航名称" },
     "views": []
   },
@@ -26,6 +26,13 @@
         "key": "settings",
         "path": "/manage/settings",
         "readySelector": "main h1",
+        "authenticated": true,
+        "viewports": ["mobile", "desktop"]
+      },
+      {
+        "key": "authorization",
+        "path": "/manage/authorization",
+        "readySelector": "#manage-main",
         "authenticated": true,
         "viewports": ["mobile", "desktop"]
       },

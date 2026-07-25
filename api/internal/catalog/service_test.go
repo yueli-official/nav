@@ -80,7 +80,7 @@ func (f *fakeStore) LinkByID(_ context.Context, id string) (*model.Link, error) 
 func (f *fakeStore) CountLinks(context.Context, dao.LinkFilter) (int, error) {
 	return len(f.links), nil
 }
-func (f *fakeStore) LinkStatusCounts(context.Context) (map[string]int, error) {
+func (f *fakeStore) LinkStatusCounts(context.Context, dao.LinkFilter) (map[string]int, error) {
 	return map[string]int{"all": len(f.links)}, nil
 }
 func (f *fakeStore) LinkHealthCounts(context.Context) (map[string]int, error) {

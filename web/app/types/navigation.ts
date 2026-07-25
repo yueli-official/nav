@@ -169,3 +169,10 @@ export interface NavigationSettingsResponse {
     etag: string;
   };
 }
+
+export interface NavMeView {
+  sub: string;
+  authenticated: boolean;
+  isAdministrator: boolean;
+  capabilities: string[];
+}

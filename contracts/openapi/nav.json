@@ -435,6 +435,34 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.ActivateAuthorizationPolicyReq": {
+        "properties": {
+          "expectedActiveRevision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "expectedActiveRevision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ActivateAuthorizationPolicyRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.AdminBulkLinksReq": {
         "properties": {
           "action": {
@@ -1262,6 +1290,165 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.ApplyForRoleReq": {
+        "properties": {
+          "reason": {
+            "format": "string",
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ApplyForRoleRes": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationApplicationView": {
+        "properties": {
+          "createdAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "reason": {
+            "format": "string",
+            "type": "string"
+          },
+          "reviewReason": {
+            "format": "string",
+            "type": "string"
+          },
+          "reviewedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          },
+          "state": {
+            "format": "string",
+            "type": "string"
+          },
+          "subject": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationAutomaticRuleView": {
+        "properties": {
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationCapabilityView": {
+        "properties": {
+          "displayName": {
+            "format": "string",
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationPolicyView": {
+        "properties": {
+          "activatedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "base": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "number": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "state": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationRoleView": {
+        "properties": {
+          "assignmentSources": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "displayName": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "protected": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.CategoryView": {
         "properties": {
           "description": {
@@ -1291,6 +1478,129 @@
           "title": {
             "format": "string",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationDraftReq": {
+        "properties": {
+          "expectedActiveRevision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedActiveRevision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationDraftRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationRoleReq": {
+        "properties": {
+          "assignmentSources": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "displayName": {
+            "format": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "maxLength": 64,
+            "minLength": 2,
+            "type": "string"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "key",
+          "displayName"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationRoleRes": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetAuthorizationConsoleReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetAuthorizationConsoleRes": {
+        "properties": {
+          "activeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "applications": {
+            "format": "[]v1.AuthorizationApplicationView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "automaticRules": {
+            "format": "[]v1.AuthorizationAutomaticRuleView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationAutomaticRuleView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "capabilities": {
+            "format": "[]v1.AuthorizationCapabilityView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationCapabilityView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          },
+          "roles": {
+            "format": "[]v1.AuthorizationRoleView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+              "description": ""
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -1605,6 +1915,104 @@
         },
         "type": "object"
       },
+      "platform.products.nav.api.api.v1.ListMyApplicationsReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListMyApplicationsRes": {
+        "properties": {
+          "items": {
+            "format": "[]v1.AuthorizationApplicationView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListRequestableRolesReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListRequestableRolesRes": {
+        "properties": {
+          "items": {
+            "format": "[]v1.AuthorizationRoleView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.MeReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.MeRes": {
+        "properties": {
+          "me": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.MeView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.MeView": {
+        "properties": {
+          "authenticated": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "isAdministrator": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "sub": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.PreviewAuthorizationPolicyReq": {
+        "properties": {
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.PreviewAuthorizationPolicyRes": {
+        "properties": {
+          "addedBindings": {
+            "format": "int",
+            "type": "integer"
+          },
+          "removedBindings": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "platform.products.nav.api.api.v1.RecordClickReq": {
         "properties": {
           "id": {
@@ -1622,6 +2030,134 @@
           "recorded": {
             "format": "bool",
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RetireAuthorizationRoleReq": {
+        "properties": {
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "role"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RetireAuthorizationRoleRes": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ReviewRoleApplicationReq": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "reason": {
+            "format": "string",
+            "maxLength": 2000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ReviewRoleApplicationRes": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleReq": {
+        "properties": {
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rule": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "rule"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesReq": {
+        "properties": {
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "role"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
           }
         },
         "type": "object"
@@ -1689,6 +2225,57 @@
           "name": {
             "format": "string",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ValidateAuthorizationPolicyReq": {
+        "properties": {
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ValidateAuthorizationPolicyRes": {
+        "properties": {
+          "valid": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "violations": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.WithdrawRoleApplicationReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.WithdrawRoleApplicationRes": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "description": ""
           }
         },
         "type": "object"
@@ -2530,6 +3117,590 @@
         "summary": "Rename or merge a navigation tag",
         "tags": [
           "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/authorization/applications": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ApplyForRoleReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ApplyForRoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Apply for a role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/applications/mine": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ListMyApplicationsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "My role applications",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/applications/{id}/withdraw": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.WithdrawRoleApplicationRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Withdraw my role application",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/applications/{id}/review": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "decision": {
+                    "enum": [
+                      "approve",
+                      "reject"
+                    ],
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "reason": {
+                    "format": "string",
+                    "maxLength": 2000,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "decision"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ReviewRoleApplicationRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Review role application",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/console": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetAuthorizationConsoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Authorization management console",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/drafts": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationDraftReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationDraftRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create policy draft",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/activate": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "expectedActiveRevision": {
+                    "format": "uint64",
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "expectedActiveRevision"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ActivateAuthorizationPolicyRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Activate policy draft",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/automatic/{rule}": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rule",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "enabled": {
+                    "format": "bool",
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Configure automatic role rule",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/preview": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.PreviewAuthorizationPolicyRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Preview policy impact",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/roles": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "assignmentSources": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "capabilities": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "displayName": {
+                    "format": "string",
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "key": {
+                    "format": "string",
+                    "maxLength": 64,
+                    "minLength": 2,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "displayName"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationRoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create custom role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/roles/{role}/capabilities": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "role",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "capabilities": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Set role capabilities",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/roles/{role}/retire": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "role",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.RetireAuthorizationRoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Retire custom role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/validate": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ValidateAuthorizationPolicyRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Validate policy draft",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/requestable-roles": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ListRequestableRolesRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Requestable roles",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.MeRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Current caller access",
+        "tags": [
+          "Nav"
         ]
       }
     },

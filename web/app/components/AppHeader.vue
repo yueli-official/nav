@@ -1,10 +1,39 @@
 <script setup lang="ts">
+import type { AccountMenuAction } from "@yueli/ui/account-menu/pattern";
+
 const { widthClass, brandName, brandTagline } = defineProps<{
   widthClass: string;
   brandName?: string;
   brandTagline?: string;
 }>();
 const { openSearch } = useNavigationSearch();
+const { user } = useAuth();
+const { canManage, refresh: refreshMe } = useMe();
+const accountActions = computed<readonly AccountMenuAction[]>(() =>
+  canManage.value
+    ? [
+        {
+          label: "控制台",
+          icon: "i-tabler-layout-dashboard",
+          to: "/manage",
+        },
+      ]
+    : user.value
+      ? [
+          {
+            label: "申请维护导航",
+            icon: "i-tabler-user-edit",
+            to: "/contribute",
+          },
+        ]
+      : [],
+);
+onMounted(() => {
+  if (user.value) void refreshMe();
+});
+watch(user, (value) => {
+  if (value) void refreshMe();
+});
 </script>
 
 <template>
@@ -50,7 +79,7 @@ const { openSearch } = useNavigationSearch();
             aria-label="切换颜色模式"
           />
         </UTooltip>
-        <ConsumerAccountControl manage-to="/manage" />
+        <ConsumerAccountControl :context-actions="accountActions" />
       </div>
     </div>
   </header>

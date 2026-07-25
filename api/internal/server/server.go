@@ -9,12 +9,14 @@ import (
 	"platform/gokit/healthcheck"
 	"platform/products/nav/api/internal/catalog"
 	"platform/products/nav/api/internal/controller"
+	"platform/products/nav/api/internal/navauthz"
 )
 
 type Deps struct {
-	Verifier    *foundationauth.Verifier
-	Catalog     *catalog.Service
-	ReadyChecks map[string]healthcheck.Check
+	Verifier      *foundationauth.Verifier
+	Catalog       *catalog.Service
+	Authorization *navauthz.Service
+	ReadyChecks   map[string]healthcheck.Check
 }
 
 func Configure(server *ghttp.Server, deps Deps) {
@@ -29,6 +31,10 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.GET("/healthz", controller.Healthz)
 		group.GET("/readyz", healthcheck.Handler(readyChecks))
 	})
+	server.Group("/", func(group *ghttp.RouterGroup) {
+		group.Middleware(apiMiddleware, authhttp.Optional(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
+		group.Bind(controller.NewMe())
+	})
 	if deps.Catalog == nil {
 		return
 	}
@@ -37,7 +43,8 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.Bind(controller.NewPublic(deps.Catalog))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware, authhttp.Required(deps.Verifier))
+		group.Middleware(apiMiddleware, authhttp.Required(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
+		group.Bind(controller.NewAuthorization())
 		group.Bind(controller.NewAdmin(deps.Catalog))
 	})
 }

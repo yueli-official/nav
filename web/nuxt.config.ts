@@ -31,9 +31,6 @@ export default defineNuxtConfig({
       oidcScopes:
         process.env.NUXT_PUBLIC_OIDC_SCOPES ||
         "openid profile email roles offline_access",
-      operatorSubs:
-        process.env.NUXT_PUBLIC_OPERATOR_SUBS ||
-        "ac73d232-ce55-487d-bb39-fd336f1a9806",
       accountUrl:
         process.env.NUXT_PUBLIC_ACCOUNT_URL || "http://localhost:3000",
       siteSlug: process.env.NUXT_PUBLIC_SITE_SLUG || "nav-yueli",
