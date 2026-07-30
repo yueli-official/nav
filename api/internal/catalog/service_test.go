@@ -2,17 +2,16 @@ package catalog
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"testing"
 	"time"
 
-	"platform/gokit/errs"
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/model"
-	"platform/products/nav/api/internal/naverr"
-	"platform/products/nav/api/internal/navprofile"
+	"github.com/yueli-official/foundation/go/problem"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/navprofile"
 )
 
 type countingChecker struct {
@@ -149,8 +148,8 @@ func TestSettingsRequiresProvisionedConfiguration(t *testing.T) {
 	service := New(&fakeStore{}, Site{Name: "compiled fallback must not be used"})
 	service.SetSiteProfile(navprofile.NewMemory())
 	_, err := service.PublicSite(context.Background())
-	var coded *errs.Coded
-	if !errors.As(err, &coded) || coded.Code != naverr.CodeNotInitialized {
+	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
+	if resolveErr != nil || !ok || mapped.Code != naverr.CodeNotInitialized {
 		t.Fatalf("error = %#v, want nav.not_initialized", err)
 	}
 }
@@ -268,11 +267,11 @@ func TestCreateLinkRejectsUnsafeURL(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected invalid URL error")
 	}
-	var coded *errs.Coded
-	if !errors.As(err, &coded) || coded.Code != errs.CommonValidationFailed {
+	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
+	if resolveErr != nil || !ok || mapped.Code != "common.validation_failed" {
 		t.Fatalf("error = %#v, want common.validation_failed", err)
 	}
-	if _, ok := coded.Params["details"]; !ok {
-		t.Fatalf("validation error missing field details: %#v", coded.Params)
+	if len(mapped.Violations) == 0 {
+		t.Fatalf("validation error missing field details: %#v", mapped)
 	}
 }

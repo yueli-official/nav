@@ -2,7 +2,7 @@
 import {
   ManageClientBoundary,
   ManageTaxonomyChips,
-} from "@platform/manage/components";
+} from "~/utils/manageComponents";
 import {
   createCollectionRouteQueryCodec,
   createJsonCollectionQueryPolicy,
@@ -15,7 +15,7 @@ import {
 import { useVueCollectionWorkflow } from "@yueli/ui/collection/vue";
 import { createVueRouterCollectionQuerySync } from "@yueli/ui/collection/vue-router";
 import { CollectionPanel } from "@yueli/ui/collection/pattern";
-import { rel } from "@platform/ui/date";
+import { rel } from "~/utils/date";
 import type {
   AdminNavigationLink,
   AdminNavigationResponse,

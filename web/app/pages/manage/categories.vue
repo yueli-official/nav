@@ -4,7 +4,7 @@ import {
   ManageEmpty,
   ManageIconPicker,
   SkeletonList,
-} from "@platform/manage/components";
+} from "~/utils/manageComponents";
 import { CollectionToolbar } from "@yueli/ui/collection/pattern";
 import { z } from "zod";
 import type {

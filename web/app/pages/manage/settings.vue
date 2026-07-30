@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ManageClientBoundary } from "@platform/manage/components";
+import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
-  platformSettingsSaveMessages,
-  usePlatformSettingsProtection,
-} from "@platform/manage/settings";
+  navSettingsSaveMessages,
+  useNavSettingsProtection,
+} from "~/utils/settings";
 import { SiteProfileEditor } from "@yueli/site-profile";
 import type {
   SiteProfile,
@@ -95,7 +95,7 @@ const settingsState = useVueSettingsWorkflow({
     searchPlaceholder.value = snapshot.searchPlaceholder;
   },
 });
-usePlatformSettingsProtection(() => settingsState.dirty.value);
+useNavSettingsProtection(() => settingsState.dirty.value);
 
 const { data, pending, error, refresh } = await useAsyncData(
   "nav-settings",
@@ -415,7 +415,7 @@ function discard() {
           :status="saveStatus"
           :error="saveError"
           :disabled="!canManageSettings"
-          :messages="platformSettingsSaveMessages"
+          :messages="navSettingsSaveMessages"
           dock-class="lg:left-60"
           @discard="discard"
           @save="submitSettings"

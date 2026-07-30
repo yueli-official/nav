@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createPlatformNotifier } from "@platform/ui/feedback";
+import { createNavNotifier } from "~/utils/feedback";
 import { useActionFeedback } from "@yueli/ui/feedback";
 import { ActionFeedbackButton } from "@yueli/ui/feedback/pattern";
 import { z } from "zod";
@@ -22,7 +22,7 @@ const emit = defineEmits<{
 }>();
 const open = defineModel<boolean>("open", { required: true });
 const { call } = useApi();
-const toast = createPlatformNotifier(useToast());
+const toast = createNavNotifier(useToast());
 
 const kindItems = [
   { label: "官方站点", value: "official" },

@@ -4,35 +4,33 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 
 	foundationauth "github.com/yueli-official/foundation/go/auth"
-	"platform/gokit/authhttp"
-	"platform/gokit/ghttpx"
-	"platform/gokit/healthcheck"
-	"platform/products/nav/api/internal/catalog"
-	"platform/products/nav/api/internal/controller"
-	"platform/products/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/catalog"
+	"github.com/yueli-official/nav/api/internal/controller"
+	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/runtime"
 )
 
 type Deps struct {
 	Verifier      *foundationauth.Verifier
 	Catalog       *catalog.Service
 	Authorization *navauthz.Service
-	ReadyChecks   map[string]healthcheck.Check
+	ReadyChecks   map[string]runtime.ReadinessCheck
 }
 
 func Configure(server *ghttp.Server, deps Deps) {
-	apiMiddleware := ghttpx.NewMiddleware(ghttpx.MustRateLimiterFromEnvironment(), ghttpx.ForwardedClientIPKey)
+	apiMiddleware := runtime.MustAPIMiddleware(runtime.MustRateLimiterFromEnvironment()).Handle
 	readyChecks := deps.ReadyChecks
 	if readyChecks == nil {
-		readyChecks = map[string]healthcheck.Check{"database": healthcheck.Database}
+		readyChecks = map[string]runtime.ReadinessCheck{"database": runtime.DatabaseReadiness}
 	}
-	server.Use(ghttpx.TraceRouteMiddleware)
+	server.Use(runtime.TraceRouteMiddleware)
 	server.Group("/", func(group *ghttp.RouterGroup) {
 		group.Middleware(apiMiddleware)
 		group.GET("/healthz", controller.Healthz)
-		group.GET("/readyz", healthcheck.Handler(readyChecks))
+		group.GET("/readyz", runtime.ReadinessHandler(readyChecks))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware, authhttp.Optional(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
+		group.Middleware(apiMiddleware, runtime.OptionalAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
 		group.Bind(controller.NewMe())
 	})
 	if deps.Catalog == nil {
@@ -43,7 +41,7 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.Bind(controller.NewPublic(deps.Catalog))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware, authhttp.Required(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
+		group.Middleware(apiMiddleware, runtime.RequiredAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
 		group.Bind(controller.NewAuthorization())
 		group.Bind(controller.NewAdmin(deps.Catalog))
 	})

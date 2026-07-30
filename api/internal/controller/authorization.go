@@ -5,9 +5,9 @@ import (
 
 	"github.com/yueli-official/foundation/go/authorization"
 
-	v1 "platform/products/nav/api/api/v1"
-	"platform/products/nav/api/internal/navauthz"
-	"platform/products/nav/api/internal/naverr"
+	v1 "github.com/yueli-official/nav/api/api/v1"
+	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 type Authorization struct{}

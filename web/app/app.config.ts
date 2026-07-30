@@ -1,3 +1,3 @@
-import { platformAppConfig } from "@platform/ui/app-config";
+import { createUiPreset } from "@yueli/ui/theme";
 
-export default defineAppConfig(platformAppConfig("nav"));
+export default defineAppConfig(createUiPreset({ primary: "sky" }));

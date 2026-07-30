@@ -13,8 +13,8 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	_ "github.com/lib/pq"
 
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/navprofile"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/navprofile"
 )
 
 func TestSiteProfileLegacyCutoverAndDowngradeProjection(t *testing.T) {

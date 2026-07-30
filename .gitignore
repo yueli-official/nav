@@ -1,0 +1,11 @@
+.env
+deploy/env/*.env
+.doctor/
+.data/
+api/manifest/config/config.yaml
+web/node_modules/
+web/.nuxt/
+web/.output/
+web/test-results/
+web/playwright-report/
+*.log

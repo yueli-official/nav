@@ -1,0 +1,7 @@
+name: yueli-nav-standalone
+
+include:
+  - path: deploy/includes/identity/compose.yaml
+  - path:
+      - deploy/compose.nav.yaml
+      - deploy/topologies/nav.standalone.yaml

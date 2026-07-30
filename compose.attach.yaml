@@ -1,0 +1,4 @@
+name: yueli-nav-attach
+
+include:
+  - path: deploy/compose.nav.yaml

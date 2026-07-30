@@ -6,7 +6,7 @@ import (
 
 	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
-	"platform/products/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/navauthz"
 )
 
 func TestServiceReconcilesEnabledAutomaticCuratorOnFirstAuthenticatedAccess(t *testing.T) {

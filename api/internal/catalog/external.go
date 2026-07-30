@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"platform/products/nav/api/internal/model"
-	"platform/products/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 const (

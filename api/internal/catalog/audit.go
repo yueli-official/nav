@@ -8,9 +8,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/yueli-official/foundation/go/audit"
 
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/model"
-	"platform/products/nav/api/internal/navaudit"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/navaudit"
 )
 
 type auditedStore interface {

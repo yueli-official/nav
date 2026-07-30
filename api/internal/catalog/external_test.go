@@ -3,16 +3,15 @@ package catalog
 import (
 	"bytes"
 	"context"
-	"errors"
 	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
 
-	"platform/gokit/errs"
-	"platform/products/nav/api/internal/model"
-	"platform/products/nav/api/internal/naverr"
+	"github.com/yueli-official/foundation/go/problem"
+	"github.com/yueli-official/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 func TestSafeFaviconMIMERejectsActiveContent(t *testing.T) {
@@ -84,8 +83,8 @@ func TestFaviconMapsUpstreamFailureToNotFound(t *testing.T) {
 	service := New(store, Site{})
 	service.faviconClient = server.Client()
 	_, _, err := service.Favicon(context.Background(), "missing-icon")
-	var coded *errs.Coded
-	if !errors.As(err, &coded) || coded.Code != naverr.CodeNotFound {
+	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
+	if resolveErr != nil || !ok || mapped.Code != naverr.CodeNotFound {
 		t.Fatalf("error = %#v, want nav.not_found", err)
 	}
 }

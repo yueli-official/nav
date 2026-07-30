@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "nav.yueli.dev/error-catalog/v1",
+  "errors": [
+    {
+      "code": "nav.authorization_unavailable",
+      "status": 503
+    },
+    {
+      "code": "nav.conflict",
+      "status": 409
+    },
+    {
+      "code": "nav.forbidden",
+      "status": 403
+    },
+    {
+      "code": "nav.not_found",
+      "status": 404
+    },
+    {
+      "code": "nav.not_initialized",
+      "status": 503
+    },
+    {
+      "code": "nav.site_profile_precondition_required",
+      "status": 428
+    },
+    {
+      "code": "nav.site_profile_revision_conflict",
+      "status": 412
+    }
+  ]
+}

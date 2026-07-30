@@ -4,8 +4,8 @@ import (
 	"context"
 	"sort"
 
-	v1 "platform/products/nav/api/api/v1"
-	"platform/products/nav/api/internal/naverr"
+	v1 "github.com/yueli-official/nav/api/api/v1"
+	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 type Me struct{}

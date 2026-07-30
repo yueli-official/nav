@@ -19,11 +19,11 @@ import (
 	"github.com/yueli-official/foundation/go/audit"
 	"github.com/yueli-official/foundation/go/siteprofile"
 
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/model"
-	"platform/products/nav/api/internal/navaudit"
-	"platform/products/nav/api/internal/naverr"
-	"platform/products/nav/api/internal/navprofile"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/navaudit"
+	"github.com/yueli-official/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/navprofile"
 )
 
 const StatusPublished = "published"

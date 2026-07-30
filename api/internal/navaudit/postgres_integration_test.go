@@ -12,7 +12,7 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/yueli-official/foundation/go/audit"
 
-	"platform/products/nav/api/internal/navaudit"
+	"github.com/yueli-official/nav/api/internal/navaudit"
 )
 
 func TestPostgresHookRecordsCommittedNavigationAction(t *testing.T) {

@@ -1,0 +1,138 @@
+services:
+  nav-postgres:
+    image: postgres:18.4-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${NAV_POSTGRES_USER:-nav}
+      POSTGRES_PASSWORD: ${NAV_POSTGRES_PASSWORD:?set NAV_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${NAV_POSTGRES_DB:-nav}
+    volumes:
+      - nav-postgres:/var/lib/postgresql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  nav-migrate:
+    image: ${NAV_MIGRATION_IMAGE:-yueli/nav-migration:local}
+    pull_policy: build
+    build:
+      context: ../api
+      target: migration
+    restart: "no"
+    command:
+      - -path=/migrations
+      - -database=${NAV_DATABASE_URL:?set NAV_DATABASE_URL}
+      - up
+    depends_on:
+      nav-postgres:
+        condition: service_healthy
+
+  nav-bootstrap:
+    image: ${NAV_BOOTSTRAP_IMAGE:-yueli/nav-bootstrap:local}
+    pull_policy: build
+    build:
+      context: ../api
+      target: bootstrap
+    restart: "no"
+    environment:
+      NAV_DATABASE_URL: ${NAV_DATABASE_URL:?set NAV_DATABASE_URL}
+    depends_on:
+      nav-migrate:
+        condition: service_completed_successfully
+
+  nav-binding:
+    image: ${NAV_BINDING_IMAGE:-yueli/nav-bindingcheck:local}
+    pull_policy: build
+    build:
+      context: ../api
+      target: bindingcheck
+    restart: "no"
+    environment:
+      NAV_IDENTITY_ISSUER: ${NAV_IDENTITY_ISSUER:?set NAV_IDENTITY_ISSUER}
+      NAV_IDENTITY_DISCOVERY_URL: ${NAV_IDENTITY_DISCOVERY_URL:?set NAV_IDENTITY_DISCOVERY_URL}
+      NAV_IDENTITY_JWKS_URL: ${NAV_IDENTITY_JWKS_URL:?set NAV_IDENTITY_JWKS_URL}
+      NAV_BINDING_ALLOW_INSECURE_IDENTITY_HTTP: ${NAV_BINDING_ALLOW_INSECURE_IDENTITY_HTTP:-false}
+      NAV_BINDING_TIMEOUT: ${NAV_BINDING_TIMEOUT:-3m}
+
+  nav-api:
+    image: ${NAV_API_IMAGE:-yueli/nav-api:local}
+    pull_policy: build
+    build:
+      context: ../api
+      target: runtime
+    restart: unless-stopped
+    environment:
+      GF_GCFG_FILE: /app/manifest/config/config.example.yaml
+      GF_SERVER_ADDRESS: 0.0.0.0:8090
+      NAV_DATABASE_URL: ${NAV_DATABASE_URL:?set NAV_DATABASE_URL}
+      GF_NAV_SITESLUG: ${NAV_SITE_KEY:-nav-yueli}
+      GF_NAV_BRAND: ${NAV_SITE_BRAND:-月离导航}
+      GF_NAV_AUTHORIZATION_BOOTSTRAPADMINISTRATORSUBS: ${NAV_BOOTSTRAP_ADMIN_SUBS:?set NAV_BOOTSTRAP_ADMIN_SUBS as a JSON array}
+      GF_NAV_JWKS_URL: ${NAV_IDENTITY_JWKS_URL:?set NAV_IDENTITY_JWKS_URL}
+      GF_NAV_JWKS_ISSUER: ${NAV_IDENTITY_ISSUER:?set NAV_IDENTITY_ISSUER}
+      GF_NAV_JWKS_AUDIENCE: ${NAV_OIDC_CLIENT_ID:-nav-yueli-web}
+      GF_NAV_JWKS_ALLOWLOOPBACKHTTP: ${NAV_ALLOW_LOOPBACK_IDENTITY_HTTP:-false}
+      NAV_ENVIRONMENT: ${NAV_ENVIRONMENT:-production}
+      NAV_RATE_LIMIT_PER_MINUTE: ${NAV_RATE_LIMIT_PER_MINUTE:-600}
+      OTEL_TRACES_EXPORTER: ${OTEL_TRACES_EXPORTER:-none}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    ports:
+      - "${NAV_API_PORT:-8090}:8090"
+    depends_on:
+      nav-postgres:
+        condition: service_healthy
+      nav-migrate:
+        condition: service_completed_successfully
+      nav-bootstrap:
+        condition: service_completed_successfully
+      nav-binding:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/nav-healthcheck"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+
+  nav-web:
+    image: ${NAV_WEB_IMAGE:-yueli/nav-web:local}
+    pull_policy: build
+    build:
+      context: ../web
+    restart: unless-stopped
+    environment:
+      NUXT_API_BASE: http://nav-api:8090
+      NUXT_DOWNSTREAM_BASE: http://nav-api:8090
+      NUXT_IDENTITY_BASE: ${NAV_IDENTITY_INTERNAL_URL:?set NAV_IDENTITY_INTERNAL_URL}
+      NUXT_SEAL_SECRET: ${NAV_WEB_SEAL_SECRET:?set NAV_WEB_SEAL_SECRET}
+      NUXT_COOKIE_SECURE: ${NAV_COOKIE_SECURE:-true}
+      NUXT_PUBLIC_OIDC_ISSUER: ${NAV_IDENTITY_ISSUER:?set NAV_IDENTITY_ISSUER}
+      NUXT_PUBLIC_OIDC_CLIENT_ID: ${NAV_OIDC_CLIENT_ID:-nav-yueli-web}
+      NUXT_PUBLIC_OIDC_REDIRECT_URI: ${NAV_OIDC_REDIRECT_URI:?set NAV_OIDC_REDIRECT_URI}
+      NUXT_PUBLIC_OIDC_POST_LOGOUT_REDIRECT_URI: ${NAV_OIDC_POST_LOGOUT_REDIRECT_URI:?set NAV_OIDC_POST_LOGOUT_REDIRECT_URI}
+      NUXT_PUBLIC_OIDC_SCOPES: ${NAV_OIDC_SCOPES:-openid profile email roles offline_access}
+      NUXT_PUBLIC_ACCOUNT_URL: ${NAV_ACCOUNT_ORIGIN:?set NAV_ACCOUNT_ORIGIN}
+      NUXT_PUBLIC_SITE_SLUG: ${NAV_SITE_KEY:-nav-yueli}
+      NUXT_PUBLIC_SITE_BRAND: ${NAV_SITE_BRAND:-月离导航}
+    ports:
+      - "${NAV_WEB_PORT:-3006}:3006"
+    depends_on:
+      nav-api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:3006/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+volumes:
+  nav-postgres:

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/yueli-official/foundation/go/authorization"
@@ -10,33 +8,33 @@ import (
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 
-	"platform/gokit/authsetup"
-	"platform/gokit/observability"
-	"platform/gokit/openapiexport"
-	"platform/gokit/postgresdb"
-	"platform/products/nav/api/internal/appconfig"
-	"platform/products/nav/api/internal/catalog"
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/navaudit"
-	"platform/products/nav/api/internal/navauthz"
-	"platform/products/nav/api/internal/navprofile"
-	"platform/products/nav/api/internal/server"
+	"github.com/yueli-official/nav/api/internal/appconfig"
+	"github.com/yueli-official/nav/api/internal/catalog"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/navaudit"
+	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/navprofile"
+	"github.com/yueli-official/nav/api/internal/runtime"
+	"github.com/yueli-official/nav/api/internal/server"
 )
 
 func main() {
+	if err := runtime.EnableEnvironmentConfig(); err != nil {
+		panic(err)
+	}
 	ctx := gctx.New()
-	shutdown, err := observability.StartFromEnvironment(ctx, "nav-api")
+	shutdown, err := runtime.StartTelemetry(ctx, "nav-api")
 	if err != nil {
 		panic(err)
 	}
-	defer observability.ShutdownWithTimeout(shutdown)
+	defer runtime.ShutdownTelemetry(shutdown)
 
 	httpServer := g.Server()
-	if os.Getenv("PLATFORM_OPENAPI_OUTPUT") != "" {
+	if runtime.OpenAPIRequested() {
 		openAPICatalog := catalog.New(nil, siteMeta("月离导航"))
 		openAPICatalog.SetSiteProfile(navprofile.NewMemory())
 		server.Configure(httpServer, server.Deps{Catalog: openAPICatalog})
-		if handled, exportErr := openapiexport.ExportIfRequested(httpServer); handled {
+		if handled, exportErr := runtime.ExportOpenAPIIfRequested(httpServer); handled {
 			if exportErr != nil {
 				panic(exportErr)
 			}
@@ -45,7 +43,7 @@ func main() {
 	}
 
 	service := catalog.New(dao.NewPG(g.DB()), siteMeta(appconfig.SiteBrand(ctx)))
-	profileDB, err := postgresdb.OpenDefault(ctx)
+	profileDB, err := runtime.OpenDefaultPostgres(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -93,7 +91,7 @@ func main() {
 	}
 	authorizationService := navauthz.New(authz, profileDB)
 	jwks := appconfig.LoadJWKS(ctx)
-	verifier, err := authsetup.NewRemoteVerifier(authsetup.RemoteVerifierConfig{
+	verifier, err := runtime.NewRemoteVerifier(runtime.RemoteVerifierConfig{
 		JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience,
 		AllowLoopbackHTTP: jwks.AllowLoopbackHTTP,
 	})

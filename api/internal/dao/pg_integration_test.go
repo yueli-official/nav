@@ -15,8 +15,8 @@ import (
 	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/google/uuid"
 
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/model"
 )
 
 func TestPGLinkRoundTrip(t *testing.T) {

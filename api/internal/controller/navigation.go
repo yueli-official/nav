@@ -8,12 +8,12 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/yueli-official/foundation/go/authorization"
-	v1 "platform/products/nav/api/api/v1"
-	"platform/products/nav/api/internal/catalog"
-	"platform/products/nav/api/internal/dao"
-	"platform/products/nav/api/internal/model"
-	"platform/products/nav/api/internal/navauthz"
-	"platform/products/nav/api/internal/naverr"
+	v1 "github.com/yueli-official/nav/api/api/v1"
+	"github.com/yueli-official/nav/api/internal/catalog"
+	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 type Public struct {

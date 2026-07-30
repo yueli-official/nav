@@ -7,8 +7,8 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/yueli-official/foundation/go/authorization"
 
-	"platform/products/nav/api/internal/navauthz"
-	"platform/products/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 type authorizationContextKey struct{}

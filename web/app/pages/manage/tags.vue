@@ -3,7 +3,7 @@ import {
   ManageClientBoundary,
   ManageEmpty,
   SkeletonList,
-} from "@platform/manage/components";
+} from "~/utils/manageComponents";
 import {
   CollectionFooter,
   CollectionToolbar,

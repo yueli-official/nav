@@ -10,8 +10,8 @@ import (
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 
-	"platform/gokit/healthcheck"
-	"platform/products/nav/api/internal/server"
+	"github.com/yueli-official/nav/api/internal/runtime"
+	"github.com/yueli-official/nav/api/internal/server"
 )
 
 func TestReadinessSuccess(t *testing.T) {
@@ -38,12 +38,12 @@ func TestReadinessTimeout(t *testing.T) {
 	}
 }
 
-func readinessResponse(t *testing.T, check healthcheck.Check) (int, string, time.Duration) {
+func readinessResponse(t *testing.T, check runtime.ReadinessCheck) (int, string, time.Duration) {
 	t.Helper()
 	httpServer := g.Server(t.Name())
 	httpServer.SetAddr("127.0.0.1:0")
 	httpServer.SetDumpRouterMap(false)
-	server.Configure(httpServer, server.Deps{ReadyChecks: map[string]healthcheck.Check{"database": check}})
+	server.Configure(httpServer, server.Deps{ReadyChecks: map[string]runtime.ReadinessCheck{"database": check}})
 	httpServer.Start()
 	t.Cleanup(func() { _ = httpServer.Shutdown() })
 

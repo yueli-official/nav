@@ -9,7 +9,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gtime"
 
-	"platform/products/nav/api/internal/model"
+	"github.com/yueli-official/nav/api/internal/model"
 )
 
 const (
