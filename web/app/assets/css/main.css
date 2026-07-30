@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+@import "@platform/ui/theme.css";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/dm-sans";
+
+:root {
+  color-scheme: light;
+  --nav-hero-grid: color-mix(in srgb, var(--ui-primary) 11%, transparent);
+  --nav-hero-wash: color-mix(
+    in srgb,
+    var(--ui-primary) 8%,
+    var(--yueli-surface-page)
+  );
+}
+
+.dark {
+  color-scheme: dark;
+  --nav-hero-grid: color-mix(in srgb, var(--ui-primary) 14%, transparent);
+  --nav-hero-wash: color-mix(
+    in srgb,
+    var(--ui-primary) 7%,
+    var(--yueli-surface-page)
+  );
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  background: var(--yueli-surface-page);
+}
+
+.nav-hero-surface {
+  background-color: var(--nav-hero-wash);
+  background-image:
+    linear-gradient(var(--nav-hero-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--nav-hero-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

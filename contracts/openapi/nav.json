@@ -1,0 +1,3892 @@
+{
+  "components": {
+    "schemas": {
+      "github.com.yueli-official.foundation.go.siteprofile.Announcement": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+            "description": ""
+          },
+          "dismissible": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "endsAt": {
+            "format": "*time.Time",
+            "type": "string"
+          },
+          "startsAt": {
+            "format": "*time.Time",
+            "type": "string"
+          },
+          "text": {
+            "format": "string",
+            "type": "string"
+          },
+          "tone": {
+            "format": "siteprofile.AnnouncementTone",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Branding": {
+        "properties": {
+          "darkLogo": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          },
+          "favicon": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          },
+          "logo": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Compliance": {
+        "properties": {
+          "extraText": {
+            "format": "string",
+            "type": "string"
+          },
+          "records": {
+            "format": "[]siteprofile.ComplianceRecord",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.ComplianceRecord",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.ComplianceRecord": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "number": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Contact": {
+        "properties": {
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "siteprofile.ContactKind",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "value": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FieldOption": {
+        "properties": {
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "value": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Footer": {
+        "properties": {
+          "compliance": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Compliance",
+            "description": ""
+          },
+          "copyright": {
+            "format": "string",
+            "type": "string"
+          },
+          "legal": {
+            "format": "[]siteprofile.Link",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "linkGroups": {
+            "format": "[]siteprofile.LinkGroup",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.LinkGroup",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "social": {
+            "format": "[]siteprofile.SocialLink",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.SocialLink",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "tagline": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormField": {
+        "properties": {
+          "control": {
+            "format": "siteprofile.FieldControl",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "itemFields": {
+            "format": "[]siteprofile.FormField",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormField",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "maxItems": {
+            "format": "int",
+            "type": "integer"
+          },
+          "maxLength": {
+            "format": "int",
+            "type": "integer"
+          },
+          "options": {
+            "format": "[]siteprofile.FieldOption",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FieldOption",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "path": {
+            "format": "string",
+            "type": "string"
+          },
+          "required": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormSchema": {
+        "properties": {
+          "digest": {
+            "format": "siteprofile.Digest",
+            "type": "string"
+          },
+          "sections": {
+            "format": "[]siteprofile.FormSection",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormSection",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "version": {
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormSection": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "fields": {
+            "format": "[]siteprofile.FormField",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormField",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Identity": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          },
+          "tagline": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Link": {
+        "properties": {
+          "href": {
+            "format": "string",
+            "type": "string"
+          },
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.LinkGroup": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "links": {
+            "format": "[]siteprofile.Link",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Profile": {
+        "properties": {
+          "announcement": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Announcement",
+            "description": ""
+          },
+          "branding": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Branding",
+            "description": ""
+          },
+          "footer": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Footer",
+            "description": ""
+          },
+          "identity": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Identity",
+            "description": ""
+          },
+          "support": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Support",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Snapshot": {
+        "properties": {
+          "documentDigest": {
+            "format": "siteprofile.Digest",
+            "type": "string"
+          },
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
+            "description": ""
+          },
+          "revision": {
+            "format": "siteprofile.Revision",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "updatedAt": {
+            "format": "time.Time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.SocialLink": {
+        "properties": {
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "platform": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Support": {
+        "properties": {
+          "contacts": {
+            "format": "[]siteprofile.Contact",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Contact",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Visual": {
+        "properties": {
+          "alt": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "siteprofile.VisualKind",
+            "type": "string"
+          },
+          "ref": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ActivateAuthorizationPolicyReq": {
+        "properties": {
+          "expectedActiveRevision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "expectedActiveRevision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ActivateAuthorizationPolicyRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminBulkLinksReq": {
+        "properties": {
+          "action": {
+            "enum": [
+              "publish",
+              "draft",
+              "archive",
+              "delete"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "ids": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "ids",
+          "action"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminBulkLinksRes": {
+        "properties": {
+          "changed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "failedIds": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateCategoryReq": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "icon": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "icon"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateCategoryRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateGroupReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "title"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateGroupRes": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateLinkReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "published",
+              "draft",
+              "archived"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "groupId",
+          "title",
+          "url",
+          "description",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminCreateLinkRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteCategoryReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteCategoryRes": {
+        "properties": {
+          "deleted": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteGroupReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteGroupRes": {
+        "properties": {
+          "deleted": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteLinkReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteLinkRes": {
+        "properties": {
+          "deleted": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteTagReq": {
+        "properties": {
+          "name": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminDeleteTagRes": {
+        "properties": {
+          "changed": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminGetSettingsReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminGetSettingsRes": {
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminSiteSettingsView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListChecksReq": {
+        "properties": {
+          "health": {
+            "enum": [
+              "unchecked",
+              "healthy",
+              "redirected",
+              "broken",
+              "timeout",
+              "error",
+              "issue"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "format": "int",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "size": {
+            "default": 20,
+            "format": "int",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListChecksRes": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.HealthCountsView",
+            "description": ""
+          },
+          "links": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListLinksReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "direction": {
+            "default": "desc",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "format": "int",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "size": {
+            "default": 20,
+            "format": "int",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "sort": {
+            "default": "updated",
+            "enum": [
+              "default",
+              "updated",
+              "title",
+              "published"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "tag": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListLinksRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LifecycleCountsView",
+            "description": ""
+          },
+          "links": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "tags": {
+            "format": "[]v1.TagView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.TagView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListStructureReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListStructureRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListTagsReq": {
+        "properties": {
+          "q": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminListTagsRes": {
+        "properties": {
+          "tags": {
+            "format": "[]v1.TagView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.TagView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminRenameTagReq": {
+        "properties": {
+          "source": {
+            "format": "string",
+            "type": "string"
+          },
+          "target": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "target"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminRenameTagRes": {
+        "properties": {
+          "changed": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminRunChecksReq": {
+        "properties": {
+          "health": {
+            "enum": [
+              "unchecked",
+              "healthy",
+              "redirected",
+              "broken",
+              "timeout",
+              "error",
+              "issue"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "ids": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "scope": {
+            "default": "selected",
+            "enum": [
+              "selected",
+              "filtered"
+            ],
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminRunChecksRes": {
+        "properties": {
+          "checked": {
+            "format": "int",
+            "type": "integer"
+          },
+          "results": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminSiteSettingsView": {
+        "properties": {
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "runtimeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormSchema",
+            "description": ""
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Snapshot",
+            "description": ""
+          }
+        },
+        "required": [
+          "searchPlaceholder"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateCategoryReq": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "icon": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "icon"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateCategoryRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateGroupReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "title"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateGroupRes": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateLinkReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "published",
+              "draft",
+              "archived"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "categoryId",
+          "groupId",
+          "title",
+          "url",
+          "description",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateLinkRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateSettingsReq": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
+            "description": ""
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "searchPlaceholder"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AdminUpdateSettingsRes": {
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminSiteSettingsView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ApplyForRoleReq": {
+        "properties": {
+          "reason": {
+            "format": "string",
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ApplyForRoleRes": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationApplicationView": {
+        "properties": {
+          "createdAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "reason": {
+            "format": "string",
+            "type": "string"
+          },
+          "reviewReason": {
+            "format": "string",
+            "type": "string"
+          },
+          "reviewedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          },
+          "state": {
+            "format": "string",
+            "type": "string"
+          },
+          "subject": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationAutomaticRuleView": {
+        "properties": {
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationCapabilityView": {
+        "properties": {
+          "displayName": {
+            "format": "string",
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationPolicyView": {
+        "properties": {
+          "activatedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "base": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "number": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "state": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.AuthorizationRoleView": {
+        "properties": {
+          "assignmentSources": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "displayName": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "protected": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CategoryView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "groups": {
+            "format": "[]v1.GroupView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationDraftReq": {
+        "properties": {
+          "expectedActiveRevision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expectedActiveRevision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationDraftRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationRoleReq": {
+        "properties": {
+          "assignmentSources": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "displayName": {
+            "format": "string",
+            "maxLength": 80,
+            "minLength": 1,
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "maxLength": 64,
+            "minLength": 2,
+            "type": "string"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision",
+          "key",
+          "displayName"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.CreateAuthorizationRoleRes": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetAuthorizationConsoleReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetAuthorizationConsoleRes": {
+        "properties": {
+          "activeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "applications": {
+            "format": "[]v1.AuthorizationApplicationView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "automaticRules": {
+            "format": "[]v1.AuthorizationAutomaticRuleView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationAutomaticRuleView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "capabilities": {
+            "format": "[]v1.AuthorizationCapabilityView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationCapabilityView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          },
+          "roles": {
+            "format": "[]v1.AuthorizationRoleView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetCatalogReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetCatalogRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "site": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "description": ""
+          },
+          "stats": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.StatsView",
+            "description": ""
+          },
+          "version": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetFaviconReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetFaviconRes": {
+        "description": "Favicon image bytes",
+        "format": "binary",
+        "properties": {},
+        "type": "string"
+      },
+      "platform.products.nav.api.api.v1.GetGroupReq": {
+        "properties": {
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "page": {
+            "default": 1,
+            "format": "int",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "size": {
+            "default": 18,
+            "format": "int",
+            "maximum": 60,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "sort": {
+            "default": "default",
+            "enum": [
+              "default",
+              "popular"
+            ],
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "groupId"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GetGroupRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "description": ""
+          },
+          "group": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "description": ""
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "site": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "description": ""
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.GroupView": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.HealthCountsView": {
+        "properties": {
+          "all": {
+            "format": "int",
+            "type": "integer"
+          },
+          "broken": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthy": {
+            "format": "int",
+            "type": "integer"
+          },
+          "redirected": {
+            "format": "int",
+            "type": "integer"
+          },
+          "timeout": {
+            "format": "int",
+            "type": "integer"
+          },
+          "unchecked": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.LifecycleCountsView": {
+        "properties": {
+          "all": {
+            "format": "int",
+            "type": "integer"
+          },
+          "archived": {
+            "format": "int",
+            "type": "integer"
+          },
+          "draft": {
+            "format": "int",
+            "type": "integer"
+          },
+          "published": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.LinkView": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "clickCount": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "healthError": {
+            "format": "string",
+            "type": "string"
+          },
+          "healthHttpStatus": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthLatencyMs": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthStatus": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "lastCheckedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "lastClickedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListMyApplicationsReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListMyApplicationsRes": {
+        "properties": {
+          "items": {
+            "format": "[]v1.AuthorizationApplicationView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListRequestableRolesReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ListRequestableRolesRes": {
+        "properties": {
+          "items": {
+            "format": "[]v1.AuthorizationRoleView",
+            "items": {
+              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.MeReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.MeRes": {
+        "properties": {
+          "me": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.MeView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.MeView": {
+        "properties": {
+          "authenticated": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "isAdministrator": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "sub": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.PreviewAuthorizationPolicyReq": {
+        "properties": {
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.PreviewAuthorizationPolicyRes": {
+        "properties": {
+          "addedBindings": {
+            "format": "int",
+            "type": "integer"
+          },
+          "removedBindings": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RecordClickReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RecordClickRes": {
+        "properties": {
+          "recorded": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RetireAuthorizationRoleReq": {
+        "properties": {
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "role"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.RetireAuthorizationRoleRes": {
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ReviewRoleApplicationReq": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "reason": {
+            "format": "string",
+            "maxLength": 2000,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "decision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ReviewRoleApplicationRes": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleReq": {
+        "properties": {
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "rule": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "rule"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesReq": {
+        "properties": {
+          "capabilities": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision",
+          "role"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes": {
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.SiteView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "footerTagline": {
+            "format": "string",
+            "type": "string"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          },
+          "revision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "runtimeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "type": "string"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.StatsView": {
+        "properties": {
+          "categoryCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "groupCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.TagView": {
+        "properties": {
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ValidateAuthorizationPolicyReq": {
+        "properties": {
+          "revision": {
+            "format": "uint64",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.ValidateAuthorizationPolicyRes": {
+        "properties": {
+          "valid": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "violations": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.WithdrawRoleApplicationReq": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "type": "object"
+      },
+      "platform.products.nav.api.api.v1.WithdrawRoleApplicationRes": {
+        "properties": {
+          "application": {
+            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "",
+    "version": ""
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/admin/nav/categories": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateCategoryReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateCategoryRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create navigation category",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/categories/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteCategoryRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Delete navigation category",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "icon": {
+                    "format": "string",
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "icon"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateCategoryRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Update navigation category",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "health",
+            "schema": {
+              "enum": [
+                "unchecked",
+                "healthy",
+                "redirected",
+                "broken",
+                "timeout",
+                "error",
+                "issue"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 20,
+              "format": "int",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListChecksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List navigation link health checks",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks/run": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRunChecksReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRunChecksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Check navigation link availability",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/groups": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateGroupReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create navigation group",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/groups/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Delete navigation group",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "categoryId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "categoryId",
+                  "title"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Update navigation group",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "categoryId",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "groupId",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "updated",
+              "enum": [
+                "default",
+                "updated",
+                "title",
+                "published"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 20,
+              "format": "int",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListLinksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List navigation links",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateLinkReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create a navigation link",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links/bulk": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminBulkLinksReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminBulkLinksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Bulk update navigation links",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links/{id}": {
+      "delete": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Delete a navigation link",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "categoryId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "featured": {
+                    "format": "bool",
+                    "type": "boolean"
+                  },
+                  "groupId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "keywords": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "kind": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "type": "integer"
+                  },
+                  "status": {
+                    "enum": [
+                      "published",
+                      "draft",
+                      "archived"
+                    ],
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "tags": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "url": {
+                    "format": "string",
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "categoryId",
+                  "groupId",
+                  "title",
+                  "url",
+                  "description",
+                  "kind"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Update a navigation link",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/settings": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminGetSettingsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get navigation site settings",
+        "tags": [
+          "Admin Nav"
+        ]
+      },
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateSettingsReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateSettingsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Update navigation site settings",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/structure": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListStructureRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List categories and groups",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/tags": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListTagsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List navigation tags",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/tags/delete": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteTagReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteTagRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Delete a navigation tag",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/tags/rename": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRenameTagReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRenameTagRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Rename or merge a navigation tag",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/authorization/applications": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ApplyForRoleReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ApplyForRoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Apply for a role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/applications/mine": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ListMyApplicationsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "My role applications",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/applications/{id}/withdraw": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.WithdrawRoleApplicationRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Withdraw my role application",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/applications/{id}/review": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "decision": {
+                    "enum": [
+                      "approve",
+                      "reject"
+                    ],
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "reason": {
+                    "format": "string",
+                    "maxLength": 2000,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "decision"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ReviewRoleApplicationRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Review role application",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/console": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetAuthorizationConsoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Authorization management console",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/drafts": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationDraftReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationDraftRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create policy draft",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/activate": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "expectedActiveRevision": {
+                    "format": "uint64",
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "expectedActiveRevision"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ActivateAuthorizationPolicyRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Activate policy draft",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/automatic/{rule}": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rule",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "enabled": {
+                    "format": "bool",
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Configure automatic role rule",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/preview": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.PreviewAuthorizationPolicyRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Preview policy impact",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/roles": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "assignmentSources": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "capabilities": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "displayName": {
+                    "format": "string",
+                    "maxLength": 80,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "key": {
+                    "format": "string",
+                    "maxLength": 64,
+                    "minLength": 2,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "key",
+                  "displayName"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationRoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Create custom role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/roles/{role}/capabilities": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "role",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "capabilities": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Set role capabilities",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/roles/{role}/retire": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "role",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.RetireAuthorizationRoleRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Retire custom role",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/manage/policies/{revision}/validate": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "revision",
+            "required": true,
+            "schema": {
+              "format": "uint64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ValidateAuthorizationPolicyRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Validate policy draft",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/authorization/requestable-roles": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ListRequestableRolesRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Requestable roles",
+        "tags": [
+          "authorization"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.MeRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Current caller access",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/catalog": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetCatalogRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get the published navigation catalog",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/groups/{groupId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 18,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "default",
+              "enum": [
+                "default",
+                "popular"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get a paginated published navigation topic",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/links/{id}/click": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.RecordClickRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Record a navigation link visit",
+        "tags": [
+          "Nav"
+        ]
+      }
+    },
+    "/api/v1/nav/links/{id}/favicon": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/avif": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/vnd.microsoft.icon": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/x-icon": {
+                "schema": {
+                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": "Favicon image bytes"
+          }
+        },
+        "summary": "Get a proxied navigation link favicon",
+        "tags": [
+          "Nav"
+        ]
+      }
+    }
+  }
+}
