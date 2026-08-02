@@ -7,6 +7,7 @@ import (
 	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
 	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/testidentity"
 )
 
 func TestServiceReconcilesEnabledAutomaticCuratorOnFirstAuthenticatedAccess(t *testing.T) {
@@ -40,7 +41,7 @@ func TestServiceReconcilesEnabledAutomaticCuratorOnFirstAuthenticatedAccess(t *t
 		t.Fatalf("ActivatePolicy() error = %v", err)
 	}
 	service := navauthz.New(module, nil)
-	userContext := foundationauth.NewContext(ctx, &foundationauth.Principal{Subject: "registered-user"})
+	userContext := foundationauth.NewContext(ctx, testidentity.User(t, "registered-user", nil, nil))
 	access, err := service.EffectiveAccess(userContext)
 	if err != nil {
 		t.Fatalf("EffectiveAccess() error = %v", err)
