@@ -45,7 +45,9 @@ defineShortcuts({
     >
       <slot />
     </main>
-    <footer class="border-t border-default bg-default/80">
+    <footer
+      class="border-t border-default bg-default/80 dark:bg-[var(--yueli-surface-region)]"
+    >
       <div
         class="mx-auto flex w-full flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
         :class="mainWidth"

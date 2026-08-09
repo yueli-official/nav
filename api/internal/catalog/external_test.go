@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/yueli-official/foundation/go/problem"
 	"github.com/yueli-official/nav/api/internal/model"
 	"github.com/yueli-official/nav/api/internal/naverr"
@@ -76,16 +77,145 @@ func TestSafeClientRejectsRedirectToReservedAddress(t *testing.T) {
 	}
 }
 
-func TestFaviconMapsUpstreamFailureToNotFound(t *testing.T) {
-	server := httptest.NewServer(http.NotFoundHandler())
+func TestFaviconMissQueuesFetchAndSubsequentReadsUsePersistentCache(t *testing.T) {
+	requests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, _ *http.Request) {
+		requests++
+		response.Header().Set("Content-Type", "image/png")
+		_, _ = response.Write([]byte("cached-png"))
+	}))
 	defer server.Close()
-	store := &fakeStore{links: []*model.Link{{ID: "missing-icon", URL: server.URL, Status: StatusPublished}}}
+	store := &fakeStore{links: []*model.Link{{ID: "cached-icon", URL: server.URL, Status: StatusPublished}}}
 	service := New(store, Site{})
 	service.faviconClient = server.Client()
-	_, _, err := service.Favicon(context.Background(), "missing-icon")
+	var queued func()
+	service.faviconRunner = func(task func()) { queued = task }
+
+	_, _, err := service.Favicon(context.Background(), "cached-icon")
 	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
 	if resolveErr != nil || !ok || mapped.Code != naverr.CodeNotFound {
 		t.Fatalf("error = %#v, want nav.not_found", err)
+	}
+	if requests != 0 || queued == nil {
+		t.Fatalf("public miss requests=%d queued=%v, want zero blocking upstream requests and one background job", requests, queued != nil)
+	}
+
+	queued()
+	data, mime, err := service.Favicon(context.Background(), "cached-icon")
+	if err != nil || string(data) != "cached-png" || mime != "image/png" || requests != 1 {
+		t.Fatalf("cached favicon data=%q mime=%q requests=%d err=%v", data, mime, requests, err)
+	}
+	_, _, err = service.Favicon(context.Background(), "cached-icon")
+	if err != nil || requests != 1 {
+		t.Fatalf("warm cache performed another upstream request: requests=%d err=%v", requests, err)
+	}
+}
+
+func TestFaviconServesLastKnownGoodWhileFailedRefreshBacksOff(t *testing.T) {
+	server := httptest.NewServer(http.NotFoundHandler())
+	defer server.Close()
+	now := time.Date(2026, 8, 9, 12, 0, 0, 0, time.UTC)
+	store := &fakeStore{
+		links: []*model.Link{{ID: "stale-icon", URL: server.URL, Status: StatusPublished}},
+		favicons: map[string]*model.FaviconCache{
+			"stale-icon": {
+				LinkID: "stale-icon", SourceURL: server.URL, Content: []byte("last-known-good"),
+				ContentType: "image/png", ContentHash: "hash", FetchedAt: gtime.NewFromTime(now.Add(-8 * 24 * time.Hour)),
+				RefreshAfter: gtime.NewFromTime(now.Add(-time.Minute)), LastAttemptAt: gtime.NewFromTime(now.Add(-8 * 24 * time.Hour)),
+			},
+		},
+	}
+	service := New(store, Site{})
+	service.faviconClient = server.Client()
+	service.faviconNow = func() time.Time { return now }
+	var queued func()
+	service.faviconRunner = func(task func()) { queued = task }
+
+	data, mime, err := service.Favicon(context.Background(), "stale-icon")
+	if err != nil || string(data) != "last-known-good" || mime != "image/png" || queued == nil {
+		t.Fatalf("stale read data=%q mime=%q queued=%v err=%v", data, mime, queued != nil, err)
+	}
+	queued()
+	queued = nil
+	data, _, err = service.Favicon(context.Background(), "stale-icon")
+	cached, _ := store.FaviconByLinkID(context.Background(), "stale-icon")
+	if err != nil || string(data) != "last-known-good" || queued != nil || cached.LastError == "" || !cached.RefreshAfter.Time.After(now) {
+		t.Fatalf("failed refresh did not preserve/back off cache: cache=%#v queued=%v err=%v", cached, queued != nil, err)
+	}
+}
+
+func TestFaviconNegativeCachePreventsRepeatedRefreshUntilBackoffExpires(t *testing.T) {
+	server := httptest.NewServer(http.NotFoundHandler())
+	defer server.Close()
+	now := time.Date(2026, 8, 9, 12, 0, 0, 0, time.UTC)
+	store := &fakeStore{links: []*model.Link{{ID: "missing-icon", URL: server.URL, Status: StatusPublished}}}
+	service := New(store, Site{})
+	service.faviconClient = server.Client()
+	service.faviconNow = func() time.Time { return now }
+	var queued func()
+	service.faviconRunner = func(task func()) { queued = task }
+
+	_, _, err := service.Favicon(context.Background(), "missing-icon")
+	if err == nil || queued == nil {
+		t.Fatalf("initial miss err=%v queued=%v, want not found with background refresh", err, queued != nil)
+	}
+	queued()
+	queued = nil
+	_, _, err = service.Favicon(context.Background(), "missing-icon")
+	cached, _ := store.FaviconByLinkID(context.Background(), "missing-icon")
+	if err == nil || queued != nil || cached == nil || cached.LastError == "" || !cached.RefreshAfter.Time.After(now) {
+		t.Fatalf("negative cache did not back off: cache=%#v queued=%v err=%v", cached, queued != nil, err)
+	}
+}
+
+func TestFetchFaviconUsesOriginIcon(t *testing.T) {
+	homepageRequests := 0
+	server := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		if request.URL.Path == "/favicon.ico" {
+			response.Header().Set("Content-Type", "image/png")
+			_, _ = response.Write([]byte("safe-png-fixture"))
+			return
+		}
+		homepageRequests++
+		http.NotFound(response, request)
+	}))
+	defer server.Close()
+
+	data, mime, err := fetchFavicon(context.Background(), server.Client(), server.URL+"/docs/start")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != "safe-png-fixture" || mime != "image/png" {
+		t.Fatalf("favicon = %q, %q, want origin PNG", data, mime)
+	}
+	if homepageRequests != 0 {
+		t.Fatalf("homepage requests = %d, want origin icon short-circuit", homepageRequests)
+	}
+}
+
+func TestFetchFaviconUsesDeclaredIconWhenOriginIconIsMissing(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+		switch request.URL.Path {
+		case "/favicon.ico":
+			http.NotFound(response, request)
+		case "/docs/start":
+			response.Header().Set("Content-Type", "text/html; charset=utf-8")
+			_, _ = response.Write([]byte(`<html><head><link href="/assets/site.png" rel="shortcut icon"></head></html>`))
+		case "/assets/site.png":
+			response.Header().Set("Content-Type", "image/png")
+			_, _ = response.Write([]byte("declared-png-fixture"))
+		default:
+			http.NotFound(response, request)
+		}
+	}))
+	defer server.Close()
+
+	data, mime, err := fetchFavicon(context.Background(), server.Client(), server.URL+"/docs/start")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != "declared-png-fixture" || mime != "image/png" {
+		t.Fatalf("favicon = %q, %q, want declared PNG", data, mime)
 	}
 }
 

@@ -17,28 +17,30 @@ type SiteView struct {
 }
 
 type LinkView struct {
-	ID               string   `json:"id"`
-	CategoryID       string   `json:"categoryId,omitempty"`
-	GroupID          string   `json:"groupId,omitempty"`
-	Title            string   `json:"title"`
-	URL              string   `json:"url"`
-	Description      string   `json:"description"`
-	Tags             []string `json:"tags"`
-	Keywords         []string `json:"keywords,omitempty"`
-	Kind             string   `json:"kind"`
-	Featured         bool     `json:"featured"`
-	Status           string   `json:"status,omitempty"`
-	SortOrder        int      `json:"sortOrder,omitempty"`
-	ClickCount       int64    `json:"clickCount"`
-	LastClickedAt    string   `json:"lastClickedAt,omitempty"`
-	HealthStatus     string   `json:"healthStatus,omitempty"`
-	LastCheckedAt    string   `json:"lastCheckedAt,omitempty"`
-	HealthHTTPStatus int      `json:"healthHttpStatus,omitempty"`
-	HealthLatencyMS  int      `json:"healthLatencyMs,omitempty"`
-	HealthError      string   `json:"healthError,omitempty"`
-	PublishedAt      string   `json:"publishedAt,omitempty"`
-	CreatedAt        string   `json:"createdAt,omitempty"`
-	UpdatedAt        string   `json:"updatedAt,omitempty"`
+	ID                string   `json:"id"`
+	CategoryID        string   `json:"categoryId,omitempty"`
+	GroupID           string   `json:"groupId,omitempty"`
+	Title             string   `json:"title"`
+	URL               string   `json:"url"`
+	Description       string   `json:"description"`
+	Tags              []string `json:"tags"`
+	Keywords          []string `json:"keywords,omitempty"`
+	Kind              string   `json:"kind"`
+	Featured          bool     `json:"featured"`
+	Status            string   `json:"status,omitempty"`
+	SortOrder         int      `json:"sortOrder,omitempty"`
+	ClickCount        int64    `json:"clickCount"`
+	FaviconRevision   string   `json:"faviconRevision,omitempty"`
+	LastClickedAt     string   `json:"lastClickedAt,omitempty"`
+	HealthStatus      string   `json:"healthStatus,omitempty"`
+	LastCheckedAt     string   `json:"lastCheckedAt,omitempty"`
+	HealthHTTPStatus  int      `json:"healthHttpStatus,omitempty"`
+	HealthLatencyMS   int      `json:"healthLatencyMs,omitempty"`
+	HealthError       string   `json:"healthError,omitempty"`
+	HealthCheckExempt bool     `json:"healthCheckExempt,omitempty"`
+	PublishedAt       string   `json:"publishedAt,omitempty"`
+	CreatedAt         string   `json:"createdAt,omitempty"`
+	UpdatedAt         string   `json:"updatedAt,omitempty"`
 }
 
 type GroupView struct {
@@ -105,8 +107,9 @@ type RecordClickRes struct {
 }
 
 type GetFaviconReq struct {
-	g.Meta `path:"/api/v1/nav/links/{id}/favicon" method:"GET" tags:"Nav" summary:"Get a proxied navigation link favicon"`
-	ID     string `p:"id" v:"required"`
+	g.Meta  `path:"/api/v1/nav/links/{id}/favicon" method:"GET" tags:"Nav" summary:"Get a proxied navigation link favicon"`
+	ID      string `p:"id" v:"required"`
+	Version string `p:"v"`
 }
 
 type GetFaviconRes struct {
@@ -165,35 +168,68 @@ type HealthCountsView struct {
 	Broken     int `json:"broken"`
 	Timeout    int `json:"timeout"`
 	Error      int `json:"error"`
+	Exempt     int `json:"exempt"`
 }
 
 type AdminListChecksReq struct {
 	g.Meta `path:"/api/v1/admin/nav/checks" method:"GET" tags:"Admin Nav" summary:"List navigation link health checks"`
 	Q      string `p:"q"`
-	Health string `p:"health" v:"in:unchecked,healthy,redirected,broken,timeout,error,issue"`
+	Health string `p:"health" v:"in:unchecked,healthy,redirected,broken,timeout,error,issue,exempt"`
 	Page   int    `p:"page" d:"1" v:"min:1"`
 	Size   int    `p:"size" d:"20" v:"min:1|max:100"`
 }
 
 type AdminListChecksRes struct {
-	Links  []LinkView       `json:"links"`
-	Counts HealthCountsView `json:"counts"`
-	Total  int              `json:"total"`
-	Page   int              `json:"page"`
-	Size   int              `json:"size"`
+	Links          []LinkView       `json:"links"`
+	Counts         HealthCountsView `json:"counts"`
+	Total          int              `json:"total"`
+	CheckableTotal int              `json:"checkableTotal"`
+	Page           int              `json:"page"`
+	Size           int              `json:"size"`
 }
 
 type AdminRunChecksReq struct {
-	g.Meta `path:"/api/v1/admin/nav/checks/run" method:"POST" tags:"Admin Nav" summary:"Check navigation link availability"`
+	g.Meta `path:"/api/v1/admin/nav/checks/run" method:"POST" tags:"Admin Nav" summary:"Start a navigation link health check job"`
 	Scope  string   `json:"scope" d:"selected" v:"in:selected,filtered"`
 	IDs    []string `json:"ids"`
 	Q      string   `json:"q"`
 	Health string   `json:"health" v:"in:unchecked,healthy,redirected,broken,timeout,error,issue"`
 }
 
+type CheckJobView struct {
+	ID         string `json:"id"`
+	Scope      string `json:"scope"`
+	Status     string `json:"status"`
+	Total      int    `json:"total"`
+	Completed  int    `json:"completed"`
+	StartedAt  string `json:"startedAt"`
+	FinishedAt string `json:"finishedAt,omitempty"`
+	Error      string `json:"error,omitempty"`
+}
+
 type AdminRunChecksRes struct {
-	Checked int        `json:"checked"`
-	Results []LinkView `json:"results"`
+	g.Meta `status:"202"`
+	Job    CheckJobView `json:"job"`
+	Reused bool         `json:"reused"`
+}
+
+type AdminGetCheckJobReq struct {
+	g.Meta `path:"/api/v1/admin/nav/checks/jobs/{jobId}" method:"GET" tags:"Admin Nav" summary:"Get a navigation link health check job"`
+	JobID  string `p:"jobId" v:"required"`
+}
+
+type AdminGetCheckJobRes struct {
+	Job CheckJobView `json:"job"`
+}
+
+type AdminSetCheckExemptionReq struct {
+	g.Meta `path:"/api/v1/admin/nav/checks/{id}/exemption" method:"PUT" tags:"Admin Nav" summary:"Set a navigation link health check exemption"`
+	ID     string `p:"id" v:"required"`
+	Exempt *bool  `json:"exempt" v:"required"`
+}
+
+type AdminSetCheckExemptionRes struct {
+	Link LinkView `json:"link"`
 }
 
 type TagView struct {

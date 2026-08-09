@@ -19,7 +19,7 @@ function recordClick(entry: NavigationResult) {
 <template>
   <section
     v-if="leadPick"
-    class="overflow-hidden rounded-2xl border border-default bg-default shadow-[var(--shadow-soft)]"
+    class="overflow-hidden rounded-2xl border border-default bg-default shadow-[var(--shadow-soft)] dark:border-transparent dark:bg-[var(--yueli-surface-card)]"
     aria-labelledby="featured-title"
   >
     <header
@@ -71,15 +71,17 @@ function recordClick(entry: NavigationResult) {
         >
         <div class="relative flex items-start justify-between gap-4">
           <span
-            class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-default text-primary shadow-sm ring-1 ring-primary/15"
+            class="grid size-12 shrink-0 place-items-center overflow-hidden rounded-xl bg-default text-primary shadow-sm ring-1 ring-primary/15 dark:bg-[var(--yueli-surface-inset)]"
           >
             <NavigationFavicon
               :id="leadPick.item.id"
               :title="leadPick.item.title"
+              :revision="leadPick.item.faviconRevision"
+              eager
             />
           </span>
           <span
-            class="rounded-full border border-primary/20 bg-default/80 px-3 py-1 text-xs font-semibold tracking-[0.12em] text-primary backdrop-blur"
+            class="rounded-full border border-primary/20 bg-default/80 px-3 py-1 text-xs font-semibold tracking-[0.12em] text-primary backdrop-blur dark:bg-[var(--yueli-surface-card)]"
             >TOP PICK</span
           >
         </div>
@@ -112,7 +114,9 @@ function recordClick(entry: NavigationResult) {
         </div>
       </NuxtLink>
 
-      <div class="grid gap-3 bg-elevated/45 p-3 sm:grid-cols-2 sm:p-4">
+      <div
+        class="grid gap-3 bg-elevated/45 p-3 dark:bg-[var(--yueli-surface-region)] sm:grid-cols-2 sm:p-4"
+      >
         <NuxtLink
           v-for="(entry, index) in secondaryPicks"
           :key="entry.item.id"
@@ -120,7 +124,7 @@ function recordClick(entry: NavigationResult) {
           external
           target="_blank"
           rel="noopener noreferrer"
-          class="group flex min-h-28 min-w-0 flex-col justify-between rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          class="group flex min-h-28 min-w-0 flex-col justify-between rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-[var(--yueli-surface-card)]"
           @click="recordClick(entry)"
         >
           <div class="flex min-w-0 items-start gap-3">
@@ -129,11 +133,13 @@ function recordClick(entry: NavigationResult) {
               >{{ rankLabel(index + 1) }}</span
             >
             <span
-              class="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15"
+              class="grid size-9 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15 dark:bg-[var(--yueli-surface-inset)]"
             >
               <NavigationFavicon
                 :id="entry.item.id"
                 :title="entry.item.title"
+                :revision="entry.item.faviconRevision"
+                eager
               />
             </span>
             <span class="min-w-0 flex-1">

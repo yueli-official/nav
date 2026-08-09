@@ -120,6 +120,7 @@ function openFirstResult() {
                 <NavigationFavicon
                   :id="entry.item.id"
                   :title="entry.item.title"
+                  :revision="entry.item.faviconRevision"
                 />
               </span>
               <span class="min-w-0 flex-1">

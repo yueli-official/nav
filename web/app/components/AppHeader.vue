@@ -20,8 +20,7 @@ const accountActions = computed<readonly AccountMenuAction[]>(() => {
     case "ready_manage":
       return [
         {
-          label: "本站控制台",
-          description: "管理本站内容、设置与权限",
+          label: "控制台",
           icon: "i-tabler-layout-dashboard",
           to: "/manage",
         },
@@ -95,7 +94,7 @@ if (import.meta.client) {
 
 <template>
   <header
-    class="yueli-topbar sticky top-0 z-30 border-b border-default bg-default/88 backdrop-blur-xl"
+    class="yueli-topbar sticky top-0 z-30 border-b border-default backdrop-blur-xl"
   >
     <div
       class="mx-auto flex h-16 w-full items-center gap-3 px-4 sm:px-6 lg:px-8"

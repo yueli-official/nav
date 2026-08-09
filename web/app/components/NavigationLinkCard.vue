@@ -16,14 +16,18 @@ function recordClick() {
     external
     target="_blank"
     rel="noopener noreferrer"
-    class="group flex h-full min-w-0 flex-col rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    class="group flex h-full min-w-0 flex-col rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-[var(--yueli-surface-card)]"
     @click="recordClick"
   >
     <div class="flex min-w-0 items-start gap-3">
       <span
-        class="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15"
+        class="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary/10 text-primary ring-1 ring-primary/15 dark:bg-[var(--yueli-surface-inset)]"
       >
-        <NavigationFavicon :id="entry.item.id" :title="entry.item.title" />
+        <NavigationFavicon
+          :id="entry.item.id"
+          :title="entry.item.title"
+          :revision="entry.item.faviconRevision"
+        />
       </span>
 
       <div class="min-w-0 flex-1">

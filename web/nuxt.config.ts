@@ -1,4 +1,17 @@
+import { readFileSync } from "node:fs";
+
 const siteBrand = process.env.NUXT_PUBLIC_SITE_BRAND || "月离导航";
+const categoryTablerIcons = (
+  JSON.parse(
+    readFileSync(
+      new URL(
+        "../api/contracts/iconcontract/category-tabler.v1.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ) as { icons: string[] }
+).icons;
 const cookieSecure =
   process.env.NUXT_COOKIE_SECURE === undefined
     ? process.env.NODE_ENV === "production"
@@ -24,6 +37,9 @@ export default defineNuxtConfig({
       },
       sizeLimitKb: 256,
     },
+  },
+  yueliUi: {
+    tablerIcons: categoryTablerIcons,
   },
   yueliRuntime: {
     defaultTarget: "platform",

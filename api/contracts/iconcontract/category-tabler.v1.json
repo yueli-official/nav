@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "icons": [
+    "i-tabler-api",
+    "i-tabler-book-2",
+    "i-tabler-code",
+    "i-tabler-coffee",
+    "i-tabler-components",
+    "i-tabler-database",
+    "i-tabler-diamond",
+    "i-tabler-flask",
+    "i-tabler-folder",
+    "i-tabler-lock-check",
+    "i-tabler-manual-gearbox",
+    "i-tabler-palette",
+    "i-tabler-photo",
+    "i-tabler-rocket",
+    "i-tabler-school",
+    "i-tabler-search",
+    "i-tabler-settings",
+    "i-tabler-shield-lock",
+    "i-tabler-sitemap",
+    "i-tabler-sparkles",
+    "i-tabler-stack-2",
+    "i-tabler-star",
+    "i-tabler-terminal-2",
+    "i-tabler-tool",
+    "i-tabler-world-upload"
+  ]
+}

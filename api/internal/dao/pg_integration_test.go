@@ -9,10 +9,13 @@ package dao_test
 import (
 	"context"
 	"os"
+	"strings"
 	"testing"
+	"time"
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 	"github.com/gogf/gf/v2/database/gdb"
+	"github.com/gogf/gf/v2/os/gtime"
 
 	"github.com/yueli-official/foundation/go/identifier"
 	"github.com/yueli-official/nav/api/internal/dao"
@@ -52,9 +55,37 @@ func TestPGLinkRoundTrip(t *testing.T) {
 	if err := store.InsertLink(ctx, link); err != nil {
 		t.Fatal(err)
 	}
+	now := time.Now().UTC()
+	if err := store.UpsertFavicon(ctx, &model.FaviconCache{
+		LinkID: id, SourceURL: link.URL, Content: []byte("integration-png"),
+		ContentType: "image/png", ContentHash: strings.Repeat("a", 64),
+		FetchedAt: gtime.NewFromTime(now), RefreshAfter: gtime.NewFromTime(now.Add(24 * time.Hour)),
+		LastAttemptAt: gtime.NewFromTime(now),
+	}); err != nil {
+		t.Fatal(err)
+	}
 	items, err := store.Links(ctx, dao.LinkFilter{Query: id})
-	if err != nil || len(items) != 1 || len(items[0].Tags) != 2 || items[0].Tags[1] != "JSONB" {
+	if err != nil || len(items) != 1 || len(items[0].Tags) != 2 || items[0].Tags[1] != "JSONB" || items[0].FaviconRevision != strings.Repeat("a", 64) {
 		t.Fatalf("insert/scan round-trip items=%#v err=%v", items, err)
+	}
+	exempted, err := store.UpdateLinkCheckExempt(ctx, id, true)
+	if err != nil || !exempted {
+		t.Fatalf("set health check exemption changed=%v err=%v", exempted, err)
+	}
+	exemptItems, err := store.Links(ctx, dao.LinkFilter{Health: "exempt", Query: id})
+	if err != nil || len(exemptItems) != 1 || !exemptItems[0].HealthCheckExempt {
+		t.Fatalf("exempt filter items=%#v err=%v", exemptItems, err)
+	}
+	checkableCount, err := store.CountLinks(ctx, dao.LinkFilter{Query: id, ExcludeHealthCheckExempt: true})
+	if err != nil || checkableCount != 0 {
+		t.Fatalf("checkable count=%d err=%v, want 0", checkableCount, err)
+	}
+	if _, err := store.UpdateLinkCheckExempt(ctx, id, false); err != nil {
+		t.Fatal(err)
+	}
+	cached, err := store.FaviconByLinkID(ctx, id)
+	if err != nil || cached == nil || string(cached.Content) != "integration-png" {
+		t.Fatalf("favicon cache=%#v err=%v", cached, err)
 	}
 	count, err := store.CountLinks(ctx, dao.LinkFilter{Tag: tagOriginal})
 	if err != nil || count != 1 {
@@ -95,6 +126,10 @@ func TestPGLinkRoundTrip(t *testing.T) {
 	exists, err := store.LinkExists(ctx, id)
 	if err != nil || exists {
 		t.Fatalf("link still exists=%v err=%v", exists, err)
+	}
+	cached, err = store.FaviconByLinkID(ctx, id)
+	if err != nil || cached != nil {
+		t.Fatalf("favicon cache did not cascade with link delete: cache=%#v err=%v", cached, err)
 	}
 
 	category := &model.Category{ID: "integration-category-" + identifier.MustNew().String(), Title: "Integration category", Icon: "i-tabler-folder", SortOrder: 999}

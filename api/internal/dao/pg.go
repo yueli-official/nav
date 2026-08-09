@@ -16,24 +16,26 @@ const (
 	tCategories = "nav_categories"
 	tGroups     = "nav_groups"
 	tLinks      = "nav_links"
+	tFavicons   = "nav_link_favicons"
 	tSettings   = "nav_site_settings"
 )
 
 type LinkFilter struct {
-	Query           string
-	CategoryID      string
-	GroupID         string
-	Status          string
-	Tag             string
-	Health          string
-	Sort            string
-	Direction       string
-	Page            int
-	Size            int
-	SubmitterSub    string
-	AllowedGroupIDs []string
-	OwnedGroupIDs   []string
-	OwnedAll        bool
+	Query                    string
+	CategoryID               string
+	GroupID                  string
+	Status                   string
+	Tag                      string
+	Health                   string
+	Sort                     string
+	Direction                string
+	Page                     int
+	Size                     int
+	SubmitterSub             string
+	AllowedGroupIDs          []string
+	OwnedGroupIDs            []string
+	OwnedAll                 bool
+	ExcludeHealthCheckExempt bool
 }
 
 type linkHealthMutation struct {
@@ -42,6 +44,11 @@ type linkHealthMutation struct {
 	HealthLatencyMS  any         `orm:"health_latency_ms"`
 	HealthError      string      `orm:"health_error"`
 	LastCheckedAt    *gtime.Time `orm:"last_checked_at"`
+}
+
+type linkHealthCheckExemptionMutation struct {
+	HealthCheckExempt bool        `orm:"health_check_exempt"`
+	UpdatedAt         *gtime.Time `orm:"updated_at"`
 }
 
 type categoryMutation struct {
@@ -114,6 +121,18 @@ type linkInsertMutation struct {
 	UpdatedAt    *gtime.Time `orm:"updated_at,omitempty"`
 }
 
+type faviconMutation struct {
+	LinkID        string      `orm:"link_id"`
+	SourceURL     string      `orm:"source_url"`
+	Content       []byte      `orm:"content"`
+	ContentType   string      `orm:"content_type"`
+	ContentHash   string      `orm:"content_hash"`
+	FetchedAt     *gtime.Time `orm:"fetched_at"`
+	RefreshAfter  *gtime.Time `orm:"refresh_after"`
+	LastAttemptAt *gtime.Time `orm:"last_attempt_at"`
+	LastError     string      `orm:"last_error"`
+}
+
 type PG struct {
 	db gdb.DB
 }
@@ -173,7 +192,7 @@ func (p *PG) LinkByID(ctx context.Context, id string) (*model.Link, error) {
 func (p *PG) CountLinks(ctx context.Context, filter LinkFilter) (int, error) {
 	filter.Page = 0
 	filter.Size = 0
-	count, err := p.linkQuery(ctx, filter).Count()
+	count, err := p.linkFilterQuery(ctx, filter).Count()
 	return count, gerror.Wrap(err, "count navigation links")
 }
 
@@ -182,14 +201,14 @@ func (p *PG) LinkStatusCounts(ctx context.Context, filter LinkFilter) (map[strin
 	filter.Status = ""
 	filter.Page = 0
 	filter.Size = 0
-	all, err := p.linkQuery(ctx, filter).Count()
+	all, err := p.linkFilterQuery(ctx, filter).Count()
 	if err != nil {
 		return nil, gerror.Wrap(err, "count all navigation links")
 	}
 	counts["all"] = all
 	for _, status := range []string{"published", "draft", "archived"} {
 		filter.Status = status
-		count, countErr := p.linkQuery(ctx, filter).Count()
+		count, countErr := p.linkFilterQuery(ctx, filter).Count()
 		if countErr != nil {
 			return nil, gerror.Wrap(countErr, "count navigation links by status")
 		}
@@ -199,6 +218,17 @@ func (p *PG) LinkStatusCounts(ctx context.Context, filter LinkFilter) (map[strin
 }
 
 func (p *PG) linkQuery(ctx context.Context, filter LinkFilter) *gdb.Model {
+	return p.linkFilterQuery(ctx, filter).
+		LeftJoin(tFavicons, tFavicons+".link_id = "+tLinks+".id").
+		Fields(
+			tLinks+".*",
+			"CASE WHEN "+tFavicons+".source_url = "+tLinks+".url THEN COALESCE("+tFavicons+".content_hash, '') ELSE '' END AS favicon_revision",
+			"COALESCE("+tFavicons+".source_url, '') AS favicon_source_url",
+			tFavicons+".refresh_after AS favicon_refresh_after",
+		)
+}
+
+func (p *PG) linkFilterQuery(ctx context.Context, filter LinkFilter) *gdb.Model {
 	query := p.db.Model(tLinks).Ctx(ctx)
 	if filter.Status != "" {
 		query = query.Where("status", filter.Status)
@@ -240,13 +270,18 @@ func (p *PG) linkQuery(ctx context.Context, filter LinkFilter) *gdb.Model {
 		like := "%" + strings.TrimSpace(filter.Query) + "%"
 		query = query.Where("(title ILIKE ? OR url ILIKE ? OR description ILIKE ?)", like, like, like)
 	}
+	if filter.ExcludeHealthCheckExempt {
+		query = query.Where("health_check_exempt", false)
+	}
 	switch filter.Health {
+	case "exempt":
+		query = query.Where("health_check_exempt", true)
 	case "unchecked":
-		query = query.Where("health_status", "unchecked")
+		query = query.Where("health_check_exempt", false).Where("health_status", "unchecked")
 	case "healthy", "redirected", "broken", "timeout", "error":
-		query = query.Where("health_status", filter.Health)
+		query = query.Where("health_check_exempt", false).Where("health_status", filter.Health)
 	case "issue":
-		query = query.WhereIn("health_status", []string{"redirected", "broken", "timeout", "error"})
+		query = query.Where("health_check_exempt", false).WhereIn("health_status", []string{"redirected", "broken", "timeout", "error"})
 	}
 	return query
 }
@@ -259,13 +294,16 @@ func queryPlaceholders(count int) string {
 }
 
 func (p *PG) LinkHealthCounts(ctx context.Context) (map[string]int, error) {
-	counts := map[string]int{"all": 0, "unchecked": 0, "healthy": 0, "redirected": 0, "broken": 0, "timeout": 0, "error": 0}
-	rows, err := p.db.Model(tLinks).Ctx(ctx).Fields("health_status, COUNT(*) AS total").Group("health_status").All()
+	counts := map[string]int{"all": 0, "unchecked": 0, "healthy": 0, "redirected": 0, "broken": 0, "timeout": 0, "error": 0, "exempt": 0}
+	effectiveHealth := "CASE WHEN health_check_exempt THEN 'exempt' ELSE health_status END"
+	rows, err := p.db.Model(tLinks).Ctx(ctx).
+		Fields(effectiveHealth + " AS effective_health, COUNT(*) AS total").
+		Group(effectiveHealth).All()
 	if err != nil {
 		return nil, gerror.Wrap(err, "count navigation link health")
 	}
 	for _, row := range rows {
-		status, count := row["health_status"].String(), row["total"].Int()
+		status, count := row["effective_health"].String(), row["total"].Int()
 		counts[status] = count
 		counts["all"] += count
 	}
@@ -306,6 +344,18 @@ func (p *PG) UpdateLinkHealth(ctx context.Context, id string, health model.LinkH
 	}
 	changed, err := result.RowsAffected()
 	return changed > 0, gerror.Wrap(err, "read navigation health update result")
+}
+
+func (p *PG) UpdateLinkCheckExempt(ctx context.Context, id string, exempt bool) (bool, error) {
+	result, err := p.db.Model(tLinks).Ctx(ctx).Where("id", id).Data(linkHealthCheckExemptionMutation{
+		HealthCheckExempt: exempt,
+		UpdatedAt:         gtime.Now(),
+	}).Update()
+	if err != nil {
+		return false, gerror.Wrap(err, "update navigation link health check exemption")
+	}
+	changed, err := result.RowsAffected()
+	return changed > 0, gerror.Wrap(err, "read navigation health check exemption result")
 }
 
 func (p *PG) Tags(ctx context.Context, query string) ([]*model.Tag, error) {
@@ -683,6 +733,32 @@ func (p *PG) UpsertSiteSettings(ctx context.Context, settings *model.SiteSetting
 	}
 	_, err := p.db.Model(tSettings).Ctx(ctx).Data(data).OnConflict("id").Save()
 	return gerror.Wrap(err, "save navigation site settings")
+}
+
+func (p *PG) FaviconByLinkID(ctx context.Context, id string) (*model.FaviconCache, error) {
+	record, err := p.db.Model(tFavicons).Ctx(ctx).Where("link_id", id).One()
+	if err != nil {
+		return nil, gerror.Wrap(err, "get navigation favicon cache")
+	}
+	if record.IsEmpty() {
+		return nil, nil
+	}
+	var favicon model.FaviconCache
+	if err := record.Struct(&favicon); err != nil {
+		return nil, gerror.Wrap(err, "scan navigation favicon cache")
+	}
+	return &favicon, nil
+}
+
+func (p *PG) UpsertFavicon(ctx context.Context, favicon *model.FaviconCache) error {
+	data := faviconMutation{
+		LinkID: favicon.LinkID, SourceURL: favicon.SourceURL,
+		Content: favicon.Content, ContentType: favicon.ContentType, ContentHash: favicon.ContentHash,
+		FetchedAt: favicon.FetchedAt, RefreshAfter: favicon.RefreshAfter,
+		LastAttemptAt: favicon.LastAttemptAt, LastError: favicon.LastError,
+	}
+	_, err := p.db.Model(tFavicons).Ctx(ctx).Data(data).OnConflict("link_id").Save()
+	return gerror.Wrap(err, "save navigation favicon cache")
 }
 
 func categoryData(category *model.Category) categoryMutation {

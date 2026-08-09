@@ -22,6 +22,7 @@ export interface NavigationItem {
   kind: NavigationItemKind;
   featured: boolean;
   clickCount: number;
+  faviconRevision?: string;
   lastClickedAt?: string;
 }
 
@@ -97,6 +98,7 @@ export interface AdminNavigationLink extends NavigationItem {
   healthHttpStatus?: number;
   healthLatencyMs?: number;
   healthError?: string;
+  healthCheckExempt?: boolean;
 }
 
 export type NavigationHealthStatus =
@@ -120,14 +122,42 @@ export interface NavigationHealthCounts {
   broken: number;
   timeout: number;
   error: number;
+  exempt: number;
 }
 
 export interface NavigationChecksResponse {
   links: AdminNavigationLink[];
   counts: NavigationHealthCounts;
   total: number;
+  checkableTotal: number;
   page: number;
   size: number;
+}
+
+export type NavigationCheckJobStatus = "running" | "completed" | "failed";
+
+export interface NavigationCheckJob {
+  id: string;
+  scope: "filtered" | "selected";
+  status: NavigationCheckJobStatus;
+  total: number;
+  completed: number;
+  startedAt: string;
+  finishedAt?: string;
+  error?: string;
+}
+
+export interface NavigationStartCheckJobResponse {
+  job: NavigationCheckJob;
+  reused: boolean;
+}
+
+export interface NavigationCheckJobResponse {
+  job: NavigationCheckJob;
+}
+
+export interface NavigationCheckExemptionResponse {
+  link: AdminNavigationLink;
 }
 
 export interface AdminNavigationResponse {

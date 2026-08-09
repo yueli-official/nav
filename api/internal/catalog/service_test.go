@@ -18,11 +18,48 @@ type countingChecker struct {
 	mu      sync.Mutex
 	current int
 	maximum int
+	calls   int
+}
+
+type blockingChecker struct {
+	started chan struct{}
+	release chan struct{}
+	once    sync.Once
+}
+
+func newBlockingChecker() *blockingChecker {
+	return &blockingChecker{started: make(chan struct{}), release: make(chan struct{})}
+}
+
+func (c *blockingChecker) Check(ctx context.Context, _ string) model.LinkHealth {
+	c.once.Do(func() { close(c.started) })
+	select {
+	case <-c.release:
+		return model.LinkHealth{Status: "healthy", HTTPStatus: 200}
+	case <-ctx.Done():
+		return model.LinkHealth{Status: "error", Error: ctx.Err().Error()}
+	}
+}
+
+type steppingChecker struct {
+	started chan struct{}
+	release chan struct{}
+}
+
+func (c *steppingChecker) Check(ctx context.Context, _ string) model.LinkHealth {
+	c.started <- struct{}{}
+	select {
+	case <-c.release:
+		return model.LinkHealth{Status: "healthy", HTTPStatus: 200}
+	case <-ctx.Done():
+		return model.LinkHealth{Status: "error", Error: ctx.Err().Error()}
+	}
 }
 
 func (c *countingChecker) Check(context.Context, string) model.LinkHealth {
 	c.mu.Lock()
 	c.current++
+	c.calls++
 	c.maximum = max(c.maximum, c.current)
 	c.mu.Unlock()
 	time.Sleep(5 * time.Millisecond)
@@ -40,6 +77,8 @@ type fakeStore struct {
 	health         map[string]model.LinkHealth
 	healthMu       sync.Mutex
 	clicks         map[string]int
+	favicons       map[string]*model.FaviconCache
+	faviconMu      sync.Mutex
 }
 
 func (f *fakeStore) Categories(context.Context) ([]*model.Category, error) {
@@ -106,7 +145,10 @@ func (f *fakeStore) RecordClick(_ context.Context, id string) (bool, error) {
 	return true, nil
 }
 
-func (f *fakeStore) UpdateLinkHealth(_ context.Context, id string, health model.LinkHealth) (bool, error) {
+func (f *fakeStore) UpdateLinkHealth(ctx context.Context, id string, health model.LinkHealth) (bool, error) {
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
 	f.healthMu.Lock()
 	defer f.healthMu.Unlock()
 	if f.health == nil {
@@ -114,6 +156,16 @@ func (f *fakeStore) UpdateLinkHealth(_ context.Context, id string, health model.
 	}
 	f.health[id] = health
 	return true, nil
+}
+
+func (f *fakeStore) UpdateLinkCheckExempt(_ context.Context, id string, exempt bool) (bool, error) {
+	for _, link := range f.links {
+		if link.ID == id {
+			link.HealthCheckExempt = exempt
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (f *fakeStore) InsertLink(_ context.Context, link *model.Link) error {
@@ -143,6 +195,30 @@ func (f *fakeStore) SiteSettings(context.Context) (*model.SiteSettings, error) {
 	return f.settings, nil
 }
 func (f *fakeStore) UpsertSiteSettings(context.Context, *model.SiteSettings) error { return nil }
+
+func (f *fakeStore) FaviconByLinkID(_ context.Context, id string) (*model.FaviconCache, error) {
+	f.faviconMu.Lock()
+	defer f.faviconMu.Unlock()
+	value := f.favicons[id]
+	if value == nil {
+		return nil, nil
+	}
+	clone := *value
+	clone.Content = append([]byte(nil), value.Content...)
+	return &clone, nil
+}
+
+func (f *fakeStore) UpsertFavicon(_ context.Context, value *model.FaviconCache) error {
+	f.faviconMu.Lock()
+	defer f.faviconMu.Unlock()
+	if f.favicons == nil {
+		f.favicons = map[string]*model.FaviconCache{}
+	}
+	clone := *value
+	clone.Content = append([]byte(nil), value.Content...)
+	f.favicons[value.LinkID] = &clone
+	return nil
+}
 
 func TestSettingsRequiresProvisionedConfiguration(t *testing.T) {
 	service := New(&fakeStore{}, Site{Name: "compiled fallback must not be used"})
@@ -184,6 +260,43 @@ func TestRunChecksCapsConcurrency(t *testing.T) {
 	}
 }
 
+func TestRunChecksSkipsHealthCheckExemptLinks(t *testing.T) {
+	store := &fakeStore{links: []*model.Link{
+		{ID: "check-me", URL: "https://example.com/check"},
+		{ID: "region-blocked", URL: "https://example.com/blocked", HealthCheckExempt: true},
+	}}
+	checker := &countingChecker{}
+	service := New(store, Site{})
+	service.checker = checker
+
+	results, err := service.RunChecks(context.Background(), []string{"check-me", "region-blocked"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(results) != 1 || results[0].ID != "check-me" || checker.calls != 1 {
+		t.Fatalf("results=%#v calls=%d, want only the non-exempt link checked", results, checker.calls)
+	}
+	if _, checked := store.health["region-blocked"]; checked {
+		t.Fatal("health-check-exempt link was checked")
+	}
+}
+
+func TestSetHealthCheckExemptionPersistsWithoutClearingLastResult(t *testing.T) {
+	store := &fakeStore{links: []*model.Link{{
+		ID: "region-blocked", URL: "https://example.com/blocked",
+		HealthStatus: "timeout", HealthError: "request timed out",
+	}}}
+	service := New(store, Site{})
+
+	link, err := service.SetHealthCheckExemption(context.Background(), "region-blocked", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !link.HealthCheckExempt || link.HealthStatus != "timeout" || link.HealthError != "request timed out" {
+		t.Fatalf("link=%#v, want exemption with the last observed result preserved", link)
+	}
+}
+
 func TestRunChecksRejectsMoreThanFiftySelectedIDs(t *testing.T) {
 	ids := make([]string, 51)
 	for index := range ids {
@@ -216,6 +329,142 @@ func TestRunFilteredChecksChecksEveryMatchingLink(t *testing.T) {
 	if store.lastLinkFilter.Query != "docs" || store.lastLinkFilter.Health != "unchecked" || store.lastLinkFilter.Page != 0 || store.lastLinkFilter.Size != 0 {
 		t.Fatalf("unexpected filter: %#v", store.lastLinkFilter)
 	}
+}
+
+func TestStartFilteredCheckJobReturnsImmediatelyAndSurvivesRequestCancellation(t *testing.T) {
+	store := &fakeStore{links: []*model.Link{{ID: "slow", URL: "https://example.com"}}}
+	checker := newBlockingChecker()
+	service := New(store, Site{})
+	service.checker = checker
+	requestCtx, cancelRequest := context.WithCancel(context.Background())
+
+	type startResult struct {
+		job    CheckJob
+		reused bool
+		err    error
+	}
+	started := make(chan startResult, 1)
+	go func() {
+		job, reused, err := service.StartFilteredCheckJob(requestCtx, dao.LinkFilter{})
+		started <- startResult{job: job, reused: reused, err: err}
+	}()
+
+	var result startResult
+	select {
+	case result = <-started:
+	case <-time.After(250 * time.Millisecond):
+		t.Fatal("starting a check job waited for the external check")
+	}
+	if result.err != nil || result.reused {
+		t.Fatalf("StartFilteredCheckJob() = %#v, reused=%t, err=%v", result.job, result.reused, result.err)
+	}
+	if result.job.Status != CheckJobRunning || result.job.Total != 1 || result.job.Completed != 0 {
+		t.Fatalf("initial job = %#v, want running 0/1", result.job)
+	}
+
+	select {
+	case <-checker.started:
+	case <-time.After(time.Second):
+		t.Fatal("background check did not start")
+	}
+	cancelRequest()
+	close(checker.release)
+	completed := waitForCheckJob(t, service, result.job.ID, CheckJobCompleted)
+	if completed.Completed != 1 || completed.Total != 1 || completed.FinishedAt == nil {
+		t.Fatalf("completed job = %#v, want completed 1/1 with finish time", completed)
+	}
+}
+
+func TestStartCheckJobReusesActiveJob(t *testing.T) {
+	store := &fakeStore{links: []*model.Link{{ID: "slow", URL: "https://example.com"}}}
+	checker := newBlockingChecker()
+	service := New(store, Site{})
+	service.checker = checker
+	t.Cleanup(func() {
+		select {
+		case <-checker.release:
+		default:
+			close(checker.release)
+		}
+	})
+
+	first, reused, err := service.StartFilteredCheckJob(context.Background(), dao.LinkFilter{})
+	if err != nil || reused {
+		t.Fatalf("first start reused=%t err=%v", reused, err)
+	}
+	second, reused, err := service.StartSelectedCheckJob(context.Background(), []string{"slow"})
+	if err != nil || !reused {
+		t.Fatalf("second start reused=%t err=%v", reused, err)
+	}
+	if second.ID != first.ID {
+		t.Fatalf("second job id = %q, want active job %q", second.ID, first.ID)
+	}
+}
+
+func TestCheckJobReportsIncrementalProgress(t *testing.T) {
+	store := &fakeStore{links: []*model.Link{
+		{ID: "one", URL: "https://example.com/one"},
+		{ID: "two", URL: "https://example.com/two"},
+	}}
+	checker := &steppingChecker{started: make(chan struct{}, 2), release: make(chan struct{}, 2)}
+	service := New(store, Site{})
+	service.checker = checker
+
+	job, _, err := service.StartFilteredCheckJob(context.Background(), dao.LinkFilter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for range 2 {
+		select {
+		case <-checker.started:
+		case <-time.After(time.Second):
+			t.Fatal("background workers did not start")
+		}
+	}
+	checker.release <- struct{}{}
+	progress := waitForCheckJobProgress(t, service, job.ID, 1)
+	if progress.Status != CheckJobRunning || progress.Total != 2 {
+		t.Fatalf("progress job = %#v, want running 1/2", progress)
+	}
+	checker.release <- struct{}{}
+	completed := waitForCheckJob(t, service, job.ID, CheckJobCompleted)
+	if completed.Completed != 2 {
+		t.Fatalf("completed job = %#v, want 2/2", completed)
+	}
+}
+
+func waitForCheckJob(t *testing.T, service *Service, id, status string) CheckJob {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		job, err := service.CheckJob(id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if job.Status == status {
+			return job
+		}
+		time.Sleep(time.Millisecond)
+	}
+	t.Fatalf("job %q did not reach status %q", id, status)
+	return CheckJob{}
+}
+
+func waitForCheckJobProgress(t *testing.T, service *Service, id string, completed int) CheckJob {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) {
+		job, err := service.CheckJob(id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if job.Completed == completed {
+			return job
+		}
+		time.Sleep(time.Millisecond)
+	}
+	t.Fatalf("job %q did not report %d completed checks", id, completed)
+	return CheckJob{}
 }
 
 func TestCreateLinkNormalizesInput(t *testing.T) {
@@ -273,5 +522,19 @@ func TestCreateLinkRejectsUnsafeURL(t *testing.T) {
 	}
 	if len(mapped.Violations) == 0 {
 		t.Fatalf("validation error missing field details: %#v", mapped)
+	}
+}
+
+func TestCreateCategoryRejectsIconOutsideClientBundleContract(t *testing.T) {
+	_, err := New(&fakeStore{}, Site{}).CreateCategory(context.Background(), model.Category{
+		Title: "Unbundled icon",
+		Icon:  "i-tabler-brand-github",
+	})
+	if err == nil {
+		t.Fatal("expected an icon outside the finite client bundle to be rejected")
+	}
+	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
+	if resolveErr != nil || !ok || mapped.Code != "common.validation_failed" {
+		t.Fatalf("error = %#v, want common.validation_failed", err)
 	}
 }

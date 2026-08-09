@@ -10,6 +10,11 @@ colors:
   card: "oklch(99.4% 0.003 78)"
   inset: "oklch(94.4% 0.01 78)"
   overlay: "oklch(99.8% 0.002 78)"
+  dark-page: "oklch(16.2% 0.022 257)"
+  dark-region: "oklch(19.4% 0.024 257)"
+  dark-card: "oklch(22.8% 0.025 257)"
+  dark-inset: "oklch(26.6% 0.027 257)"
+  dark-overlay: "oklch(30.6% 0.029 257)"
 typography:
   display:
     fontFamily: "Space Grotesk, DM Sans, system-ui, sans-serif"
@@ -88,10 +93,18 @@ components:
 - **纸面页底：**承载整个管理壳，略带暖意以降低纯白后台的眩光。
 - **区域底与卡片白：**区分侧栏、集合框架和内容行；层级主要由色调与边界形成。
 - **内嵌灰与浮层白：**分别用于详情统计块和 Slideover、Modal 等临时操作层。
+- **墨夜暗色阶：**暗色画布使用带冷蓝的深墨色，不使用纯黑；区域、卡片、内嵌块与浮层依次抬高亮度，让持久表面
+  仅靠语义色阶和细边界即可分组。
 
 **The Sparse Accent Rule.** 主色是定位和操作信号，不是装饰底色；同一视口的大部分面积保持中性。
 
+**The Dark Surface Ladder.** 暗色主题必须分别映射 canvas、region、card、inset 与 overlay；不能让 `bg-default`
+同时承担页面画布和内容卡片，也不能依靠大面积阴影补救缺失的表面层级。
+
 **The Named State Rule.** 成员状态不得只靠颜色表达，必须同时提供中文状态、语义图标或清楚的后果说明。
+
+**The Check Exemption Rule.** “免检”是人工检查策略，不是一次可访问性结果。界面必须把它与正常、失效、超时等
+观测结果分开表达，保留并标注最后一次结果，从后续批量检查中排除，同时提供同位置的“恢复检查”操作。
 
 ## Typography
 
@@ -137,6 +150,7 @@ components:
 - 搜索始终位于首行；宽屏筛选在其下平铺，窄屏以可操作的“筛选”按钮展开，并显示当前总数。
 - 列头、加载、空结果、请求失败和分页都属于同一有标签的集合区域；空集合与筛选无结果使用不同文案和恢复动作。
 - 行区独立滚动，列头和分页不随成员记录离开视口。
+- 链接检查集合提供正常、失效、超时、异常、未检查与免检等可命名筛选；免检项不可被选择进入检查任务。
 
 ### Relationship Ledger
 

@@ -2,6 +2,9 @@ package controller
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -67,9 +70,21 @@ func (c *Public) GetFavicon(ctx context.Context, req *v1.GetFaviconReq) (*v1.Get
 		return nil, err
 	}
 	request := ghttp.RequestFromCtx(ctx)
+	digest := sha256.Sum256(data)
+	revision := fmt.Sprintf("%x", digest)
+	etag := `"` + revision + `"`
 	request.Response.Header().Set("Content-Type", contentType)
-	request.Response.Header().Set("Cache-Control", "public, max-age=86400, stale-while-revalidate=604800")
+	request.Response.Header().Set("ETag", etag)
+	if strings.TrimSpace(req.Version) == revision {
+		request.Response.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+	} else {
+		request.Response.Header().Set("Cache-Control", "public, max-age=300, stale-while-revalidate=86400")
+	}
 	request.Response.Header().Set("X-Content-Type-Options", "nosniff")
+	if strings.TrimSpace(request.Header.Get("If-None-Match")) == etag {
+		request.Response.WriteStatus(http.StatusNotModified)
+		return nil, nil
+	}
 	request.Response.Write(data)
 	return nil, nil
 }
@@ -139,9 +154,9 @@ func (c *Admin) AdminListChecks(ctx context.Context, req *v1.AdminListChecksReq)
 		Counts: v1.HealthCountsView{
 			All: page.Counts["all"], Unchecked: page.Counts["unchecked"], Healthy: page.Counts["healthy"],
 			Redirected: page.Counts["redirected"], Broken: page.Counts["broken"],
-			Timeout: page.Counts["timeout"], Error: page.Counts["error"],
+			Timeout: page.Counts["timeout"], Error: page.Counts["error"], Exempt: page.Counts["exempt"],
 		},
-		Total: page.Total, Page: req.Page, Size: req.Size,
+		Total: page.Total, CheckableTotal: page.CheckableTotal, Page: req.Page, Size: req.Size,
 	}, nil
 }
 
@@ -150,22 +165,45 @@ func (c *Admin) AdminRunChecks(ctx context.Context, req *v1.AdminRunChecksReq) (
 		return nil, err
 	}
 	var (
-		results []*model.Link
-		err     error
+		job    catalog.CheckJob
+		reused bool
+		err    error
 	)
 	if req.Scope == "filtered" {
-		results, err = c.service.RunFilteredChecks(ctx, dao.LinkFilter{Query: req.Q, Health: req.Health})
+		job, reused, err = c.service.StartFilteredCheckJob(ctx, dao.LinkFilter{Query: req.Q, Health: req.Health})
 	} else {
-		results, err = c.service.RunChecks(ctx, req.IDs)
+		job, reused, err = c.service.StartSelectedCheckJob(ctx, req.IDs)
 	}
 	if err != nil {
 		return nil, err
 	}
-	views := make([]v1.LinkView, 0, len(results))
-	for _, link := range results {
-		views = append(views, linkView(link, true))
+	g.RequestFromCtx(ctx).Response.WriteHeader(http.StatusAccepted)
+	return &v1.AdminRunChecksRes{Job: checkJobView(job), Reused: reused}, nil
+}
+
+func (c *Admin) AdminGetCheckJob(ctx context.Context, req *v1.AdminGetCheckJobReq) (*v1.AdminGetCheckJobRes, error) {
+	if err := requireCapability(ctx, navauthz.CapabilityHealthCheckRun, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
+		return nil, err
 	}
-	return &v1.AdminRunChecksRes{Checked: len(views), Results: views}, nil
+	job, err := c.service.CheckJob(req.JobID)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminGetCheckJobRes{Job: checkJobView(job)}, nil
+}
+
+func (c *Admin) AdminSetCheckExemption(ctx context.Context, req *v1.AdminSetCheckExemptionReq) (*v1.AdminSetCheckExemptionRes, error) {
+	if err := requireCapability(ctx, navauthz.CapabilityHealthCheckRun, navauthz.RootScopeID, authorization.ResourceFacts{}); err != nil {
+		return nil, err
+	}
+	if req.Exempt == nil {
+		return nil, naverr.Validation("exempt", "required", nil)
+	}
+	link, err := c.service.SetHealthCheckExemption(ctx, req.ID, *req.Exempt)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.AdminSetCheckExemptionRes{Link: linkView(link, true)}, nil
 }
 
 func (c *Admin) AdminBulkLinks(ctx context.Context, req *v1.AdminBulkLinksReq) (*v1.AdminBulkLinksRes, error) {
@@ -580,15 +618,16 @@ func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView 
 
 func linkView(link *model.Link, admin bool) v1.LinkView {
 	view := v1.LinkView{
-		ID:          link.ID,
-		Title:       link.Title,
-		URL:         link.URL,
-		Description: link.Description,
-		Tags:        link.Tags,
-		Keywords:    link.Keywords,
-		Kind:        link.Kind,
-		Featured:    link.Featured,
-		ClickCount:  link.ClickCount,
+		ID:              link.ID,
+		Title:           link.Title,
+		URL:             link.URL,
+		Description:     link.Description,
+		Tags:            link.Tags,
+		Keywords:        link.Keywords,
+		Kind:            link.Kind,
+		Featured:        link.Featured,
+		ClickCount:      link.ClickCount,
+		FaviconRevision: link.FaviconRevision,
 	}
 	if link.LastClickedAt != nil {
 		view.LastClickedAt = link.LastClickedAt.Time.UTC().Format(time.RFC3339)
@@ -602,6 +641,7 @@ func linkView(link *model.Link, admin bool) v1.LinkView {
 		view.HealthHTTPStatus = link.HealthHTTPStatus
 		view.HealthLatencyMS = link.HealthLatencyMS
 		view.HealthError = link.HealthError
+		view.HealthCheckExempt = link.HealthCheckExempt
 		if link.LastCheckedAt != nil {
 			view.LastCheckedAt = link.LastCheckedAt.Time.UTC().Format(time.RFC3339)
 		}
@@ -614,6 +654,18 @@ func linkView(link *model.Link, admin bool) v1.LinkView {
 		if link.UpdatedAt != nil {
 			view.UpdatedAt = link.UpdatedAt.Time.UTC().Format(time.RFC3339)
 		}
+	}
+	return view
+}
+
+func checkJobView(job catalog.CheckJob) v1.CheckJobView {
+	view := v1.CheckJobView{
+		ID: job.ID, Scope: job.Scope, Status: job.Status,
+		Total: job.Total, Completed: job.Completed,
+		StartedAt: job.StartedAt.UTC().Format(time.RFC3339), Error: job.Error,
+	}
+	if job.FinishedAt != nil {
+		view.FinishedAt = job.FinishedAt.UTC().Format(time.RFC3339)
 	}
 	return view
 }

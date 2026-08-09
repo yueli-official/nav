@@ -17,11 +17,34 @@
 
 .dark {
   color-scheme: dark;
-  --nav-hero-grid: color-mix(in srgb, var(--ui-primary) 14%, transparent);
+
+  /* A cool ink ladder: canvas stays quiet while persistent surfaces remain
+     visibly distinct without spending the sky accent on decoration. */
+  --nav-dark-canvas: oklch(16.2% 0.022 257);
+  --nav-dark-region: oklch(19.4% 0.024 257);
+  --nav-dark-card: oklch(22.8% 0.025 257);
+  --nav-dark-inset: oklch(26.6% 0.027 257);
+  --nav-dark-overlay: oklch(30.6% 0.029 257);
+
+  --ui-bg: var(--nav-dark-card);
+  --ui-bg-muted: var(--nav-dark-region);
+  --ui-bg-elevated: var(--nav-dark-inset);
+  --ui-bg-accented: var(--nav-dark-overlay);
+  --ui-border-muted: oklch(30.5% 0.025 257);
+  --ui-border: oklch(37% 0.028 257);
+  --ui-border-accented: oklch(48% 0.032 257);
+  --yueli-surface-page: var(--nav-dark-canvas);
+  --yueli-surface-region: var(--nav-dark-region);
+  --yueli-surface-card: var(--nav-dark-card);
+  --yueli-surface-inset: var(--nav-dark-inset);
+  --yueli-surface-overlay: var(--nav-dark-overlay);
+  --shadow-soft: 0 18px 45px rgb(0 0 0 / 0.22);
+
+  --nav-hero-grid: color-mix(in srgb, var(--ui-primary) 18%, transparent);
   --nav-hero-wash: color-mix(
     in srgb,
-    var(--ui-primary) 7%,
-    var(--yueli-surface-page)
+    var(--ui-primary) 10%,
+    var(--yueli-surface-region)
   );
 }
 
@@ -31,6 +54,10 @@ html {
 
 body {
   min-width: 320px;
+  background: var(--yueli-surface-page);
+}
+
+.dark #manage-main {
   background: var(--yueli-surface-page);
 }
 

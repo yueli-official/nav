@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -13,14 +14,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/yueli-official/nav/api/internal/model"
 	"github.com/yueli-official/nav/api/internal/naverr"
 )
 
 const (
-	linkCheckTimeout = 6 * time.Second
-	maxFaviconBytes  = 1 << 20
-	maxHTMLBytes     = 512 << 10
+	linkCheckTimeout  = 6 * time.Second
+	maxFaviconBytes   = 1 << 20
+	maxHTMLBytes      = 512 << 10
+	faviconSuccessTTL = 7 * 24 * time.Hour
+	faviconFailureTTL = 6 * time.Hour
 )
 
 type LinkChecker interface {
@@ -72,18 +77,134 @@ func (c *HTTPLinkChecker) request(ctx context.Context, method, rawURL string) (*
 }
 
 func (s *Service) Favicon(ctx context.Context, id string) ([]byte, string, error) {
-	link, err := s.store.LinkByID(ctx, strings.TrimSpace(id))
+	id = strings.TrimSpace(id)
+	link, err := s.store.LinkByID(ctx, id)
 	if err != nil {
 		return nil, "", err
 	}
 	if link == nil || link.Status != StatusPublished {
 		return nil, "", naverr.NotFound(id)
 	}
-	data, mime, err := fetchFavicon(ctx, s.faviconClient, link.URL)
-	if err != nil {
+	store, ok := s.store.(faviconCacheStore)
+	if !ok {
 		return nil, "", naverr.FaviconNotFound(id)
 	}
-	return data, mime, nil
+	cached, err := store.FaviconByLinkID(ctx, id)
+	if err != nil {
+		return nil, "", err
+	}
+	now := s.faviconNow()
+	if faviconReady(cached, link.URL) {
+		if faviconRefreshDue(cached, now) {
+			s.enqueueFaviconRefresh(id, false)
+		}
+		return append([]byte(nil), cached.Content...), cached.ContentType, nil
+	}
+	if cached == nil || cached.SourceURL != link.URL || faviconRefreshDue(cached, now) {
+		s.enqueueFaviconRefresh(id, false)
+	}
+	return nil, "", naverr.FaviconNotFound(id)
+}
+
+func faviconReady(cached *model.FaviconCache, sourceURL string) bool {
+	return cached != nil && cached.SourceURL == sourceURL && len(cached.Content) > 0 &&
+		cached.ContentType != "" && cached.ContentHash != ""
+}
+
+func faviconRefreshDue(cached *model.FaviconCache, now time.Time) bool {
+	return cached == nil || cached.RefreshAfter == nil || !cached.RefreshAfter.Time.After(now)
+}
+
+func (s *Service) queueStaleFavicons(links []*model.Link) {
+	now := s.faviconNow()
+	for _, link := range links {
+		if link == nil || link.Status != StatusPublished {
+			continue
+		}
+		if link.FaviconSourceURL != link.URL || link.FaviconRefreshAfter == nil || !link.FaviconRefreshAfter.Time.After(now) {
+			s.enqueueFaviconRefresh(link.ID, false)
+		}
+	}
+}
+
+func (s *Service) queuePublishedFavicon(link *model.Link, force bool) {
+	if link != nil && link.Status == StatusPublished {
+		s.enqueueFaviconRefresh(link.ID, force)
+	}
+}
+
+func (s *Service) enqueueFaviconRefresh(id string, force bool) {
+	if _, ok := s.store.(faviconCacheStore); !ok || strings.TrimSpace(id) == "" {
+		return
+	}
+	s.faviconMu.Lock()
+	if _, exists := s.faviconJobs[id]; exists {
+		s.faviconMu.Unlock()
+		return
+	}
+	s.faviconJobs[id] = struct{}{}
+	s.faviconMu.Unlock()
+
+	s.faviconRunner(func() {
+		defer func() {
+			s.faviconMu.Lock()
+			delete(s.faviconJobs, id)
+			s.faviconMu.Unlock()
+		}()
+		s.faviconSlots <- struct{}{}
+		defer func() { <-s.faviconSlots }()
+		s.refreshFavicon(id, force)
+	})
+}
+
+func (s *Service) refreshFavicon(id string, force bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), 12*time.Second)
+	defer cancel()
+	link, err := s.store.LinkByID(ctx, id)
+	if err != nil || link == nil || link.Status != StatusPublished {
+		return
+	}
+	store, ok := s.store.(faviconCacheStore)
+	if !ok {
+		return
+	}
+	cached, err := store.FaviconByLinkID(ctx, id)
+	if err != nil {
+		return
+	}
+	now := s.faviconNow().UTC()
+	if !force && cached != nil && cached.SourceURL == link.URL && !faviconRefreshDue(cached, now) {
+		return
+	}
+
+	data, mime, fetchErr := fetchFavicon(ctx, s.faviconClient, link.URL)
+	attemptedAt := gtime.NewFromTime(now)
+	if fetchErr == nil {
+		digest := sha256.Sum256(data)
+		if err := store.UpsertFavicon(ctx, &model.FaviconCache{
+			LinkID: id, SourceURL: link.URL, Content: data, ContentType: mime,
+			ContentHash: fmt.Sprintf("%x", digest), FetchedAt: attemptedAt,
+			RefreshAfter: gtime.NewFromTime(now.Add(faviconSuccessTTL)), LastAttemptAt: attemptedAt,
+		}); err != nil {
+			g.Log().Warningf(ctx, "persist navigation favicon %s: %v", id, err)
+		}
+		return
+	}
+
+	failure := &model.FaviconCache{
+		LinkID: id, SourceURL: link.URL,
+		RefreshAfter: gtime.NewFromTime(now.Add(faviconFailureTTL)), LastAttemptAt: attemptedAt,
+		LastError: truncateExternalError(fetchErr.Error()),
+	}
+	if faviconReady(cached, link.URL) {
+		failure.Content = cached.Content
+		failure.ContentType = cached.ContentType
+		failure.ContentHash = cached.ContentHash
+		failure.FetchedAt = cached.FetchedAt
+	}
+	if err := store.UpsertFavicon(ctx, failure); err != nil {
+		g.Log().Warningf(ctx, "persist navigation favicon failure %s: %v", id, err)
+	}
 }
 
 func fetchFavicon(ctx context.Context, client *http.Client, rawURL string) ([]byte, string, error) {

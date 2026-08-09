@@ -2,6 +2,11 @@
 type IconOption = { label: string; value: string };
 
 const defaultIcons: IconOption[] = [
+  { label: "创意制作", value: "i-tabler-palette" },
+  { label: "图片素材", value: "i-tabler-photo" },
+  { label: "学习成长", value: "i-tabler-school" },
+  { label: "生活兴趣", value: "i-tabler-coffee" },
+  { label: "默认分类", value: "i-tabler-folder" },
   { label: "文档集", value: "i-tabler-stack-2" },
   { label: "指南", value: "i-tabler-book-2" },
   { label: "手册", value: "i-tabler-manual-gearbox" },

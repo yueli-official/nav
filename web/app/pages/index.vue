@@ -195,7 +195,7 @@ useSeoMeta({
         </div>
 
         <div
-          class="hidden overflow-hidden rounded-xl border border-default bg-default lg:sticky lg:top-23 lg:block"
+          class="hidden overflow-hidden rounded-xl border border-default bg-default dark:bg-[var(--yueli-surface-region)] lg:sticky lg:top-23 lg:block"
         >
           <div class="border-b border-default px-4 py-3">
             <p

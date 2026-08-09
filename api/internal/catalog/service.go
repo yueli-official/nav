@@ -19,6 +19,7 @@ import (
 	"github.com/yueli-official/foundation/go/identifier"
 	"github.com/yueli-official/foundation/go/siteprofile"
 
+	"github.com/yueli-official/nav/api/contracts/iconcontract"
 	"github.com/yueli-official/nav/api/internal/dao"
 	"github.com/yueli-official/nav/api/internal/model"
 	"github.com/yueli-official/nav/api/internal/navaudit"
@@ -45,6 +46,7 @@ type Store interface {
 	LinkExists(context.Context, string) (bool, error)
 	RecordClick(context.Context, string) (bool, error)
 	UpdateLinkHealth(context.Context, string, model.LinkHealth) (bool, error)
+	UpdateLinkCheckExempt(context.Context, string, bool) (bool, error)
 	InsertLink(context.Context, *model.Link) error
 	UpdateLink(context.Context, *model.Link) (bool, error)
 	DeleteLink(context.Context, string) (bool, error)
@@ -85,6 +87,11 @@ type profileSettingsStore interface {
 	LegacySiteSettings(context.Context) (*model.LegacySiteSettings, error)
 	SaveSiteSettingsWithHook(context.Context, string, uint64, dao.TransactionHook) error
 	CutoverSiteSettingsWithHook(context.Context, string, dao.TransactionHook) error
+}
+
+type faviconCacheStore interface {
+	FaviconByLinkID(context.Context, string) (*model.FaviconCache, error)
+	UpsertFavicon(context.Context, *model.FaviconCache) error
 }
 
 type LinkInput struct {
@@ -128,18 +135,26 @@ type GroupPage struct {
 }
 
 type AdminCheckPage struct {
-	Links  []*model.Link
-	Total  int
-	Counts map[string]int
+	Links          []*model.Link
+	Total          int
+	CheckableTotal int
+	Counts         map[string]int
 }
 
 type Service struct {
-	store         Store
-	site          Site
-	checker       LinkChecker
-	faviconClient *http.Client
-	profiles      *navprofile.Manager
-	audit         *navaudit.Journal
+	store          Store
+	site           Site
+	checker        LinkChecker
+	faviconClient  *http.Client
+	faviconRunner  func(func())
+	faviconNow     func() time.Time
+	faviconSlots   chan struct{}
+	faviconMu      sync.Mutex
+	faviconJobs    map[string]struct{}
+	checkJobs      *checkJobRegistry
+	checkJobRunner func(func())
+	profiles       *navprofile.Manager
+	audit          *navaudit.Journal
 }
 
 func (s *Service) SetSiteProfile(profiles *navprofile.Manager) {
@@ -149,12 +164,22 @@ func (s *Service) SetSiteProfile(profiles *navprofile.Manager) {
 func New(store Store, site Site) *Service {
 	return &Service{
 		store: store, site: site, checker: NewHTTPLinkChecker(),
-		faviconClient: newSafeHTTPClient(8*time.Second, true),
+		faviconClient:  newSafeHTTPClient(8*time.Second, true),
+		faviconRunner:  func(task func()) { go task() },
+		faviconNow:     time.Now,
+		faviconSlots:   make(chan struct{}, 4),
+		faviconJobs:    map[string]struct{}{},
+		checkJobs:      newCheckJobRegistry(),
+		checkJobRunner: func(task func()) { go task() },
 	}
 }
 
 func (s *Service) PublicCatalog(ctx context.Context) (*Catalog, error) {
-	return s.catalog(ctx, dao.LinkFilter{Status: StatusPublished})
+	value, err := s.catalog(ctx, dao.LinkFilter{Status: StatusPublished})
+	if err == nil {
+		s.queueStaleFavicons(value.Links)
+	}
+	return value, err
 }
 
 func (s *Service) PublicGroup(ctx context.Context, groupID string, page, size int, sort string) (*GroupPage, error) {
@@ -237,11 +262,39 @@ func (s *Service) AdminChecks(ctx context.Context, filter dao.LinkFilter) (*Admi
 	if err != nil {
 		return nil, err
 	}
+	checkableFilter := filter
+	checkableFilter.ExcludeHealthCheckExempt = true
+	checkableTotal, err := s.store.CountLinks(ctx, checkableFilter)
+	if err != nil {
+		return nil, err
+	}
 	counts, err := s.store.LinkHealthCounts(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &AdminCheckPage{Links: links, Total: total, Counts: counts}, nil
+	return &AdminCheckPage{Links: links, Total: total, CheckableTotal: checkableTotal, Counts: counts}, nil
+}
+
+func (s *Service) SetHealthCheckExemption(ctx context.Context, id string, exempt bool) (*model.Link, error) {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		return nil, naverr.Validation("id", "required", nil)
+	}
+	updated, err := s.store.UpdateLinkCheckExempt(ctx, id, exempt)
+	if err != nil {
+		return nil, err
+	}
+	if !updated {
+		return nil, naverr.NotFound(id)
+	}
+	link, err := s.store.LinkByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if link == nil {
+		return nil, naverr.NotFound(id)
+	}
+	return link, nil
 }
 
 func (s *Service) RunChecks(ctx context.Context, ids []string) ([]*model.Link, error) {
@@ -259,13 +312,14 @@ func (s *Service) RunChecks(ctx context.Context, ids []string) ([]*model.Link, e
 	if len(links) != len(ids) {
 		return nil, naverr.NotFound("one_or_more_links")
 	}
-	return s.runLinkChecks(ctx, links)
+	return s.runLinkChecks(ctx, checkableLinks(links))
 }
 
 func (s *Service) RunFilteredChecks(ctx context.Context, filter dao.LinkFilter) ([]*model.Link, error) {
 	filter.Page = 0
 	filter.Size = 0
 	filter.Sort = "health"
+	filter.ExcludeHealthCheckExempt = true
 	links, err := s.store.Links(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -274,6 +328,11 @@ func (s *Service) RunFilteredChecks(ctx context.Context, filter dao.LinkFilter) 
 }
 
 func (s *Service) runLinkChecks(ctx context.Context, links []*model.Link) ([]*model.Link, error) {
+	return s.runLinkChecksWithProgress(ctx, links, nil)
+}
+
+func (s *Service) runLinkChecksWithProgress(ctx context.Context, links []*model.Link, onCompleted func()) ([]*model.Link, error) {
+	links = checkableLinks(links)
 	if len(links) == 0 {
 		return []*model.Link{}, nil
 	}
@@ -307,6 +366,9 @@ func (s *Service) runLinkChecks(ctx context.Context, links []*model.Link) ([]*mo
 				link.HealthError = health.Error
 				link.LastCheckedAt = health.CheckedAt
 				results[index] = link
+				if onCompleted != nil {
+					onCompleted()
+				}
 			}
 		}()
 	}
@@ -319,6 +381,16 @@ func (s *Service) runLinkChecks(ctx context.Context, links []*model.Link) ([]*mo
 		return nil, firstErr
 	}
 	return results, nil
+}
+
+func checkableLinks(links []*model.Link) []*model.Link {
+	result := make([]*model.Link, 0, len(links))
+	for _, link := range links {
+		if link != nil && !link.HealthCheckExempt {
+			result = append(result, link)
+		}
+	}
+	return result
 }
 
 func (s *Service) AdminStructure(ctx context.Context) (*Catalog, error) {
@@ -357,8 +429,10 @@ func (s *Service) CreateLink(ctx context.Context, input LinkInput) (*model.Link,
 		return nil, err
 	}
 	if created != nil {
+		s.queuePublishedFavicon(created, true)
 		return created, nil
 	}
+	s.queuePublishedFavicon(link, true)
 	return link, nil
 }
 
@@ -399,8 +473,10 @@ func (s *Service) UpdateLink(ctx context.Context, id string, input LinkInput) (*
 		return nil, err
 	}
 	if current != nil {
+		s.queuePublishedFavicon(current, true)
 		return current, nil
 	}
+	s.queuePublishedFavicon(link, true)
 	return link, nil
 }
 
@@ -854,6 +930,9 @@ func validateCategory(input model.Category) (*model.Category, error) {
 	}
 	if input.Icon == "" {
 		input.Icon = "i-tabler-folder"
+	}
+	if !iconcontract.IsCategoryTablerIcon(input.Icon) {
+		return nil, naverr.Validation("icon", "one_of", map[string]any{"allowed": iconcontract.CategoryTablerIcons()})
 	}
 	if input.SortOrder < 0 {
 		return nil, naverr.Validation("sortOrder", "minimum", map[string]any{"min": 0})

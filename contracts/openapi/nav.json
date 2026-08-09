@@ -754,6 +754,27 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobReq": {
+        "properties": {
+          "jobId": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "jobId"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobRes": {
+        "properties": {
+          "job": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CheckJobView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.AdminGetSettingsReq": {
         "properties": {},
         "type": "object"
@@ -777,7 +798,8 @@
               "broken",
               "timeout",
               "error",
-              "issue"
+              "issue",
+              "exempt"
             ],
             "format": "string",
             "type": "string"
@@ -804,6 +826,10 @@
       },
       "github.com.yueli-official.nav.api.api.v1.AdminListChecksRes": {
         "properties": {
+          "checkableTotal": {
+            "format": "int",
+            "type": "integer"
+          },
           "counts": {
             "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.HealthCountsView",
             "description": ""
@@ -1111,17 +1137,39 @@
       },
       "github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes": {
         "properties": {
-          "checked": {
-            "format": "int",
-            "type": "integer"
+          "job": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CheckJobView",
+            "description": ""
           },
-          "results": {
-            "format": "[]v1.LinkView",
-            "items": {
-              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
-              "description": ""
-            },
-            "type": "array"
+          "reused": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionReq": {
+        "properties": {
+          "exempt": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "exempt",
+          "id"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+            "description": ""
           }
         },
         "type": "object"
@@ -1588,6 +1636,43 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.CheckJobView": {
+        "properties": {
+          "completed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "string",
+            "type": "string"
+          },
+          "finishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "scope": {
+            "format": "string",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.CreateAuthorizationDraftReq": {
         "properties": {
           "expectedActiveRevision": {
@@ -1745,6 +1830,10 @@
           "id": {
             "format": "string",
             "type": "string"
+          },
+          "v": {
+            "format": "string",
+            "type": "string"
           }
         },
         "required": [
@@ -1880,6 +1969,10 @@
             "format": "int",
             "type": "integer"
           },
+          "exempt": {
+            "format": "int",
+            "type": "integer"
+          },
           "healthy": {
             "format": "int",
             "type": "integer"
@@ -1938,6 +2031,10 @@
             "format": "string",
             "type": "string"
           },
+          "faviconRevision": {
+            "format": "string",
+            "type": "string"
+          },
           "featured": {
             "format": "bool",
             "type": "boolean"
@@ -1945,6 +2042,10 @@
           "groupId": {
             "format": "string",
             "type": "string"
+          },
+          "healthCheckExempt": {
+            "format": "bool",
+            "type": "boolean"
           },
           "healthError": {
             "format": "string",
@@ -2666,7 +2767,8 @@
                 "broken",
                 "timeout",
                 "error",
-                "issue"
+                "issue",
+                "exempt"
               ],
               "format": "string",
               "type": "string"
@@ -2710,6 +2812,38 @@
         ]
       }
     },
+    "/api/v1/admin/nav/checks/jobs/{jobId}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "jobId",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get a navigation link health check job",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
     "/api/v1/admin/nav/checks/run": {
       "post": {
         "requestBody": {
@@ -2723,7 +2857,7 @@
           }
         },
         "responses": {
-          "200": {
+          "202": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2735,7 +2869,57 @@
             "description": ""
           }
         },
-        "summary": "Check navigation link availability",
+        "summary": "Start a navigation link health check job",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks/{id}/exemption": {
+      "put": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "exempt": {
+                    "format": "bool",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "exempt"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Set a navigation link health check exemption",
         "tags": [
           "Admin Nav"
         ]
@@ -4181,6 +4365,14 @@
             "in": "path",
             "name": "id",
             "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "v",
             "schema": {
               "format": "string",
               "type": "string"

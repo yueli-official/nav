@@ -38,29 +38,45 @@ type Group struct {
 }
 
 type Link struct {
-	ID               string      `json:"id" orm:"id"`
-	CategoryID       string      `json:"categoryId" orm:"category_id"`
-	GroupID          string      `json:"groupId" orm:"group_id"`
-	Title            string      `json:"title" orm:"title"`
-	URL              string      `json:"url" orm:"url"`
-	Description      string      `json:"description" orm:"description"`
-	Tags             []string    `json:"tags" orm:"tags"`
-	Keywords         []string    `json:"keywords" orm:"keywords"`
-	Kind             string      `json:"kind" orm:"kind"`
-	Featured         bool        `json:"featured" orm:"featured"`
-	Status           string      `json:"status" orm:"status"`
-	SortOrder        int         `json:"sortOrder" orm:"sort_order"`
-	SubmitterSub     string      `json:"submitterSub" orm:"submitter_sub"`
-	ClickCount       int64       `json:"clickCount" orm:"click_count"`
-	LastClickedAt    *gtime.Time `json:"lastClickedAt" orm:"last_clicked_at"`
-	HealthStatus     string      `json:"healthStatus" orm:"health_status"`
-	LastCheckedAt    *gtime.Time `json:"lastCheckedAt" orm:"last_checked_at"`
-	HealthHTTPStatus int         `json:"healthHttpStatus" orm:"health_http_status"`
-	HealthLatencyMS  int         `json:"healthLatencyMs" orm:"health_latency_ms"`
-	HealthError      string      `json:"healthError" orm:"health_error"`
-	PublishedAt      *gtime.Time `json:"publishedAt" orm:"published_at"`
-	CreatedAt        *gtime.Time `json:"createdAt" orm:"created_at"`
-	UpdatedAt        *gtime.Time `json:"updatedAt" orm:"updated_at"`
+	ID                  string      `json:"id" orm:"id"`
+	CategoryID          string      `json:"categoryId" orm:"category_id"`
+	GroupID             string      `json:"groupId" orm:"group_id"`
+	Title               string      `json:"title" orm:"title"`
+	URL                 string      `json:"url" orm:"url"`
+	Description         string      `json:"description" orm:"description"`
+	Tags                []string    `json:"tags" orm:"tags"`
+	Keywords            []string    `json:"keywords" orm:"keywords"`
+	Kind                string      `json:"kind" orm:"kind"`
+	Featured            bool        `json:"featured" orm:"featured"`
+	Status              string      `json:"status" orm:"status"`
+	SortOrder           int         `json:"sortOrder" orm:"sort_order"`
+	SubmitterSub        string      `json:"submitterSub" orm:"submitter_sub"`
+	ClickCount          int64       `json:"clickCount" orm:"click_count"`
+	LastClickedAt       *gtime.Time `json:"lastClickedAt" orm:"last_clicked_at"`
+	HealthStatus        string      `json:"healthStatus" orm:"health_status"`
+	LastCheckedAt       *gtime.Time `json:"lastCheckedAt" orm:"last_checked_at"`
+	HealthHTTPStatus    int         `json:"healthHttpStatus" orm:"health_http_status"`
+	HealthLatencyMS     int         `json:"healthLatencyMs" orm:"health_latency_ms"`
+	HealthError         string      `json:"healthError" orm:"health_error"`
+	HealthCheckExempt   bool        `json:"healthCheckExempt" orm:"health_check_exempt"`
+	PublishedAt         *gtime.Time `json:"publishedAt" orm:"published_at"`
+	CreatedAt           *gtime.Time `json:"createdAt" orm:"created_at"`
+	UpdatedAt           *gtime.Time `json:"updatedAt" orm:"updated_at"`
+	FaviconRevision     string      `json:"faviconRevision" orm:"favicon_revision"`
+	FaviconSourceURL    string      `json:"-" orm:"favicon_source_url"`
+	FaviconRefreshAfter *gtime.Time `json:"-" orm:"favicon_refresh_after"`
+}
+
+type FaviconCache struct {
+	LinkID        string      `orm:"link_id"`
+	SourceURL     string      `orm:"source_url"`
+	Content       []byte      `orm:"content"`
+	ContentType   string      `orm:"content_type"`
+	ContentHash   string      `orm:"content_hash"`
+	FetchedAt     *gtime.Time `orm:"fetched_at"`
+	RefreshAfter  *gtime.Time `orm:"refresh_after"`
+	LastAttemptAt *gtime.Time `orm:"last_attempt_at"`
+	LastError     string      `orm:"last_error"`
 }
 
 type LinkHealth struct {
