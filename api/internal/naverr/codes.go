@@ -16,6 +16,8 @@ const (
 	CodeConflict                 = "nav.conflict"
 	CodeNotInitialized           = "nav.not_initialized"
 	CodeAuthorizationUnavailable = "nav.authorization_unavailable"
+	CodeMembershipUnavailable    = "nav.membership_unavailable"
+	CodeMembershipSuspended      = "nav.membership_suspended"
 	CodeRevisionConflict         = "nav.site_profile_revision_conflict"
 	CodePreconditionRequired     = "nav.site_profile_precondition_required"
 )
@@ -31,6 +33,8 @@ var (
 		CodeConflict:                 descriptor(CodeConflict, http.StatusConflict),
 		CodeNotInitialized:           descriptor(CodeNotInitialized, http.StatusServiceUnavailable),
 		CodeAuthorizationUnavailable: descriptor(CodeAuthorizationUnavailable, http.StatusServiceUnavailable),
+		CodeMembershipUnavailable:    descriptor(CodeMembershipUnavailable, http.StatusServiceUnavailable),
+		CodeMembershipSuspended:      descriptor(CodeMembershipSuspended, http.StatusForbidden),
 		CodeRevisionConflict:         descriptor(CodeRevisionConflict, http.StatusPreconditionFailed),
 		CodePreconditionRequired:     descriptor(CodePreconditionRequired, http.StatusPreconditionRequired),
 	}
@@ -96,6 +100,14 @@ func Forbidden() error {
 
 func AuthorizationUnavailable() error {
 	return mapped(CodeAuthorizationUnavailable, nil)
+}
+
+func MembershipUnavailable() error {
+	return mapped(CodeMembershipUnavailable, nil)
+}
+
+func MembershipSuspended() error {
+	return mapped(CodeMembershipSuspended, nil)
 }
 
 func Validation(field, code string, params map[string]any) error {

@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"time"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/yueli-official/foundation/go/authorization"
@@ -11,8 +14,10 @@ import (
 	"github.com/yueli-official/nav/api/internal/appconfig"
 	"github.com/yueli-official/nav/api/internal/catalog"
 	"github.com/yueli-official/nav/api/internal/dao"
+	"github.com/yueli-official/nav/api/internal/identityclient"
 	"github.com/yueli-official/nav/api/internal/navaudit"
 	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/navmember"
 	"github.com/yueli-official/nav/api/internal/navprofile"
 	"github.com/yueli-official/nav/api/internal/runtime"
 	"github.com/yueli-official/nav/api/internal/server"
@@ -90,6 +95,10 @@ func main() {
 		panic(err)
 	}
 	authorizationService := navauthz.New(authz, profileDB)
+	membershipService := navmember.New(profileDB, identityclient.NewHTTP(
+		appconfig.IdentityBaseURL(ctx),
+		runtime.TelemetryHTTPClient(&http.Client{Timeout: 2 * time.Second}),
+	))
 	jwks := appconfig.LoadJWKS(ctx)
 	verifier, err := runtime.NewRemoteVerifier(runtime.RemoteVerifierConfig{
 		JWKSURL: jwks.URL, Issuer: jwks.Issuer, Audience: jwks.Audience,
@@ -100,7 +109,7 @@ func main() {
 	}
 
 	server.Configure(httpServer, server.Deps{
-		Verifier: verifier, Catalog: service, Authorization: authorizationService,
+		Verifier: verifier, Catalog: service, Authorization: authorizationService, Membership: membershipService,
 	})
 	g.Log().Info(ctx, "nav service starting")
 	httpServer.Run()

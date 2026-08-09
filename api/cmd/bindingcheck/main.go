@@ -18,10 +18,11 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 	err := deploy.WaitForIdentity(ctx, deploy.IdentityBinding{
-		Issuer:            os.Getenv("NAV_IDENTITY_ISSUER"),
-		DiscoveryURL:      os.Getenv("NAV_IDENTITY_DISCOVERY_URL"),
-		JWKSURL:           os.Getenv("NAV_IDENTITY_JWKS_URL"),
-		AllowInsecureHTTP: boolFromEnvironment("NAV_BINDING_ALLOW_INSECURE_IDENTITY_HTTP"),
+		Issuer:             os.Getenv("NAV_IDENTITY_ISSUER"),
+		DiscoveryURL:       os.Getenv("NAV_IDENTITY_DISCOVERY_URL"),
+		JWKSURL:            os.Getenv("NAV_IDENTITY_JWKS_URL"),
+		PublicUsersBaseURL: os.Getenv("NAV_IDENTITY_INTERNAL_URL"),
+		AllowInsecureHTTP:  boolFromEnvironment("NAV_BINDING_ALLOW_INSECURE_IDENTITY_HTTP"),
 	}, 2*time.Second)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "nav binding check:", err)

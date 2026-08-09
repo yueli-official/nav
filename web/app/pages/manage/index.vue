@@ -487,7 +487,7 @@ async function executeBatch() {
     description="搜索、筛选并维护导航入口；审核动作与内容维护相互独立。"
     icon="i-tabler-world-www"
     main-id="manage-main"
-    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+    body-class="mx-auto flex min-h-0 w-full max-w-screen-2xl flex-col gap-4 !overflow-hidden"
   >
       <template #actions>
         <UButton
@@ -507,8 +507,14 @@ async function executeBatch() {
     />
 
     <ManageClientBoundary :rows="6">
-      <div class="space-y-3" :inert="batchBusy" :aria-busy="batchBusy">
+      <div
+        class="flex min-h-0 flex-1 flex-col gap-3"
+        :inert="batchBusy"
+        :aria-busy="batchBusy"
+      >
         <CollectionPanel
+          data-link-list-panel
+          class="flex min-h-0 flex-1 flex-col [&>[aria-live=polite]]:min-h-0 [&>[aria-live=polite]]:flex-1 [&>[aria-live=polite]]:overflow-y-auto [&>[aria-live=polite]]:overscroll-contain [&>footer]:shrink-0"
           v-model:search="searchInput"
           :items="links"
           :item-key="linkKey"

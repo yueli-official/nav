@@ -5,8 +5,8 @@ Nav 是独立的导航消费者：管理精选链接、分类、主题、推荐�
 
 ## 边界
 
-- Nav 只依赖 `auth.oidc` 能力，不引用 Identity 的数据库、角色模型或源码包。
-- Identity 只签发 Subject；Site → Category → Group → Link 的 Scope、Grant、委派和策略发布均由
+- Nav 依赖 Identity 的 `auth.oidc` 与公开 `/api/v1/users*` 合同，不引用 Identity 的数据库、私有状态、角色模型或源码包。
+- Identity 签发 OIDC Subject 与稳定 `user_key`；Site → Category → Group → Link 的 Scope、Grant、委派和策略发布均由
   `api/internal/navauthz` 持有。
 - `api/internal/runtime` 适配日志、认证、健康检查、限流、Telemetry 和配置；领域代码不感知运行平台。
 - `api/internal/naverr` 是 Nav 自己的不可变公开错误契约。

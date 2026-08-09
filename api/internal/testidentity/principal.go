@@ -28,6 +28,10 @@ func (source keySource) PublicKey(context.Context, string) (any, error) {
 // Principal creates a Principal through the real verifier so raw security
 // claims are populated exactly as they are in an authenticated request.
 func Principal(t testing.TB, kind, subject, clientID string, roles, scopes []string) *foundationauth.Principal {
+	return PrincipalWithClaims(t, kind, subject, clientID, roles, scopes, nil)
+}
+
+func PrincipalWithClaims(t testing.TB, kind, subject, clientID string, roles, scopes []string, extra map[string]any) *foundationauth.Principal {
 	t.Helper()
 	private := ed25519.NewKeyFromSeed(make([]byte, ed25519.SeedSize))
 	signer, err := jose.NewSigner(
@@ -38,17 +42,21 @@ func Principal(t testing.TB, kind, subject, clientID string, roles, scopes []str
 		t.Fatal(err)
 	}
 	now := time.Now().UTC()
+	claims := map[string]any{
+		"subject_kind": kind,
+		"client_id":    clientID,
+		"roles":        roles,
+		"scope":        strings.Join(scopes, " "),
+	}
+	for key, value := range extra {
+		claims[key] = value
+	}
 	raw, err := jwt.Signed(signer).
 		Claims(jwt.Claims{
 			Issuer: testIssuer, Subject: subject,
 			IssuedAt: jwt.NewNumericDate(now), Expiry: jwt.NewNumericDate(now.Add(time.Minute)),
 		}).
-		Claims(map[string]any{
-			"subject_kind": kind,
-			"client_id":    clientID,
-			"roles":        roles,
-			"scope":        strings.Join(scopes, " "),
-		}).
+		Claims(claims).
 		Serialize()
 	if err != nil {
 		t.Fatal(err)
@@ -70,6 +78,11 @@ func Principal(t testing.TB, kind, subject, clientID string, roles, scopes []str
 func User(t testing.TB, subject string, roles, scopes []string) *foundationauth.Principal {
 	t.Helper()
 	return Principal(t, "user", subject, "", roles, scopes)
+}
+
+func UserWithKey(t testing.TB, subject, userKey string, roles, scopes []string) *foundationauth.Principal {
+	t.Helper()
+	return PrincipalWithClaims(t, "user", subject, "", roles, scopes, map[string]any{"user_key": userKey})
 }
 
 func Client(t testing.TB, clientID string, scopes []string) *foundationauth.Principal {

@@ -20,10 +20,11 @@ import (
 const maxResponseBytes = int64(1 << 20)
 
 type IdentityBinding struct {
-	Issuer            string
-	DiscoveryURL      string
-	JWKSURL           string
-	AllowInsecureHTTP bool
+	Issuer             string
+	DiscoveryURL       string
+	JWKSURL            string
+	PublicUsersBaseURL string
+	AllowInsecureHTTP  bool
 }
 
 func WaitForIdentity(
@@ -58,6 +59,7 @@ func checkIdentity(ctx context.Context, binding IdentityBinding) error {
 	binding.Issuer = strings.TrimRight(strings.TrimSpace(binding.Issuer), "/")
 	binding.DiscoveryURL = strings.TrimSpace(binding.DiscoveryURL)
 	binding.JWKSURL = strings.TrimSpace(binding.JWKSURL)
+	binding.PublicUsersBaseURL = strings.TrimRight(strings.TrimSpace(binding.PublicUsersBaseURL), "/")
 	if binding.DiscoveryURL == "" && binding.Issuer != "" {
 		binding.DiscoveryURL = binding.Issuer + "/.well-known/openid-configuration"
 	}
@@ -65,9 +67,10 @@ func checkIdentity(ctx context.Context, binding IdentityBinding) error {
 		binding.JWKSURL = binding.Issuer + "/oauth2/jwks.json"
 	}
 	for name, value := range map[string]string{
-		"issuer":        binding.Issuer,
-		"discovery URL": binding.DiscoveryURL,
-		"JWKS URL":      binding.JWKSURL,
+		"issuer":           binding.Issuer,
+		"discovery URL":    binding.DiscoveryURL,
+		"JWKS URL":         binding.JWKSURL,
+		"public users URL": binding.PublicUsersBaseURL,
 	} {
 		if value == "" {
 			return fmt.Errorf("identity %s is required", name)
@@ -107,14 +110,28 @@ func checkIdentity(ctx context.Context, binding IdentityBinding) error {
 	if err := getJSON(ctx, client, binding.JWKSURL, &set); err != nil {
 		return fmt.Errorf("identity JWKS: %w", err)
 	}
+	usableKey := false
 	for index := range set.Keys {
 		key := &set.Keys[index]
 		if key.Valid() && key.IsPublic() && strings.TrimSpace(key.KeyID) != "" &&
 			(key.Use == "" || key.Use == "sig") {
-			return nil
+			usableKey = true
+			break
 		}
 	}
-	return errors.New("identity JWKS has no usable public signing key")
+	if !usableKey {
+		return errors.New("identity JWKS has no usable public signing key")
+	}
+	var publicUsers map[string]json.RawMessage
+	probeURL := binding.PublicUsersBaseURL + "/api/v1/users?ids=TestA123"
+	if err := getJSON(ctx, client, probeURL, &publicUsers); err != nil {
+		return fmt.Errorf("identity public users: %w", err)
+	}
+	users, exists := publicUsers["users"]
+	if !exists || len(users) == 0 || users[0] != '[' {
+		return errors.New("identity public users response is missing users array")
+	}
+	return nil
 }
 
 func validateURL(value string, allowInsecureHTTP bool) error {

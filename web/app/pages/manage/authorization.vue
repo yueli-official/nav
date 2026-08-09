@@ -25,7 +25,7 @@ interface ConsoleView {
 }
 
 definePageMeta({ layout: "manage", middleware: "auth" });
-useSeoMeta({ title: "权限与申请 · 月离导航" });
+useSeoMeta({ title: "权限策略 · 月离导航" });
 
 const { call } = useApi();
 const { isAdministrator } = useMe();
@@ -104,7 +104,7 @@ function toggleAutomatic(enabled: boolean) {
         `/api/v1/authorization/manage/policies/${consoleState.value?.policy.number}/automatic/${rule.key}`,
         { method: "PUT", body: { enabled } },
       ),
-    enabled ? "已在草稿中启用注册自动授权" : "已在草稿中关闭注册自动授权",
+    enabled ? "已在草稿中启用新成员自动授权" : "已在草稿中关闭新成员自动授权",
   );
 }
 
@@ -173,8 +173,8 @@ function createRole() {
 <template>
   <YAdminPage
     id="authorization"
-    title="权限与申请"
-    description="配置本站角色能力、内容维护者申请与自动授权；Identity 只提供登录身份。"
+    title="权限策略"
+    description="配置本站角色、能力、申请流程与新成员自动授权；成员目录在独立页面管理。"
     icon="i-tabler-shield-lock"
     main-id="manage-main"
     body-class="mx-auto w-full max-w-screen-2xl space-y-4"
@@ -288,10 +288,10 @@ function createRole() {
         <div class="flex items-start justify-between gap-4">
           <div>
             <h2 class="text-sm font-semibold text-highlighted">
-              注册用户自动成为内容维护者
+              新导航成员自动获得内容维护者权限
             </h2>
             <p class="mt-1 text-xs leading-5 text-muted">
-              默认关闭。启用后在用户首次进入本站时幂等补齐授权，不修改用户中心角色。
+              默认关闭。启用后，用户首次以已登录身份加入导航时授予本站维护权限；不修改用户中心身份或全局角色。
             </p>
           </div>
           <USwitch

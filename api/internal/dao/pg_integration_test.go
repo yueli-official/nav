@@ -13,8 +13,8 @@ import (
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 	"github.com/gogf/gf/v2/database/gdb"
-	"github.com/google/uuid"
 
+	"github.com/yueli-official/foundation/go/identifier"
 	"github.com/yueli-official/nav/api/internal/dao"
 	"github.com/yueli-official/nav/api/internal/model"
 )
@@ -38,8 +38,8 @@ func TestPGLinkRoundTrip(t *testing.T) {
 
 	ctx := context.Background()
 	store := dao.NewPG(db)
-	id := "integration-" + uuid.NewString()
-	tagOriginal := "integration-tag-" + uuid.NewString()
+	id := "integration-" + identifier.MustNew().String()
+	tagOriginal := "integration-tag-" + identifier.MustNew().String()
 	tagRenamed := tagOriginal + "-renamed"
 	link := &model.Link{
 		ID: id, CategoryID: "develop", GroupID: "references",
@@ -97,10 +97,10 @@ func TestPGLinkRoundTrip(t *testing.T) {
 		t.Fatalf("link still exists=%v err=%v", exists, err)
 	}
 
-	category := &model.Category{ID: "integration-category-" + uuid.NewString(), Title: "Integration category", Icon: "i-tabler-folder", SortOrder: 999}
-	categoryTarget := &model.Category{ID: "integration-category-" + uuid.NewString(), Title: "Integration target category", Icon: "i-tabler-folder", SortOrder: 999}
-	group := &model.Group{ID: "integration-group-" + uuid.NewString(), CategoryID: category.ID, Title: "Integration group", SortOrder: 999}
-	groupLink := &model.Link{ID: "integration-group-link-" + uuid.NewString(), CategoryID: category.ID, GroupID: group.ID, Title: "Group move fixture", URL: "https://example.com/group-move", Description: "Verifies deferred topic moves", Kind: "reference", Status: "draft"}
+	category := &model.Category{ID: "integration-category-" + identifier.MustNew().String(), Title: "Integration category", Icon: "i-tabler-folder", SortOrder: 999}
+	categoryTarget := &model.Category{ID: "integration-category-" + identifier.MustNew().String(), Title: "Integration target category", Icon: "i-tabler-folder", SortOrder: 999}
+	group := &model.Group{ID: "integration-group-" + identifier.MustNew().String(), CategoryID: category.ID, Title: "Integration group", SortOrder: 999}
+	groupLink := &model.Link{ID: "integration-group-link-" + identifier.MustNew().String(), CategoryID: category.ID, GroupID: group.ID, Title: "Group move fixture", URL: "https://example.com/group-move", Description: "Verifies deferred topic moves", Kind: "reference", Status: "draft"}
 	defer func() {
 		_, _ = store.DeleteLink(ctx, groupLink.ID)
 		_, _ = store.DeleteGroup(ctx, group.ID)

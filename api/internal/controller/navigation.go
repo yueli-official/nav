@@ -546,7 +546,14 @@ func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView 
 		}
 	}
 	groupsByCategory := make(map[string][]v1.GroupView, len(value.Categories))
+	for _, category := range value.Categories {
+		groupsByCategory[category.ID] = []v1.GroupView{}
+	}
 	for _, group := range value.Groups {
+		items := linksByGroup[group.ID]
+		if items == nil {
+			items = []v1.LinkView{}
+		}
 		groupsByCategory[group.CategoryID] = append(groupsByCategory[group.CategoryID], v1.GroupView{
 			ID:          group.ID,
 			CategoryID:  group.CategoryID,
@@ -554,7 +561,7 @@ func categoryViews(value *catalog.Catalog, includeLinks bool) []v1.CategoryView 
 			Description: group.Description,
 			SortOrder:   group.SortOrder,
 			LinkCount:   linkCountsByGroup[group.ID],
-			Items:       linksByGroup[group.ID],
+			Items:       items,
 		})
 	}
 	views := make([]v1.CategoryView, 0, len(value.Categories))

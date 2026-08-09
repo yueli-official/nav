@@ -435,7 +435,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ActivateAuthorizationPolicyReq": {
+      "github.com.yueli-official.nav.api.api.v1.ActivateAuthorizationPolicyReq": {
         "properties": {
           "expectedActiveRevision": {
             "format": "uint64",
@@ -454,16 +454,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ActivateAuthorizationPolicyRes": {
+      "github.com.yueli-official.nav.api.api.v1.ActivateAuthorizationPolicyRes": {
         "properties": {
           "policy": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationPolicyView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminBulkLinksReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminBulkLinksReq": {
         "properties": {
           "action": {
             "enum": [
@@ -490,7 +490,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminBulkLinksRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminBulkLinksRes": {
         "properties": {
           "changed": {
             "format": "int",
@@ -507,7 +507,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminCreateCategoryReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryReq": {
         "properties": {
           "description": {
             "format": "string",
@@ -538,16 +538,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminCreateCategoryRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryRes": {
         "properties": {
           "category": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminCreateGroupReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateGroupReq": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -576,16 +576,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminCreateGroupRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateGroupRes": {
         "properties": {
           "group": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminCreateLinkReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateLinkReq": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -661,16 +661,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminCreateLinkRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateLinkRes": {
         "properties": {
           "link": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteCategoryReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteCategoryReq": {
         "properties": {
           "id": {
             "format": "string",
@@ -682,7 +682,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteCategoryRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteCategoryRes": {
         "properties": {
           "deleted": {
             "format": "bool",
@@ -691,7 +691,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteGroupReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupReq": {
         "properties": {
           "id": {
             "format": "string",
@@ -703,7 +703,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteGroupRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupRes": {
         "properties": {
           "deleted": {
             "format": "bool",
@@ -712,7 +712,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteLinkReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkReq": {
         "properties": {
           "id": {
             "format": "string",
@@ -724,7 +724,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteLinkRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkRes": {
         "properties": {
           "deleted": {
             "format": "bool",
@@ -733,7 +733,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteTagReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteTagReq": {
         "properties": {
           "name": {
             "format": "string",
@@ -745,7 +745,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminDeleteTagRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteTagRes": {
         "properties": {
           "changed": {
             "format": "int",
@@ -754,20 +754,20 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminGetSettingsReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminGetSettingsReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminGetSettingsRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminGetSettingsRes": {
         "properties": {
           "settings": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminSiteSettingsView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSiteSettingsView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListChecksReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListChecksReq": {
         "properties": {
           "health": {
             "enum": [
@@ -802,16 +802,16 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListChecksRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListChecksRes": {
         "properties": {
           "counts": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.HealthCountsView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.HealthCountsView",
             "description": ""
           },
           "links": {
             "format": "[]v1.LinkView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
               "description": ""
             },
             "type": "array"
@@ -831,7 +831,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListLinksReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListLinksReq": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -889,24 +889,24 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListLinksRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListLinksRes": {
         "properties": {
           "categories": {
             "format": "[]v1.CategoryView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
               "description": ""
             },
             "type": "array"
           },
           "counts": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LifecycleCountsView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LifecycleCountsView",
             "description": ""
           },
           "links": {
             "format": "[]v1.LinkView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
               "description": ""
             },
             "type": "array"
@@ -922,7 +922,7 @@
           "tags": {
             "format": "[]v1.TagView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.TagView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TagView",
               "description": ""
             },
             "type": "array"
@@ -934,16 +934,87 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListStructureReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListMembersReq": {
+        "properties": {
+          "page": {
+            "default": 1,
+            "format": "int",
+            "minimum": 1,
+            "type": "integer"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "role": {
+            "format": "string",
+            "type": "string"
+          },
+          "size": {
+            "default": 20,
+            "format": "int",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminListMembersRes": {
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MembershipStatusCountsView",
+            "description": ""
+          },
+          "members": {
+            "format": "[]v1.MemberView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MemberView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "roles": {
+            "format": "[]v1.AuthorizationRoleView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationRoleView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminListStructureReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListStructureRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListStructureRes": {
         "properties": {
           "categories": {
             "format": "[]v1.CategoryView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
               "description": ""
             },
             "type": "array"
@@ -951,7 +1022,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListTagsReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListTagsReq": {
         "properties": {
           "q": {
             "format": "string",
@@ -960,12 +1031,12 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminListTagsRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminListTagsRes": {
         "properties": {
           "tags": {
             "format": "[]v1.TagView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.TagView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TagView",
               "description": ""
             },
             "type": "array"
@@ -973,7 +1044,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminRenameTagReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminRenameTagReq": {
         "properties": {
           "source": {
             "format": "string",
@@ -990,7 +1061,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminRenameTagRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminRenameTagRes": {
         "properties": {
           "changed": {
             "format": "int",
@@ -999,7 +1070,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminRunChecksReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminRunChecksReq": {
         "properties": {
           "health": {
             "enum": [
@@ -1038,7 +1109,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminRunChecksRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes": {
         "properties": {
           "checked": {
             "format": "int",
@@ -1047,7 +1118,7 @@
           "results": {
             "format": "[]v1.LinkView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
               "description": ""
             },
             "type": "array"
@@ -1055,7 +1126,42 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminSiteSettingsView": {
+      "github.com.yueli-official.nav.api.api.v1.AdminSetMemberStatusReq": {
+        "properties": {
+          "reason": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "userKey": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "userKey",
+          "status"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminSetMemberStatusRes": {
+        "properties": {
+          "member": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MemberView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminSiteSettingsView": {
         "properties": {
           "etag": {
             "format": "string",
@@ -1085,7 +1191,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateCategoryReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateCategoryReq": {
         "properties": {
           "description": {
             "format": "string",
@@ -1121,16 +1227,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateCategoryRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateCategoryRes": {
         "properties": {
           "category": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateGroupReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateGroupReq": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -1164,16 +1270,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateGroupRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateGroupRes": {
         "properties": {
           "group": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateLinkReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateLinkReq": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -1254,16 +1360,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateLinkRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateLinkRes": {
         "properties": {
           "link": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateSettingsReq": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsReq": {
         "properties": {
           "profile": {
             "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
@@ -1281,16 +1387,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AdminUpdateSettingsRes": {
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsRes": {
         "properties": {
           "settings": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminSiteSettingsView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSiteSettingsView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ApplyForRoleReq": {
+      "github.com.yueli-official.nav.api.api.v1.ApplyForRoleReq": {
         "properties": {
           "reason": {
             "format": "string",
@@ -1307,16 +1413,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ApplyForRoleRes": {
+      "github.com.yueli-official.nav.api.api.v1.ApplyForRoleRes": {
         "properties": {
           "application": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationApplicationView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AuthorizationApplicationView": {
+      "github.com.yueli-official.nav.api.api.v1.AuthorizationApplicationView": {
         "properties": {
           "createdAt": {
             "format": "time.Time",
@@ -1353,7 +1459,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AuthorizationAutomaticRuleView": {
+      "github.com.yueli-official.nav.api.api.v1.AuthorizationAutomaticRuleView": {
         "properties": {
           "enabled": {
             "format": "bool",
@@ -1366,7 +1472,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AuthorizationCapabilityView": {
+      "github.com.yueli-official.nav.api.api.v1.AuthorizationCapabilityView": {
         "properties": {
           "displayName": {
             "format": "string",
@@ -1379,7 +1485,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AuthorizationPolicyView": {
+      "github.com.yueli-official.nav.api.api.v1.AuthorizationPolicyView": {
         "properties": {
           "activatedAt": {
             "format": "time.Time",
@@ -1404,7 +1510,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.AuthorizationRoleView": {
+      "github.com.yueli-official.nav.api.api.v1.AuthorizationRoleView": {
         "properties": {
           "assignmentSources": {
             "format": "[]string",
@@ -1449,7 +1555,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.CategoryView": {
+      "github.com.yueli-official.nav.api.api.v1.CategoryView": {
         "properties": {
           "description": {
             "format": "string",
@@ -1458,7 +1564,7 @@
           "groups": {
             "format": "[]v1.GroupView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
               "description": ""
             },
             "type": "array"
@@ -1482,7 +1588,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.CreateAuthorizationDraftReq": {
+      "github.com.yueli-official.nav.api.api.v1.CreateAuthorizationDraftReq": {
         "properties": {
           "expectedActiveRevision": {
             "format": "uint64",
@@ -1495,16 +1601,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.CreateAuthorizationDraftRes": {
+      "github.com.yueli-official.nav.api.api.v1.CreateAuthorizationDraftRes": {
         "properties": {
           "policy": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationPolicyView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.CreateAuthorizationRoleReq": {
+      "github.com.yueli-official.nav.api.api.v1.CreateAuthorizationRoleReq": {
         "properties": {
           "assignmentSources": {
             "format": "[]string",
@@ -1547,20 +1653,20 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.CreateAuthorizationRoleRes": {
+      "github.com.yueli-official.nav.api.api.v1.CreateAuthorizationRoleRes": {
         "properties": {
           "role": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationRoleView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetAuthorizationConsoleReq": {
+      "github.com.yueli-official.nav.api.api.v1.GetAuthorizationConsoleReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetAuthorizationConsoleRes": {
+      "github.com.yueli-official.nav.api.api.v1.GetAuthorizationConsoleRes": {
         "properties": {
           "activeRevision": {
             "format": "uint64",
@@ -1569,7 +1675,7 @@
           "applications": {
             "format": "[]v1.AuthorizationApplicationView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationApplicationView",
               "description": ""
             },
             "type": "array"
@@ -1577,7 +1683,7 @@
           "automaticRules": {
             "format": "[]v1.AuthorizationAutomaticRuleView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationAutomaticRuleView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationAutomaticRuleView",
               "description": ""
             },
             "type": "array"
@@ -1585,19 +1691,19 @@
           "capabilities": {
             "format": "[]v1.AuthorizationCapabilityView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationCapabilityView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationCapabilityView",
               "description": ""
             },
             "type": "array"
           },
           "policy": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationPolicyView",
             "description": ""
           },
           "roles": {
             "format": "[]v1.AuthorizationRoleView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationRoleView",
               "description": ""
             },
             "type": "array"
@@ -1605,26 +1711,26 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetCatalogReq": {
+      "github.com.yueli-official.nav.api.api.v1.GetCatalogReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetCatalogRes": {
+      "github.com.yueli-official.nav.api.api.v1.GetCatalogRes": {
         "properties": {
           "categories": {
             "format": "[]v1.CategoryView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
               "description": ""
             },
             "type": "array"
           },
           "site": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SiteView",
             "description": ""
           },
           "stats": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.StatsView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.StatsView",
             "description": ""
           },
           "version": {
@@ -1634,7 +1740,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetFaviconReq": {
+      "github.com.yueli-official.nav.api.api.v1.GetFaviconReq": {
         "properties": {
           "id": {
             "format": "string",
@@ -1646,13 +1752,13 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetFaviconRes": {
+      "github.com.yueli-official.nav.api.api.v1.GetFaviconRes": {
         "description": "Favicon image bytes",
         "format": "binary",
         "properties": {},
         "type": "string"
       },
-      "platform.products.nav.api.api.v1.GetGroupReq": {
+      "github.com.yueli-official.nav.api.api.v1.GetGroupReq": {
         "properties": {
           "groupId": {
             "format": "string",
@@ -1686,20 +1792,20 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GetGroupRes": {
+      "github.com.yueli-official.nav.api.api.v1.GetGroupRes": {
         "properties": {
           "category": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CategoryView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
             "description": ""
           },
           "group": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GroupView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
             "description": ""
           },
           "items": {
             "format": "[]v1.LinkView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
               "description": ""
             },
             "type": "array"
@@ -1709,7 +1815,7 @@
             "type": "integer"
           },
           "site": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SiteView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SiteView",
             "description": ""
           },
           "size": {
@@ -1723,7 +1829,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.GroupView": {
+      "github.com.yueli-official.nav.api.api.v1.GroupView": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -1740,7 +1846,7 @@
           "items": {
             "format": "[]v1.LinkView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.LinkView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
               "description": ""
             },
             "type": "array"
@@ -1760,7 +1866,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.HealthCountsView": {
+      "github.com.yueli-official.nav.api.api.v1.HealthCountsView": {
         "properties": {
           "all": {
             "format": "int",
@@ -1793,7 +1899,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.LifecycleCountsView": {
+      "github.com.yueli-official.nav.api.api.v1.LifecycleCountsView": {
         "properties": {
           "all": {
             "format": "int",
@@ -1814,7 +1920,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.LinkView": {
+      "github.com.yueli-official.nav.api.api.v1.LinkView": {
         "properties": {
           "categoryId": {
             "format": "string",
@@ -1915,16 +2021,16 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ListMyApplicationsReq": {
+      "github.com.yueli-official.nav.api.api.v1.ListMyApplicationsReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ListMyApplicationsRes": {
+      "github.com.yueli-official.nav.api.api.v1.ListMyApplicationsRes": {
         "properties": {
           "items": {
             "format": "[]v1.AuthorizationApplicationView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationApplicationView",
               "description": ""
             },
             "type": "array"
@@ -1932,16 +2038,16 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ListRequestableRolesReq": {
+      "github.com.yueli-official.nav.api.api.v1.ListRequestableRolesReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ListRequestableRolesRes": {
+      "github.com.yueli-official.nav.api.api.v1.ListRequestableRolesRes": {
         "properties": {
           "items": {
             "format": "[]v1.AuthorizationRoleView",
             "items": {
-              "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationRoleView",
               "description": ""
             },
             "type": "array"
@@ -1949,20 +2055,37 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.MeReq": {
+      "github.com.yueli-official.nav.api.api.v1.MeMembershipView": {
+        "properties": {
+          "joinedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.MeReq": {
         "properties": {},
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.MeRes": {
+      "github.com.yueli-official.nav.api.api.v1.MeRes": {
         "properties": {
           "me": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.MeView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MeView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.MeView": {
+      "github.com.yueli-official.nav.api.api.v1.MeView": {
         "properties": {
           "authenticated": {
             "format": "bool",
@@ -1980,14 +2103,117 @@
             "format": "bool",
             "type": "boolean"
           },
+          "membership": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MeMembershipView",
+            "description": ""
+          },
           "sub": {
+            "format": "string",
+            "type": "string"
+          },
+          "userKey": {
             "format": "string",
             "type": "string"
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.PreviewAuthorizationPolicyReq": {
+      "github.com.yueli-official.nav.api.api.v1.MemberRoleView": {
+        "properties": {
+          "displayName": {
+            "format": "string",
+            "type": "string"
+          },
+          "key": {
+            "format": "string",
+            "type": "string"
+          },
+          "source": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.MemberView": {
+        "properties": {
+          "avatarMediaKey": {
+            "format": "string",
+            "type": "string"
+          },
+          "displayName": {
+            "format": "string",
+            "type": "string"
+          },
+          "handle": {
+            "format": "string",
+            "type": "string"
+          },
+          "joinedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "lastSeenAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "pendingApplications": {
+            "format": "int",
+            "type": "integer"
+          },
+          "roles": {
+            "format": "[]v1.MemberRoleView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MemberRoleView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "submissionCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "suspendedAt": {
+            "format": "time.Time",
+            "type": "string"
+          },
+          "suspendedBy": {
+            "format": "string",
+            "type": "string"
+          },
+          "suspensionReason": {
+            "format": "string",
+            "type": "string"
+          },
+          "userKey": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.MembershipStatusCountsView": {
+        "properties": {
+          "active": {
+            "format": "int",
+            "type": "integer"
+          },
+          "all": {
+            "format": "int",
+            "type": "integer"
+          },
+          "suspended": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.PreviewAuthorizationPolicyReq": {
         "properties": {
           "revision": {
             "format": "uint64",
@@ -2000,7 +2226,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.PreviewAuthorizationPolicyRes": {
+      "github.com.yueli-official.nav.api.api.v1.PreviewAuthorizationPolicyRes": {
         "properties": {
           "addedBindings": {
             "format": "int",
@@ -2013,7 +2239,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.RecordClickReq": {
+      "github.com.yueli-official.nav.api.api.v1.RecordClickReq": {
         "properties": {
           "id": {
             "format": "string",
@@ -2025,7 +2251,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.RecordClickRes": {
+      "github.com.yueli-official.nav.api.api.v1.RecordClickRes": {
         "properties": {
           "recorded": {
             "format": "bool",
@@ -2034,7 +2260,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.RetireAuthorizationRoleReq": {
+      "github.com.yueli-official.nav.api.api.v1.RetireAuthorizationRoleReq": {
         "properties": {
           "revision": {
             "format": "uint64",
@@ -2052,16 +2278,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.RetireAuthorizationRoleRes": {
+      "github.com.yueli-official.nav.api.api.v1.RetireAuthorizationRoleRes": {
         "properties": {
           "role": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationRoleView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationRoleView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ReviewRoleApplicationReq": {
+      "github.com.yueli-official.nav.api.api.v1.ReviewRoleApplicationReq": {
         "properties": {
           "decision": {
             "enum": [
@@ -2087,16 +2313,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ReviewRoleApplicationRes": {
+      "github.com.yueli-official.nav.api.api.v1.ReviewRoleApplicationRes": {
         "properties": {
           "application": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationApplicationView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleReq": {
+      "github.com.yueli-official.nav.api.api.v1.SetAuthorizationAutomaticRuleReq": {
         "properties": {
           "enabled": {
             "format": "bool",
@@ -2118,16 +2344,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleRes": {
+      "github.com.yueli-official.nav.api.api.v1.SetAuthorizationAutomaticRuleRes": {
         "properties": {
           "policy": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationPolicyView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesReq": {
+      "github.com.yueli-official.nav.api.api.v1.SetAuthorizationRoleCapabilitiesReq": {
         "properties": {
           "capabilities": {
             "format": "[]string",
@@ -2153,16 +2379,16 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes": {
+      "github.com.yueli-official.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes": {
         "properties": {
           "policy": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationPolicyView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationPolicyView",
             "description": ""
           }
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.SiteView": {
+      "github.com.yueli-official.nav.api.api.v1.SiteView": {
         "properties": {
           "description": {
             "format": "string",
@@ -2199,7 +2425,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.StatsView": {
+      "github.com.yueli-official.nav.api.api.v1.StatsView": {
         "properties": {
           "categoryCount": {
             "format": "int",
@@ -2216,7 +2442,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.TagView": {
+      "github.com.yueli-official.nav.api.api.v1.TagView": {
         "properties": {
           "linkCount": {
             "format": "int",
@@ -2229,7 +2455,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ValidateAuthorizationPolicyReq": {
+      "github.com.yueli-official.nav.api.api.v1.ValidateAuthorizationPolicyReq": {
         "properties": {
           "revision": {
             "format": "uint64",
@@ -2242,7 +2468,7 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.ValidateAuthorizationPolicyRes": {
+      "github.com.yueli-official.nav.api.api.v1.ValidateAuthorizationPolicyRes": {
         "properties": {
           "valid": {
             "format": "bool",
@@ -2259,7 +2485,7 @@
         },
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.WithdrawRoleApplicationReq": {
+      "github.com.yueli-official.nav.api.api.v1.WithdrawRoleApplicationReq": {
         "properties": {
           "id": {
             "format": "string",
@@ -2271,10 +2497,10 @@
         ],
         "type": "object"
       },
-      "platform.products.nav.api.api.v1.WithdrawRoleApplicationRes": {
+      "github.com.yueli-official.nav.api.api.v1.WithdrawRoleApplicationRes": {
         "properties": {
           "application": {
-            "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AuthorizationApplicationView",
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AuthorizationApplicationView",
             "description": ""
           }
         },
@@ -2294,7 +2520,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateCategoryReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryReq",
                 "description": ""
               }
             }
@@ -2305,7 +2531,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateCategoryRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryRes",
                   "description": ""
                 }
               }
@@ -2337,7 +2563,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteCategoryRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteCategoryRes",
                   "description": ""
                 }
               }
@@ -2404,7 +2630,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateCategoryRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateCategoryRes",
                   "description": ""
                 }
               }
@@ -2470,7 +2696,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListChecksRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListChecksRes",
                   "description": ""
                 }
               }
@@ -2490,7 +2716,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRunChecksReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRunChecksReq",
                 "description": ""
               }
             }
@@ -2501,7 +2727,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRunChecksRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes",
                   "description": ""
                 }
               }
@@ -2521,7 +2747,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateGroupReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateGroupReq",
                 "description": ""
               }
             }
@@ -2532,7 +2758,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateGroupRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateGroupRes",
                   "description": ""
                 }
               }
@@ -2564,7 +2790,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteGroupRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupRes",
                   "description": ""
                 }
               }
@@ -2629,7 +2855,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateGroupRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateGroupRes",
                   "description": ""
                 }
               }
@@ -2738,7 +2964,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListLinksRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListLinksRes",
                   "description": ""
                 }
               }
@@ -2756,7 +2982,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateLinkReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateLinkReq",
                 "description": ""
               }
             }
@@ -2767,7 +2993,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminCreateLinkRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateLinkRes",
                   "description": ""
                 }
               }
@@ -2787,7 +3013,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminBulkLinksReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinksReq",
                 "description": ""
               }
             }
@@ -2798,7 +3024,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminBulkLinksRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinksRes",
                   "description": ""
                 }
               }
@@ -2830,7 +3056,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteLinkRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkRes",
                   "description": ""
                 }
               }
@@ -2942,7 +3168,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateLinkRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateLinkRes",
                   "description": ""
                 }
               }
@@ -2956,6 +3182,134 @@
         ]
       }
     },
+    "/api/v1/admin/nav/members": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "enum": [
+                "active",
+                "suspended"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 20,
+              "format": "int",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListMembersRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "List navigation members",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
+    "/api/v1/admin/nav/members/{userKey}/status": {
+      "patch": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userKey",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "reason": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "active",
+                      "suspended"
+                    ],
+                    "format": "string",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSetMemberStatusRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Set navigation membership status",
+        "tags": [
+          "Admin Nav"
+        ]
+      }
+    },
     "/api/v1/admin/nav/settings": {
       "get": {
         "responses": {
@@ -2963,7 +3317,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminGetSettingsRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminGetSettingsRes",
                   "description": ""
                 }
               }
@@ -2981,7 +3335,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateSettingsReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsReq",
                 "description": ""
               }
             }
@@ -2992,7 +3346,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminUpdateSettingsRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsRes",
                   "description": ""
                 }
               }
@@ -3013,7 +3367,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListStructureRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListStructureRes",
                   "description": ""
                 }
               }
@@ -3044,7 +3398,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminListTagsRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListTagsRes",
                   "description": ""
                 }
               }
@@ -3064,7 +3418,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteTagReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteTagReq",
                 "description": ""
               }
             }
@@ -3075,7 +3429,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminDeleteTagRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteTagRes",
                   "description": ""
                 }
               }
@@ -3095,7 +3449,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRenameTagReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRenameTagReq",
                 "description": ""
               }
             }
@@ -3106,7 +3460,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.AdminRenameTagRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRenameTagRes",
                   "description": ""
                 }
               }
@@ -3126,7 +3480,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ApplyForRoleReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ApplyForRoleReq",
                 "description": ""
               }
             }
@@ -3137,7 +3491,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ApplyForRoleRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ApplyForRoleRes",
                   "description": ""
                 }
               }
@@ -3158,7 +3512,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ListMyApplicationsRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ListMyApplicationsRes",
                   "description": ""
                 }
               }
@@ -3190,7 +3544,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.WithdrawRoleApplicationRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.WithdrawRoleApplicationRes",
                   "description": ""
                 }
               }
@@ -3249,7 +3603,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ReviewRoleApplicationRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ReviewRoleApplicationRes",
                   "description": ""
                 }
               }
@@ -3270,7 +3624,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetAuthorizationConsoleRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetAuthorizationConsoleRes",
                   "description": ""
                 }
               }
@@ -3290,7 +3644,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationDraftReq",
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CreateAuthorizationDraftReq",
                 "description": ""
               }
             }
@@ -3301,7 +3655,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationDraftRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CreateAuthorizationDraftRes",
                   "description": ""
                 }
               }
@@ -3352,7 +3706,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ActivateAuthorizationPolicyRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ActivateAuthorizationPolicyRes",
                   "description": ""
                 }
               }
@@ -3408,7 +3762,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SetAuthorizationAutomaticRuleRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SetAuthorizationAutomaticRuleRes",
                   "description": ""
                 }
               }
@@ -3440,7 +3794,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.PreviewAuthorizationPolicyRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PreviewAuthorizationPolicyRes",
                   "description": ""
                 }
               }
@@ -3515,7 +3869,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.CreateAuthorizationRoleRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CreateAuthorizationRoleRes",
                   "description": ""
                 }
               }
@@ -3575,7 +3929,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes",
                   "description": ""
                 }
               }
@@ -3616,7 +3970,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.RetireAuthorizationRoleRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RetireAuthorizationRoleRes",
                   "description": ""
                 }
               }
@@ -3648,7 +4002,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ValidateAuthorizationPolicyRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ValidateAuthorizationPolicyRes",
                   "description": ""
                 }
               }
@@ -3669,7 +4023,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.ListRequestableRolesRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ListRequestableRolesRes",
                   "description": ""
                 }
               }
@@ -3690,7 +4044,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.MeRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MeRes",
                   "description": ""
                 }
               }
@@ -3711,7 +4065,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetCatalogRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetCatalogRes",
                   "description": ""
                 }
               }
@@ -3774,7 +4128,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetGroupRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetGroupRes",
                   "description": ""
                 }
               }
@@ -3806,7 +4160,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.RecordClickRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RecordClickRes",
                   "description": ""
                 }
               }
@@ -3838,43 +4192,43 @@
             "content": {
               "image/avif": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               },
               "image/gif": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               },
               "image/jpeg": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               },
               "image/png": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               },
               "image/vnd.microsoft.icon": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               },
               "image/webp": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               },
               "image/x-icon": {
                 "schema": {
-                  "$ref": "#/components/schemas/platform.products.nav.api.api.v1.GetFaviconRes",
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
                   "description": ""
                 }
               }

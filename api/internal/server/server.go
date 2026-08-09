@@ -7,6 +7,7 @@ import (
 	"github.com/yueli-official/nav/api/internal/catalog"
 	"github.com/yueli-official/nav/api/internal/controller"
 	"github.com/yueli-official/nav/api/internal/navauthz"
+	"github.com/yueli-official/nav/api/internal/navmember"
 	"github.com/yueli-official/nav/api/internal/runtime"
 )
 
@@ -14,6 +15,7 @@ type Deps struct {
 	Verifier      *foundationauth.Verifier
 	Catalog       *catalog.Service
 	Authorization *navauthz.Service
+	Membership    navmember.Directory
 	ReadyChecks   map[string]runtime.ReadinessCheck
 }
 
@@ -30,7 +32,10 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.GET("/readyz", runtime.ReadinessHandler(readyChecks))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware, runtime.OptionalAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
+		group.Middleware(
+			apiMiddleware, runtime.OptionalAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization),
+			controller.MembershipMiddleware(deps.Membership, deps.Authorization, false),
+		)
 		group.Bind(controller.NewMe())
 	})
 	if deps.Catalog == nil {
@@ -41,8 +46,12 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.Bind(controller.NewPublic(deps.Catalog))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware, runtime.RequiredAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization))
+		group.Middleware(
+			apiMiddleware, runtime.RequiredAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization),
+			controller.MembershipMiddleware(deps.Membership, deps.Authorization, true),
+		)
 		group.Bind(controller.NewAuthorization())
 		group.Bind(controller.NewAdmin(deps.Catalog))
+		group.Bind(controller.NewMembers(deps.Membership))
 	})
 }

@@ -30,6 +30,10 @@ func SiteSlug(ctx context.Context) string {
 	return g.Cfg().MustGet(ctx, "nav.siteSlug", "nav").String()
 }
 
+func IdentityBaseURL(ctx context.Context) string {
+	return g.Cfg().MustGet(ctx, "nav.identity.baseUrl", "http://localhost:8081").String()
+}
+
 // BootstrapAdministratorSubs seeds protected grants only when the
 // consumer-owned authorization instance is first created.
 func BootstrapAdministratorSubs(ctx context.Context) []string {

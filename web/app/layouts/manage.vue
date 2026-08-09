@@ -80,7 +80,14 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
   ...(isAdministrator.value
     ? [
         {
-          label: "权限与申请",
+          label: "成员",
+          icon: "i-tabler-users",
+          to: "/manage/members",
+          active: active("/manage/members"),
+          onSelect: closeSidebar,
+        },
+        {
+          label: "权限策略",
           icon: "i-tabler-shield-lock",
           to: "/manage/authorization",
           active: active("/manage/authorization"),
@@ -122,7 +129,7 @@ const searchGroups = computed<readonly AdminSearchGroup[]>(() => {
       ? [
           {
             id: "authorization",
-            label: "权限与申请",
+            label: "权限策略",
             icon: "i-tabler-shield-lock",
             to: "/manage/authorization",
           },

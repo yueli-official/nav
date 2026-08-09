@@ -7,6 +7,11 @@ const cookieSecure =
 export default defineNuxtConfig({
   extends: ["@yueli/identity-nuxt"],
   modules: ["@nuxt/ui", "@yueli/ui", "@yueli/nuxt-runtime"],
+  vite: {
+    optimizeDeps: {
+      include: ["zod"],
+    },
+  },
   icon: {
     serverBundle: { collections: ["tabler"] },
     clientBundle: {

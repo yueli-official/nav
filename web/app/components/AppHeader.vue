@@ -8,32 +8,89 @@ const { widthClass, brandName, brandTagline } = defineProps<{
 }>();
 const { openSearch } = useNavigationSearch();
 const { user } = useAuth();
-const { canManage, refresh: refreshMe } = useMe();
-const accountActions = computed<readonly AccountMenuAction[]>(() =>
-  canManage.value
-    ? [
+const {
+  accessStatus,
+  accessError,
+  refresh: refreshMe,
+  clear: clearMe,
+} = useMe();
+const accountActions = computed<readonly AccountMenuAction[]>(() => {
+  if (!user.value) return [];
+  switch (accessStatus.value) {
+    case "ready_manage":
+      return [
         {
-          label: "控制台",
+          label: "本站控制台",
+          description: "管理本站内容、设置与权限",
           icon: "i-tabler-layout-dashboard",
           to: "/manage",
         },
-      ]
-    : user.value
-      ? [
-          {
-            label: "申请维护导航",
-            icon: "i-tabler-user-edit",
-            to: "/contribute",
+      ];
+    case "ready_requestable":
+      return [
+        {
+          label: "申请成为内容维护者",
+          description: "申请本站当前开放的维护角色",
+          icon: "i-tabler-user-edit",
+          to: "/contribute",
+        },
+      ];
+    case "ready_no_access":
+      return [
+        {
+          label: "本站暂无维护权限",
+          description: "当前没有向你开放的维护角色",
+          icon: "i-tabler-user-off",
+          disabled: true,
+        },
+      ];
+    case "suspended":
+      return [
+        {
+          label: "本站成员资格已暂停",
+          description: "公开导航仍可浏览；已认证操作暂不可用",
+          icon: "i-tabler-user-pause",
+          disabled: true,
+        },
+      ];
+    case "error":
+      return [
+        {
+          label: "本站权限状态不可用 · 重试",
+          description: accessError.value?.correlationId
+            ? `读取失败，参考编号：${accessError.value.correlationId}`
+            : "未能读取本站授权",
+          icon: "i-tabler-refresh-alert",
+          onSelect: async () => {
+            await refreshMe();
           },
-        ]
-      : [],
-);
-onMounted(() => {
-  if (user.value) void refreshMe();
+        },
+      ];
+    case "resolving":
+    case "signed_out":
+      return [
+        {
+          label: "正在确认本站权限",
+          description: "正在读取本站授权",
+          icon: "i-tabler-loader-2",
+          disabled: true,
+        },
+      ];
+  }
 });
-watch(user, (value) => {
-  if (value) void refreshMe();
-});
+if (import.meta.client) {
+  watch(
+    () =>
+      user.value
+        ? `${user.value.sub}:${user.value.userKey || ""}`
+        : null,
+    (identity) => {
+      if (!identity) clearMe();
+      else void refreshMe();
+    },
+    { immediate: true },
+  );
+}
 </script>
 
 <template>

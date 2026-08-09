@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"github.com/google/uuid"
 	"github.com/yueli-official/foundation/go/audit"
+	"github.com/yueli-official/foundation/go/identifier"
 
 	"github.com/yueli-official/nav/api/internal/dao"
 	"github.com/yueli-official/nav/api/internal/model"
@@ -45,7 +45,7 @@ func (s *Service) linkAuditHook(
 		return nil
 	}
 	return s.audit.Hook(
-		ctx, action, uuid.NewString(),
+		ctx, action, identifier.MustNew().String(),
 		audit.Target{Type: targetType, ID: targetID},
 		navaudit.Evidence{Digest: digest, Count: uint64(count)},
 	)
@@ -57,7 +57,7 @@ func (s *Service) taxonomyAuditHook(ctx context.Context, kind, id string, count 
 	}
 	sum := sha256.Sum256([]byte(kind + "\x00" + id))
 	return s.audit.Hook(
-		ctx, navaudit.ActionTaxonomyChanged, uuid.NewString(),
+		ctx, navaudit.ActionTaxonomyChanged, identifier.MustNew().String(),
 		audit.Target{Type: "nav.taxonomy", ID: kind + ":" + id},
 		navaudit.Evidence{Digest: hex.EncodeToString(sum[:]), Count: uint64(count)},
 	)

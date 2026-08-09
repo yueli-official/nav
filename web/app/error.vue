@@ -2,6 +2,10 @@
 defineProps<{
   error: { statusCode?: number; statusMessage?: string; message?: string };
 }>();
+
+function retry() {
+  reloadNuxtApp({ force: true });
+}
 </script>
 
 <template>
@@ -14,7 +18,12 @@ defineProps<{
       <p class="text-muted">
         {{ error.statusMessage || error.message || "请稍后重试。" }}
       </p>
-      <UButton to="/" icon="i-tabler-home">返回首页</UButton>
+      <div class="flex flex-wrap justify-center gap-2">
+        <UButton icon="i-tabler-refresh" @click="retry">重试</UButton>
+        <UButton to="/" icon="i-tabler-home" color="neutral" variant="soft">
+          返回首页
+        </UButton>
+      </div>
     </main>
   </UApp>
 </template>

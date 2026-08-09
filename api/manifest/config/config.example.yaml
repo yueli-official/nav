@@ -19,9 +19,11 @@ database:
 nav:
   siteSlug: "nav-local"
   brand: "月离导航"
+  identity:
+    baseUrl: "http://localhost:8081"
   authorization:
     bootstrapAdministratorSubs:
-      - "usr_AAAAAAAAAAAAAAAAAAAAAA"
+      - "TestA123"
   jwks:
     url: "http://localhost:8081/oauth2/jwks.json"
     issuer: "http://localhost:8081"

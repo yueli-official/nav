@@ -172,7 +172,56 @@ export interface NavigationSettingsResponse {
 
 export interface NavMeView {
   sub: string;
+  userKey?: string;
   authenticated: boolean;
   isAdministrator: boolean;
   capabilities: string[];
+  membership?: {
+    status: "active" | "suspended";
+    joinedAt: string;
+    lastSeenAt: string;
+  };
+}
+
+export interface NavigationMemberRole {
+  key: string;
+  displayName: string;
+  source: string;
+}
+
+export interface NavigationMember {
+  userKey: string;
+  status: "active" | "suspended";
+  displayName: string;
+  handle: string;
+  avatarMediaKey?: string;
+  joinedAt: string;
+  lastSeenAt: string;
+  suspendedAt?: string;
+  suspendedBy?: string;
+  suspensionReason?: string;
+  submissionCount: number;
+  pendingApplications: number;
+  roles: NavigationMemberRole[];
+}
+
+export interface NavigationMemberCounts {
+  all: number;
+  active: number;
+  suspended: number;
+}
+
+export interface NavigationMemberRoleOption {
+  key: string;
+  displayName: string;
+  status: string;
+}
+
+export interface NavigationMembersResponse {
+  members: NavigationMember[];
+  counts: NavigationMemberCounts;
+  roles: NavigationMemberRoleOption[];
+  total: number;
+  page: number;
+  size: number;
 }

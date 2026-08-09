@@ -7,6 +7,7 @@ import (
 
 	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
+	"github.com/yueli-official/nav/api/internal/navidentity"
 )
 
 type Runtime interface {
@@ -17,6 +18,7 @@ type Runtime interface {
 	authorization.ResourceScopeRelocator
 	authorization.RoleManager
 	authorization.RoleReader
+	authorization.GrantReader
 	authorization.WorkflowManager
 	authorization.WorkflowReader
 	authorization.PolicyManager
@@ -46,8 +48,10 @@ func (service *Service) Subject(ctx context.Context) authorization.SubjectRef {
 		return authorization.SubjectRef{Kind: authorization.SubjectAnonymous}
 	}
 	subjectKind, _ := principal.Claim("subject_kind")
-	if subjectKind == "user" && principal.Subject != "" {
-		return authorization.SubjectRef{Kind: authorization.SubjectUser, ID: principal.Subject}
+	if subjectKind == "user" {
+		if userKey, ok := navidentity.PublicUserKey(principal); ok {
+			return authorization.SubjectRef{Kind: authorization.SubjectUser, ID: userKey}
+		}
 	}
 	if subjectKind == "client" && principal.ClientID != "" {
 		return authorization.SubjectRef{Kind: authorization.SubjectService, ID: principal.ClientID}
@@ -66,9 +70,6 @@ func (service *Service) Decide(
 			Kind: authorization.ErrorUnavailable, Field: "runtime", Message: "is not configured",
 		}
 	}
-	if err := service.ReconcileSubject(ctx); err != nil {
-		return authorization.Decision{}, err
-	}
 	return service.runtime.Decide(ctx, authorization.DecisionRequest{
 		Subject: service.Subject(ctx), Capability: capability, ScopeID: scopeID, Resource: resource,
 	})
@@ -80,15 +81,14 @@ func (service *Service) EffectiveAccess(ctx context.Context) (authorization.Effe
 			Kind: authorization.ErrorUnavailable, Field: "runtime", Message: "is not configured",
 		}
 	}
-	if err := service.ReconcileSubject(ctx); err != nil {
-		return authorization.EffectiveAccess{}, err
-	}
 	return service.runtime.EffectiveAccess(ctx, authorization.EffectiveAccessQuery{
 		Subject: service.Subject(ctx), ScopeID: RootScopeID,
 	})
 }
 
-func (service *Service) ReconcileSubject(ctx context.Context) error {
+// ReconcileNewMember evaluates automatic grants exactly once for the product
+// membership join event. Permission reads must never replay this lifecycle event.
+func (service *Service) ReconcileNewMember(ctx context.Context) error {
 	if service == nil || service.runtime == nil {
 		return &authorization.Error{
 			Kind: authorization.ErrorUnavailable, Field: "runtime", Message: "is not configured",

@@ -10,7 +10,8 @@
       "runtimeEvidence": [
         "issuer",
         "openid-configuration",
-        "jwks"
+        "jwks",
+        "public-users"
       ]
     }
   }

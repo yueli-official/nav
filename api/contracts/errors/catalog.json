@@ -14,6 +14,14 @@
       "status": 403
     },
     {
+      "code": "nav.membership_suspended",
+      "status": 403
+    },
+    {
+      "code": "nav.membership_unavailable",
+      "status": 503
+    },
+    {
       "code": "nav.not_found",
       "status": 404
     },

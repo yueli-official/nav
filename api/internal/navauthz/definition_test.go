@@ -10,8 +10,8 @@ import (
 	"github.com/yueli-official/nav/api/internal/testidentity"
 )
 
-func TestServiceReconcilesEnabledAutomaticCuratorOnFirstAuthenticatedAccess(t *testing.T) {
-	admin := authorization.SubjectRef{Kind: authorization.SubjectUser, ID: "admin"}
+func TestServiceReconcilesEnabledAutomaticCuratorOnlyForNewMemberEvent(t *testing.T) {
+	admin := authorization.SubjectRef{Kind: authorization.SubjectUser, ID: "TestA123"}
 	module, err := authorization.NewMemory(
 		authorization.MustCompile(navauthz.Definition()),
 		authorization.MemoryOptions{
@@ -41,10 +41,22 @@ func TestServiceReconcilesEnabledAutomaticCuratorOnFirstAuthenticatedAccess(t *t
 		t.Fatalf("ActivatePolicy() error = %v", err)
 	}
 	service := navauthz.New(module, nil)
-	userContext := foundationauth.NewContext(ctx, testidentity.User(t, "registered-user", nil, nil))
+	userContext := foundationauth.NewContext(ctx, testidentity.User(t, "TestB234", nil, nil))
 	access, err := service.EffectiveAccess(userContext)
 	if err != nil {
 		t.Fatalf("EffectiveAccess() error = %v", err)
+	}
+	for _, grant := range access.Grants {
+		if grant.Role == navauthz.RoleCurator {
+			t.Fatalf("ordinary access unexpectedly reconciled grant: %#v", access.Grants)
+		}
+	}
+	if err := service.ReconcileNewMember(userContext); err != nil {
+		t.Fatalf("ReconcileNewMember() error = %v", err)
+	}
+	access, err = service.EffectiveAccess(userContext)
+	if err != nil {
+		t.Fatalf("EffectiveAccess() after join error = %v", err)
 	}
 	found := false
 	for _, grant := range access.Grants {

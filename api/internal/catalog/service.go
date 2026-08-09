@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/gogf/gf/v2/os/gtime"
-	"github.com/google/uuid"
 	"github.com/yueli-official/foundation/go/audit"
+	"github.com/yueli-official/foundation/go/identifier"
 	"github.com/yueli-official/foundation/go/siteprofile"
 
 	"github.com/yueli-official/nav/api/internal/dao"
@@ -331,7 +331,7 @@ func (s *Service) CreateLink(ctx context.Context, input LinkInput) (*model.Link,
 		return nil, err
 	}
 	if link.ID == "" {
-		link.ID = uuid.NewString()
+		link.ID = identifier.MustNew().String()
 	}
 	exists, err := s.store.LinkExists(ctx, link.ID)
 	if err != nil {
@@ -465,7 +465,7 @@ func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (B
 		if store, ok := s.store.(auditedStore); ok && s.audit != nil {
 			changed, err = store.BulkDeleteLinksWithHook(
 				ctx, eligible,
-				s.linkAuditHook(ctx, navaudit.ActionNavigationDeleted, "nav.link_batch", uuid.NewString(), "", len(eligible)),
+				s.linkAuditHook(ctx, navaudit.ActionNavigationDeleted, "nav.link_batch", identifier.MustNew().String(), "", len(eligible)),
 			)
 		} else {
 			changed, err = s.store.BulkDeleteLinks(ctx, eligible)
@@ -474,7 +474,7 @@ func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (B
 		if store, ok := s.store.(auditedStore); ok && s.audit != nil {
 			changed, err = store.BulkUpdateLinksWithHook(
 				ctx, eligible, status,
-				s.linkAuditHook(ctx, navigationAction(status), "nav.link_batch", uuid.NewString(), "", len(eligible)),
+				s.linkAuditHook(ctx, navigationAction(status), "nav.link_batch", identifier.MustNew().String(), "", len(eligible)),
 			)
 		} else {
 			changed, err = s.store.BulkUpdateLinks(ctx, eligible, status)
@@ -500,7 +500,7 @@ func (s *Service) CreateCategory(ctx context.Context, input model.Category) (*mo
 	if err != nil {
 		return nil, err
 	}
-	category.ID = uuid.NewString()
+	category.ID = identifier.MustNew().String()
 	var insertErr error
 	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
 		insertErr = store.InsertCategoryWithHook(ctx, category, s.taxonomyAuditHook(ctx, "category", category.ID, 0))
@@ -557,7 +557,7 @@ func (s *Service) CreateGroup(ctx context.Context, input model.Group) (*model.Gr
 	if err != nil {
 		return nil, err
 	}
-	group.ID = uuid.NewString()
+	group.ID = identifier.MustNew().String()
 	var insertErr error
 	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
 		insertErr = store.InsertGroupWithHook(ctx, group, s.taxonomyAuditHook(ctx, "group", group.ID, 0))
@@ -706,7 +706,7 @@ func (s *Service) SaveAdminSiteSettings(
 			return nil
 		}
 		hook := s.audit.Hook(
-			ctx, navaudit.ActionSiteProfilePublished, uuid.NewString(),
+			ctx, navaudit.ActionSiteProfilePublished, identifier.MustNew().String(),
 			audit.Target{Type: "nav.site_profile", ID: "default"},
 			navaudit.Evidence{
 				Revision: uint64(result.Snapshot.Revision),

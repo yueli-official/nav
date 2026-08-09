@@ -1,12 +1,9 @@
 <script setup lang="ts">
+import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
-  ManageClientBoundary,
-  ManageEmpty,
-  SkeletonList,
-} from "~/utils/manageComponents";
-import {
-  CollectionFooter,
-  CollectionToolbar,
+  CollectionPanel,
+  type CollectionPanelMessages,
+  type CollectionPanelState,
 } from "@yueli/ui/collection/pattern";
 import { z } from "zod";
 import type { NavigationTag, NavigationTagsResponse } from "~/types/navigation";
@@ -61,6 +58,35 @@ const totalPages = computed(() =>
 const pagedTags = computed(() =>
   tags.value.slice((page.value - 1) * size.value, page.value * size.value),
 );
+const pageSizes = [15, 30, 50] as const;
+const panelState = computed<CollectionPanelState>(() =>
+  error.value ? "error" : pending.value ? "loading" : "ready",
+);
+const messages = computed<CollectionPanelMessages>(() => ({
+  searchPlaceholder: "搜索标签名称…",
+  searchAction: "搜索",
+  filtersAction: "筛选",
+  activeFilters: (count) => `筛选（${count}）`,
+  clearFilters: "清除筛选",
+  selectPage: "选择当前页标签",
+  selectItem: (label) => `选择标签：${label}`,
+  bulkRegion: "标签批量操作",
+  selected: (count) => `已选择 ${count} 个标签`,
+  selectAllResults: "选择全部结果",
+  clearSelection: "取消选择",
+  emptyTitle: q.value ? "没有匹配的标签" : "还没有标签",
+  emptyDescription: q.value
+    ? "请调整搜索词后重试。"
+    : "为站点添加标签后会显示在这里。",
+  errorTitle: "标签列表加载失败",
+  retry: "重新加载",
+  showing: (first, last, count) => `显示 ${first}–${last}，共 ${count} 个`,
+  pageSize: "每页",
+  pageSizeControl: "每页标签数量",
+  pageSizeOption: (value) => `${value} 个`,
+}));
+const tagKey = (tag: NavigationTag) => tag.name;
+const tagLabel = (tag: NavigationTag) => tag.name;
 watch(
   totalPages,
   (lastPage) => {
@@ -68,6 +94,13 @@ watch(
   },
   { flush: "sync" },
 );
+
+function submitSearch(value: string) {
+  if (timer) clearTimeout(timer);
+  search.value = value;
+  q.value = value.trim();
+  page.value = 1;
+}
 
 function openEdit(tag: NavigationTag) {
   if (!canManageStructure.value) return;
@@ -135,7 +168,7 @@ async function remove() {
     description="统一重命名、合并重复词或解除关联；变更会作用于所有关联链接。"
     icon="i-tabler-hash"
     main-id="manage-main"
-    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+    body-class="mx-auto flex min-h-0 w-full max-w-screen-2xl flex-col gap-4 !overflow-hidden"
   >
     <UAlert
       v-if="!canManageStructure"
@@ -146,82 +179,77 @@ async function remove() {
     />
 
     <ManageClientBoundary :rows="6">
-      <CollectionToolbar
-        v-model:search="search"
-        search-placeholder="搜索标签名称…"
-      />
-      <UAlert
-        v-if="error"
-        color="error"
-        icon="i-tabler-alert-circle"
-        title="标签加载失败"
-        description="请检查 Nav API 与数据库状态。"
-      />
-      <SkeletonList v-else-if="pending" :rows="6" />
-      <ManageEmpty
-        v-else-if="!pagedTags.length"
-        icon="i-tabler-hash-off"
-        :text="
-          q ? '没有匹配的标签' : '还没有标签；为站点添加标签后会显示在这里'
-        "
-      />
-
-      <div
-        v-else
-        class="divide-y divide-default overflow-hidden rounded-xl border border-default bg-default"
-      >
-        <article
-          v-for="tag in pagedTags"
-          :key="tag.name"
-          class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3"
+      <div class="flex min-h-0 flex-1 flex-col gap-3">
+        <CollectionPanel
+          data-tag-list-panel
+          class="flex min-h-0 flex-1 flex-col [&>[aria-live=polite]]:min-h-0 [&>[aria-live=polite]]:flex-1 [&>[aria-live=polite]]:overflow-y-auto [&>[aria-live=polite]]:overscroll-contain [&>footer]:shrink-0"
+          v-model:search="search"
+          :items="pagedTags"
+          :item-key="tagKey"
+          :item-label="tagLabel"
+          :messages="messages"
+          :state="panelState"
+          error-message="请检查 Nav API、数据库和登录状态。"
+          :total="tags.length"
+          :page="page"
+          :page-size="size"
+          :page-sizes="pageSizes"
+          label="标签列表"
+          @search="submitSearch"
+          @retry="refresh"
+          @page-change="page = $event"
+          @page-size-change="size = $event"
         >
-          <button
-            type="button"
-            class="flex min-w-0 items-center gap-3 text-left disabled:cursor-default"
-            :disabled="!canManageStructure"
-            @click="openEdit(tag)"
-          >
-            <span
-              class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"
-              ><UIcon name="i-tabler-hash" class="size-5"
-            /></span>
-            <span class="min-w-0"
-              ><span
-                class="block truncate text-sm font-medium text-highlighted"
-                >{{ tag.name }}</span
-              ><span class="mt-0.5 block text-xs text-muted"
-                >关联 {{ tag.linkCount }} 个站点</span
-              ></span
+          <template #columns>
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
+              <span>标签与关联站点</span>
+              <span class="w-16 text-right">操作</span>
+            </div>
+          </template>
+
+          <template #item="{ item: tag }">
+            <div
+              class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3"
             >
-          </button>
-          <div class="flex items-center gap-1">
-            <UTooltip text="重命名或合并"
-              ><UButton
-                icon="i-tabler-pencil"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                square
-                :aria-label="`编辑标签：${tag.name}`"
+              <button
+                type="button"
+                class="flex min-w-0 items-center gap-3 text-left disabled:cursor-default"
                 :disabled="!canManageStructure"
                 @click="openEdit(tag)"
-            /></UTooltip>
-          </div>
-        </article>
+              >
+                <span
+                  class="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary"
+                >
+                  <UIcon name="i-tabler-hash" class="size-5" />
+                </span>
+                <span class="min-w-0">
+                  <span
+                    class="block truncate text-sm font-medium text-highlighted"
+                    >{{ tag.name }}</span
+                  >
+                  <span class="mt-0.5 block text-xs text-muted"
+                    >关联 {{ tag.linkCount }} 个站点</span
+                  >
+                </span>
+              </button>
+              <div class="flex w-16 items-center justify-end">
+                <UTooltip text="重命名或合并">
+                  <UButton
+                    icon="i-tabler-pencil"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    square
+                    :aria-label="`编辑标签：${tag.name}`"
+                    :disabled="!canManageStructure"
+                    @click="openEdit(tag)"
+                  />
+                </UTooltip>
+              </div>
+            </div>
+          </template>
+        </CollectionPanel>
       </div>
-
-      <CollectionFooter
-        v-if="tags.length"
-        v-model:page="page"
-        v-model:size="size"
-        :total="tags.length"
-        :total-pages="totalPages"
-        label="标签统计与分页"
-      >
-        <template #selection
-          ><span class="text-xs">共 {{ tags.length }} 个标签</span></template
-        >
-      </CollectionFooter>
     </ManageClientBoundary>
 
     <USlideover v-model:open="panelOpen" title="重命名或合并标签">

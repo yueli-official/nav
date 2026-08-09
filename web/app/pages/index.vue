@@ -9,8 +9,10 @@ definePageMeta({ width: "full" });
 
 const ALL_GROUPS = "__all__";
 const GROUP_PREVIEW_SIZE = 4;
+const FEATURED_DISMISS_SCROLL_Y = 80;
 const route = useRoute();
 const router = useRouter();
+const isFeaturedDismissed = ref(false);
 
 function queryValue(value: unknown) {
   if (Array.isArray(value)) return typeof value[0] === "string" ? value[0] : "";
@@ -104,6 +106,26 @@ async function retryLoad() {
   await refresh();
 }
 
+async function dismissFeaturedOnScroll() {
+  if (
+    isFeaturedDismissed.value ||
+    window.scrollY < FEATURED_DISMISS_SCROLL_Y
+  )
+    return;
+  isFeaturedDismissed.value = true;
+  await nextTick();
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", dismissFeaturedOnScroll, {
+    passive: true,
+  });
+});
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", dismissFeaturedOnScroll);
+});
+
 useSeoMeta({
   title: () => data.value?.site.name,
   description: () => data.value?.site.description,
@@ -113,8 +135,11 @@ useSeoMeta({
 </script>
 
 <template>
-  <div class="min-w-0 space-y-7 overflow-x-hidden">
-    <NavigationFeatured v-if="data" :entries="allEntries" />
+  <div class="min-w-0 space-y-7 overflow-x-clip">
+    <NavigationFeatured
+      v-if="data && !isFeaturedDismissed"
+      :entries="allEntries"
+    />
 
     <div
       v-if="error"
@@ -151,10 +176,7 @@ useSeoMeta({
       id="catalog"
       class="grid min-w-0 scroll-mt-24 gap-7 lg:grid-cols-[15rem_minmax(0,1fr)] xl:grid-cols-[16rem_minmax(0,1fr)]"
     >
-      <aside
-        class="min-w-0 lg:sticky lg:top-23 lg:self-start"
-        aria-label="导航分类"
-      >
+      <aside class="min-w-0" aria-label="导航分类">
         <div class="lg:hidden">
           <USelectMenu
             v-model="selectedCategoryId"
@@ -173,7 +195,7 @@ useSeoMeta({
         </div>
 
         <div
-          class="hidden overflow-hidden rounded-xl border border-default bg-default lg:block"
+          class="hidden overflow-hidden rounded-xl border border-default bg-default lg:sticky lg:top-23 lg:block"
         >
           <div class="border-b border-default px-4 py-3">
             <p
@@ -206,52 +228,6 @@ useSeoMeta({
               }}</span>
             </button>
           </nav>
-          <template v-if="selectedCategory?.groups.length">
-            <div class="border-t border-default px-4 py-3">
-              <p
-                class="text-xs font-semibold uppercase tracking-[0.12em] text-dimmed"
-              >
-                当前主题
-              </p>
-            </div>
-            <nav class="space-y-0.5 p-2 pt-0">
-              <button
-                type="button"
-                class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs"
-                :class="
-                  selectedGroupId === ALL_GROUPS
-                    ? 'bg-elevated font-medium text-default'
-                    : 'text-muted hover:text-default'
-                "
-                @click="selectedGroupId = ALL_GROUPS"
-              >
-                <span>全部主题</span
-                ><span>{{
-                  selectedCategory.groups.reduce(
-                    (sum, group) => sum + group.linkCount,
-                    0,
-                  )
-                }}</span>
-              </button>
-              <button
-                v-for="group in selectedCategory.groups"
-                :key="group.id"
-                type="button"
-                class="flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs"
-                :class="
-                  selectedGroupId === group.id
-                    ? 'bg-elevated font-medium text-default'
-                    : 'text-muted hover:text-default'
-                "
-                @click="selectedGroupId = group.id"
-              >
-                <span class="truncate">{{ group.title }}</span
-                ><span class="ml-2 tabular-nums text-dimmed">{{
-                  group.linkCount
-                }}</span>
-              </button>
-            </nav>
-          </template>
         </div>
       </aside>
 
@@ -261,49 +237,53 @@ useSeoMeta({
           class="space-y-7"
           :aria-labelledby="`${selectedCategory.id}-title`"
         >
-          <div
-            class="flex min-w-0 items-start gap-3 border-b border-default pb-5"
-          >
-            <span
-              class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
-              ><UIcon :name="selectedCategory.icon" class="size-6"
-            /></span>
-            <div class="min-w-0">
-              <h2
-                :id="`${selectedCategory.id}-title`"
-                class="font-display text-2xl font-semibold tracking-tight text-highlighted"
-              >
-                {{ selectedCategory.title }}
-              </h2>
-              <p class="mt-1 max-w-[66ch] text-sm leading-6 text-muted">
-                {{ selectedCategory.description }}
-              </p>
+          <div class="space-y-4 border-b border-default pb-5">
+            <div class="flex min-w-0 items-start gap-3">
+              <span
+                class="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"
+                ><UIcon :name="selectedCategory.icon" class="size-6"
+              /></span>
+              <div class="min-w-0">
+                <h2
+                  :id="`${selectedCategory.id}-title`"
+                  class="font-display text-2xl font-semibold tracking-tight text-highlighted"
+                >
+                  {{ selectedCategory.title }}
+                </h2>
+                <p class="mt-1 max-w-[66ch] text-sm leading-6 text-muted">
+                  {{ selectedCategory.description }}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="min-w-0 overflow-x-auto overflow-y-hidden pb-1 lg:hidden">
-            <div class="flex min-w-max gap-2">
-              <UButton
-                :color="selectedGroupId === ALL_GROUPS ? 'primary' : 'neutral'"
-                :variant="selectedGroupId === ALL_GROUPS ? 'soft' : 'ghost'"
-                label="全部主题"
-                @click="
-                  () => {
-                    selectedGroupId = ALL_GROUPS;
-                  }
-                "
-              /><UButton
-                v-for="group in selectedCategory.groups"
-                :key="group.id"
-                :color="selectedGroupId === group.id ? 'primary' : 'neutral'"
-                :variant="selectedGroupId === group.id ? 'soft' : 'ghost'"
-                :label="group.title"
-                @click="
-                  () => {
-                    selectedGroupId = group.id;
-                  }
-                "
-              />
+            <div
+              class="min-w-0 overflow-x-auto overflow-y-hidden pb-1"
+              role="group"
+              :aria-label="`筛选${selectedCategory.title}中的主题`"
+            >
+              <div class="flex min-w-max gap-2">
+                <UButton
+                  :color="selectedGroupId === ALL_GROUPS ? 'primary' : 'neutral'"
+                  :variant="selectedGroupId === ALL_GROUPS ? 'soft' : 'ghost'"
+                  label="全部主题"
+                  @click="
+                    () => {
+                      selectedGroupId = ALL_GROUPS;
+                    }
+                  "
+                /><UButton
+                  v-for="group in selectedCategory.groups"
+                  :key="group.id"
+                  :color="selectedGroupId === group.id ? 'primary' : 'neutral'"
+                  :variant="selectedGroupId === group.id ? 'soft' : 'ghost'"
+                  :label="group.title"
+                  @click="
+                    () => {
+                      selectedGroupId = group.id;
+                    }
+                  "
+                />
+              </div>
             </div>
           </div>
 

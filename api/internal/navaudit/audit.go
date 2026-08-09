@@ -6,10 +6,11 @@ import (
 	"io"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/yueli-official/foundation/go/audit"
 	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
+	"github.com/yueli-official/foundation/go/identifier"
+	"github.com/yueli-official/nav/api/internal/navidentity"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -161,7 +162,7 @@ func (journal *Journal) Export(
 		return audit.ExportManifest{}, err
 	}
 	command, err := audit.Prepare(journal.contracts[ActionDataExported], audit.Attempt[Evidence]{
-		ID: audit.EventID(uuid.NewString()), Actor: actorFromContext(ctx),
+		ID: audit.EventID(identifier.MustNew().String()), Actor: actorFromContext(ctx),
 		Target:      audit.Target{Type: "nav.data_export", ID: string(manifest.ContentDigest)},
 		Outcome:     audit.Outcome{Kind: audit.OutcomeSucceeded},
 		Correlation: correlationFromContext(ctx),
@@ -181,6 +182,9 @@ func actorFromContext(ctx context.Context) audit.Actor {
 		kind, _ := principal.Claim("subject_kind")
 		switch kind {
 		case "user":
+			if userKey, ok := navidentity.PublicUserKey(principal); ok {
+				return audit.Actor{Kind: audit.ActorUser, ID: userKey}
+			}
 			return audit.Actor{Kind: audit.ActorUser, ID: principal.Subject}
 		case "guest":
 			return audit.Actor{Kind: audit.ActorGuest, ID: principal.Subject}

@@ -1,22 +1,17 @@
 import type { NavigationResponse } from "../../app/types/navigation";
+import { decodeNavApiResponse } from "../../app/utils/apiCompat";
 
-interface Envelope<T> {
-  code: string;
-  data: T;
-  message: string;
-  traceId: string;
-}
-
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async (event): Promise<NavigationResponse> => {
   const config = useRuntimeConfig(event);
-  const response = await $fetch<Envelope<NavigationResponse>>(
+  const response: unknown = await $fetch<unknown>(
     `${config.apiBase}/api/v1/nav/catalog`,
   );
-  if (response.code !== "ok") {
+  try {
+    return decodeNavApiResponse<NavigationResponse>(response);
+  } catch {
     throw createError({
       statusCode: 502,
-      statusMessage: response.message || "Navigation API request failed",
+      statusMessage: "Navigation API request failed",
     });
   }
-  return response.data;
 });
