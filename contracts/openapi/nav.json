@@ -1151,7 +1151,7 @@
       "github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionReq": {
         "properties": {
           "exempt": {
-            "format": "bool",
+            "format": "*bool",
             "type": "boolean"
           },
           "id": {
@@ -1160,8 +1160,8 @@
           }
         },
         "required": [
-          "exempt",
-          "id"
+          "id",
+          "exempt"
         ],
         "type": "object"
       },
@@ -2894,7 +2894,7 @@
               "schema": {
                 "properties": {
                   "exempt": {
-                    "format": "bool",
+                    "format": "*bool",
                     "type": "boolean"
                   }
                 },
