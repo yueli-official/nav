@@ -149,8 +149,7 @@ const searchGroups = computed<readonly AdminSearchGroup[]>(() => {
 </script>
 
 <template>
-  <ClientOnly>
-    <YAdminShell
+  <YAdminShell
       v-model:open="sidebarOpen"
       :navigation="navigation"
       :search-groups="searchGroups"
@@ -207,15 +206,5 @@ const searchGroups = computed<readonly AdminSearchGroup[]>(() => {
         label="返回顶部"
       />
       <ManageSidebarPrototypeSwitcher />
-    </YAdminShell>
-
-    <template #fallback>
-      <div
-        class="fixed inset-0 grid place-items-center bg-default text-sm text-muted"
-        role="status"
-      >
-        正在打开控制台
-      </div>
-    </template>
-  </ClientOnly>
+  </YAdminShell>
 </template>

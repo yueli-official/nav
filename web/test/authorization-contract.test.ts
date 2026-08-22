@@ -24,7 +24,13 @@ describe("instance-local authorization contracts", () => {
   });
 
   test("uses the public admin shell and capability-specific pages", () => {
-    expect(read("app/layouts/manage.vue")).toContain("<YAdminShell");
+    const layout = read("app/layouts/manage.vue");
+    expect(layout).toContain("<YAdminShell");
+    expect(layout).toMatch(/<template>\s*<YAdminShell/);
+    expect(layout).not.toMatch(
+      /<template>\s*<ClientOnly>[\s\S]*?<YAdminShell/,
+    );
+    expect(layout).not.toMatch(/正在打开[^\n]{0,16}控制台/);
     const expectations = new Map([
       ["app/pages/manage/index.vue", "nav.link.update"],
       ["app/pages/manage/categories.vue", "nav.structure.manage"],
