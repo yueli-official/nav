@@ -25,11 +25,13 @@ describe("instance-local authorization contracts", () => {
 
   test("uses the public admin shell and capability-specific pages", () => {
     const layout = read("app/layouts/manage.vue");
-    expect(layout).toContain("<YAdminShell");
-    expect(layout).toMatch(/<template>\s*<YAdminShell/);
+    expect(layout).toContain("<YAdminConsoleLayout");
+    expect(layout).toMatch(/<template>\s*<YAdminConsoleLayout/);
     expect(layout).not.toMatch(
-      /<template>\s*<ClientOnly>[\s\S]*?<YAdminShell/,
+      /<template>\s*<ClientOnly>[\s\S]*?<YAdminConsoleLayout/,
     );
+    expect(layout).toContain(':current-label="currentLabel"');
+    expect(layout).toContain('currentLocation: "当前位置"');
     expect(layout).not.toMatch(/正在打开[^\n]{0,16}控制台/);
     const expectations = new Map([
       ["app/pages/manage/index.vue", "nav.link.update"],
@@ -41,7 +43,7 @@ describe("instance-local authorization contracts", () => {
     ]);
     for (const [path, capability] of expectations) {
       const source = read(path);
-      expect(source).toContain("<YAdminPage");
+      expect(source).toContain("<ManagePage");
       expect(source).toContain(capability);
     }
   });

@@ -7,21 +7,25 @@ import type {
 
 const route = useRoute();
 const { brand } = useSiteRuntime();
-const sidebarOpen = ref(false);
 const { can, isAdministrator } = useMe();
-const sidebarAppearance = computed(() =>
-  route.query.sidebar === "baseline" ? "framed" : "commercial",
-);
+
+const currentLabel = computed(() => {
+  if (route.path === "/manage") return "站点链接";
+  if (route.path.startsWith("/manage/categories")) return "分类与主题";
+  if (route.path.startsWith("/manage/tags")) return "标签治理";
+  if (route.path.startsWith("/manage/checks")) return "链接检查";
+  if (route.path.startsWith("/manage/settings")) return "站点设置";
+  if (route.path.startsWith("/manage/members")) return "成员";
+  if (route.path.startsWith("/manage/authorization")) return "权限策略";
+  return "站点链接";
+});
 
 const messages: AdminShellMessages = {
   skipToContent: "跳到主要内容",
-  search: "搜索后台",
+  search: "搜索控制台",
   searchPlaceholder: "搜索页面与常用操作",
+  currentLocation: "当前位置",
 };
-
-function closeSidebar() {
-  sidebarOpen.value = false;
-}
 
 function active(path: string, exact = false) {
   return exact ? route.path === path : route.path.startsWith(path);
@@ -35,7 +39,6 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
           icon: "i-tabler-world-www",
           to: "/manage",
           active: active("/manage", true),
-          onSelect: closeSidebar,
         },
       ]
     : []),
@@ -46,14 +49,12 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
           icon: "i-tabler-folders",
           to: "/manage/categories",
           active: active("/manage/categories"),
-          onSelect: closeSidebar,
         },
         {
           label: "标签治理",
           icon: "i-tabler-hash",
           to: "/manage/tags",
           active: active("/manage/tags"),
-          onSelect: closeSidebar,
         },
       ]
     : []),
@@ -64,7 +65,6 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
           icon: "i-tabler-heartbeat",
           to: "/manage/checks",
           active: active("/manage/checks"),
-          onSelect: closeSidebar,
         },
       ]
     : []),
@@ -75,7 +75,6 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
           icon: "i-tabler-settings",
           to: "/manage/settings",
           active: active("/manage/settings"),
-          onSelect: closeSidebar,
         },
       ]
     : []),
@@ -86,14 +85,12 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
           icon: "i-tabler-users",
           to: "/manage/members",
           active: active("/manage/members"),
-          onSelect: closeSidebar,
         },
         {
           label: "权限策略",
           icon: "i-tabler-shield-lock",
           to: "/manage/authorization",
           active: active("/manage/authorization"),
-          onSelect: closeSidebar,
         },
       ]
     : []),
@@ -149,62 +146,42 @@ const searchGroups = computed<readonly AdminSearchGroup[]>(() => {
 </script>
 
 <template>
-  <YAdminShell
-      v-model:open="sidebarOpen"
-      :navigation="navigation"
-      :search-groups="searchGroups"
-      :messages="messages"
-      :sidebar-appearance="sidebarAppearance"
-      storage-key="nav-manage"
-      main-id="manage-main"
-      :default-size="16"
-      :min-size="14"
-      :max-size="20"
-    >
-      <template #brand="{ collapsed }">
-        <UButton
-          to="/"
-          color="neutral"
-          variant="ghost"
-          :block="!collapsed"
-          :square="collapsed"
-          :aria-label="`返回${brand}首页`"
-          :class="[
-            'min-h-11 gap-2 px-1.5',
-            !collapsed && 'w-full justify-start',
-            collapsed && 'aspect-square justify-center px-0',
-          ]"
-          @click="closeSidebar"
-        >
-          <span
-            class="grid size-7 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"
-          >
-            <UIcon name="i-tabler-compass" class="size-4" />
-          </span>
-          <span
-            v-if="!collapsed"
-            class="min-w-0 truncate text-sm font-semibold text-highlighted"
-          >
-            {{ brand }}
-          </span>
-        </UButton>
-      </template>
-
-      <template #sidebar-footer="{ collapsed }">
-        <ConsumerManageAccountControl
-          home-to=""
-          show-appearance
-          :trigger-mode="collapsed ? 'collapsed' : 'sidebar'"
-        />
-      </template>
-
-      <slot />
-      <YBackToTop
-        target-id="manage-main"
-        scroll-container-id="manage-main"
-        avoid-selector="[data-manage-dock], [data-back-to-top-avoid]"
-        label="返回顶部"
+  <YAdminConsoleLayout
+    :navigation="navigation"
+    :search-groups="searchGroups"
+    :messages="messages"
+    storage-key="nav-manage"
+    main-id="manage-main"
+    :brand-label="brand"
+    brand-icon="i-tabler-compass"
+    brand-to="/"
+    :context-label="brand"
+    :current-label="currentLabel"
+    back-to-top-label="返回顶部"
+    data-nav-manage-shell
+  >
+    <template #account="{ collapsed }">
+      <ConsumerManageAccountControl
+        home-to=""
+        show-appearance
+        :trigger-mode="collapsed ? 'collapsed' : 'sidebar'"
       />
-      <ManageSidebarPrototypeSwitcher />
-  </YAdminShell>
+    </template>
+    <slot />
+  </YAdminConsoleLayout>
 </template>
+
+<style scoped>
+@media (max-width: 640px) {
+  [data-nav-manage-shell] :deep(button),
+  [data-nav-manage-shell] :deep(a[href]),
+  [data-nav-manage-shell] :deep(summary) {
+    min-height: 44px;
+  }
+
+  [data-nav-manage-shell] :deep(button[aria-label]),
+  [data-nav-manage-shell] :deep(a[aria-label]) {
+    min-width: 44px;
+  }
+}
+</style>

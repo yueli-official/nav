@@ -300,13 +300,13 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
   FORM: grounded candidate 3，relationship ledger；seed c73a0b46。
   FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
   -->
-  <YAdminPage
+  <ManagePage
     id="members"
     title="成员"
     description="查看谁已加入本站、当前成员状态及其权限与活动；账号资料仍由用户中心管理。"
     icon="i-tabler-users"
     main-id="manage-main"
-    body-class="mx-auto flex min-h-0 w-full max-w-screen-2xl flex-col gap-4 !overflow-hidden"
+    body-class="flex min-h-0 w-full flex-col gap-5"
   >
     <ManageClientBoundary :rows="8">
       <div class="flex min-h-0 flex-1 flex-col">
@@ -672,5 +672,5 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
         </div>
       </template>
     </UModal>
-  </YAdminPage>
+  </ManagePage>
 </template>

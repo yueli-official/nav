@@ -186,13 +186,13 @@ async function remove() {
 </script>
 
 <template>
-  <YAdminPage
+  <ManagePage
     id="structure"
     title="分类与主题"
     description="维护公开导航结构；分类是一级入口，主题用于组织同类站点。"
     icon="i-tabler-folders"
     main-id="manage-main"
-    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+    body-class="w-full space-y-5"
   >
       <template #actions
         ><UButton
@@ -436,5 +436,5 @@ async function remove() {
           /></div
       ></template>
     </UModal>
-  </YAdminPage>
+  </ManagePage>
 </template>

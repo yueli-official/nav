@@ -449,13 +449,13 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
 </script>
 
 <template>
-  <YAdminPage
+  <ManagePage
     id="checks"
     title="链接检查"
     description="按结果筛选站点可访问性；受地区或代理限制的站点可设为免检，最后一次结果仍会保留。"
     icon="i-tabler-heartbeat"
     main-id="manage-main"
-    body-class="mx-auto flex min-h-0 w-full max-w-screen-2xl flex-col gap-4 !overflow-hidden"
+    body-class="flex min-h-0 w-full flex-col gap-5"
   >
     <template #actions>
       <UButton
@@ -688,5 +688,5 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
         </CollectionPanel>
       </div>
     </ManageClientBoundary>
-  </YAdminPage>
+  </ManagePage>
 </template>

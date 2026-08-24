@@ -181,13 +181,13 @@ function discard() {
 </script>
 
 <template>
-  <YAdminPage
+  <ManagePage
     id="settings"
     title="站点设置"
     description="管理公开站点资料、精选说明、搜索提示与页脚内容。"
     icon="i-tabler-settings"
     main-id="manage-main"
-    body-class="mx-auto w-full max-w-screen-2xl"
+    body-class="w-full"
   >
     <template #actions>
       <UButton
@@ -423,5 +423,5 @@ function discard() {
       </SettingsLayout>
       </ManageClientBoundary>
     </UForm>
-  </YAdminPage>
+  </ManagePage>
 </template>

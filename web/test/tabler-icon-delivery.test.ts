@@ -30,5 +30,8 @@ test("every persisted category icon is in the build-time Tabler allowlist", () =
   }
 
   expect(config).toContain("category-tabler.v1.json");
-  expect(config).toContain("tablerIcons: categoryTablerIcons");
+  expect(config).toContain("icons: categoryTablerIcons.map");
+  expect(config).toContain('icon.replace(/^i-tabler-/, "tabler:")');
+  expect(config).toContain('provider: "none"');
+  expect(config).toContain("fallbackToApi: false");
 });

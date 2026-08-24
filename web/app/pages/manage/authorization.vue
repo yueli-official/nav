@@ -171,13 +171,13 @@ function createRole() {
 </script>
 
 <template>
-  <YAdminPage
+  <ManagePage
     id="authorization"
     title="权限策略"
     description="配置本站角色、能力、申请流程与新成员自动授权；成员目录在独立页面管理。"
     icon="i-tabler-shield-lock"
     main-id="manage-main"
-    body-class="mx-auto w-full max-w-screen-2xl space-y-4"
+    body-class="w-full space-y-5"
   >
     <template #actions>
       <UButton
@@ -395,5 +395,5 @@ function createRole() {
         </div>
       </template>
     </UModal>
-  </YAdminPage>
+  </ManagePage>
 </template>

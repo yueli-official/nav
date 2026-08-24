@@ -481,13 +481,13 @@ async function executeBatch() {
 </script>
 
 <template>
-  <YAdminPage
+  <ManagePage
     id="links"
     title="站点链接"
     description="搜索、筛选并维护导航入口；审核动作与内容维护相互独立。"
     icon="i-tabler-world-www"
     main-id="manage-main"
-    body-class="mx-auto flex min-h-0 w-full max-w-screen-2xl flex-col gap-4 !overflow-hidden"
+    body-class="flex min-h-0 w-full flex-col gap-5"
   >
       <template #actions>
         <UButton
@@ -725,5 +725,5 @@ async function executeBatch() {
           /></div
       ></template>
     </UModal>
-  </YAdminPage>
+  </ManagePage>
 </template>

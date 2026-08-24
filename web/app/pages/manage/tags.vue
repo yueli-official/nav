@@ -162,13 +162,13 @@ async function remove() {
 </script>
 
 <template>
-  <YAdminPage
+  <ManagePage
     id="tags"
     title="标签治理"
     description="统一重命名、合并重复词或解除关联；变更会作用于所有关联链接。"
     icon="i-tabler-hash"
     main-id="manage-main"
-    body-class="mx-auto flex min-h-0 w-full max-w-screen-2xl flex-col gap-4 !overflow-hidden"
+    body-class="flex min-h-0 w-full flex-col gap-5"
   >
     <UAlert
       v-if="!canManageStructure"
@@ -347,5 +347,5 @@ async function remove() {
           /></div
       ></template>
     </UModal>
-  </YAdminPage>
+  </ManagePage>
 </template>
