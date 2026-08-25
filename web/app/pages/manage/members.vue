@@ -267,15 +267,6 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
     );
     selected.value = result.member;
     suspendOpen.value = false;
-    toast.add({
-      title: nextStatus === "suspended" ? "成员资格已暂停" : "成员资格已恢复",
-      description:
-        nextStatus === "suspended"
-          ? "该成员仍可浏览公开导航，但已认证操作已被阻止。"
-          : "该成员现在可以继续使用本站已认证功能。",
-      color: "success",
-      icon: nextStatus === "suspended" ? "i-tabler-user-pause" : "i-tabler-user-check",
-    });
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };

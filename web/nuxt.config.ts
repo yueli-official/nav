@@ -26,20 +26,30 @@ export default defineNuxtConfig({
     },
   },
   icon: {
+    provider: "none",
+    fallbackToApi: false,
     serverBundle: { collections: ["tabler"] },
     clientBundle: {
+      icons: categoryTablerIcons.map((icon) =>
+        icon.replace(/^i-tabler-/, "tabler:"),
+      ),
       scan: {
         globInclude: [
-          "app/**/*.{vue,ts}",
-          "node_modules/@yueli/**/*.{vue,js,mjs,ts}",
+          "app/**/*.{vue,js,mjs,ts,jsx,tsx}",
+          "node_modules/@yueli/**/*.{vue,js,mjs,ts,jsx,tsx}",
         ],
-        globExclude: ["test/**", "tests/**", ".*"],
+        globExclude: [
+          "test/**",
+          "tests/**",
+          "coverage/**",
+          "dist/**",
+          ".nuxt/**",
+          ".output/**",
+          ".*",
+        ],
       },
       sizeLimitKb: 256,
     },
-  },
-  yueliUi: {
-    tablerIcons: categoryTablerIcons,
   },
   yueliRuntime: {
     defaultTarget: "platform",

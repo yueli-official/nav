@@ -46,13 +46,12 @@ const { data, pending, error, refresh } = await useAsyncData(
 const consoleState = computed(() => data.value);
 const draft = computed(() => consoleState.value?.policy.state === "draft");
 
-async function mutate(task: () => Promise<unknown>, success: string) {
+async function mutate(task: () => Promise<unknown>, _success: string) {
   if (busy.value) return;
   busy.value = true;
   try {
     const result = await task();
     if (result === false) return;
-    toast.add({ title: success, color: "success", icon: "i-tabler-check" });
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
