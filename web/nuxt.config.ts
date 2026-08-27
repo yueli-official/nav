@@ -57,14 +57,14 @@ export default defineNuxtConfig({
       platform: {
         path: "/",
         ssr: {
-          cookies: ["rs_session"],
+          cookies: [],
           headers: ["accept-language", "user-agent"],
         },
       },
       identity: {
         path: "/identity-api",
         ssr: {
-          cookies: ["rs_session"],
+          cookies: [],
           headers: ["accept-language", "user-agent"],
         },
       },
