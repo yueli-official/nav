@@ -184,7 +184,6 @@ function discard() {
   <ManagePage
     id="settings"
     title="站点设置"
-    description="管理公开站点资料、精选说明、搜索提示与页脚内容。"
     icon="i-tabler-settings"
     main-id="manage-main"
     body-class="w-full"
@@ -209,7 +208,6 @@ function discard() {
       <SettingsLayout
         v-model:active-section="section"
         :title="activeSection.label"
-        :description="activeSection.description"
         :sections="sections"
         navigation-label="设置分区"
         :show-header="false"
@@ -228,7 +226,6 @@ function discard() {
         <SettingSection
           v-if="pending"
           title="正在加载设置"
-          description="读取当前站点的已保存配置。"
         >
           <div class="grid gap-4" role="status" aria-label="正在加载设置">
             <USkeleton class="h-9 w-full" />
@@ -259,7 +256,6 @@ function discard() {
         <SettingSection
           v-else-if="section === 'site'"
           title="品牌与分享信息"
-          description="这些内容用于公开页页头、浏览器标题和社交分享摘要。"
         >
           <div class="grid gap-5">
             <UFormField
@@ -305,7 +301,6 @@ function discard() {
         <SettingSection
           v-else-if="section === 'featured'"
           title="本周值得逛"
-          description="首页精选是内容治理能力，不在站点文案中维护。"
         >
           <div class="space-y-4">
             <div
@@ -357,7 +352,6 @@ function discard() {
         <SettingSection
           v-else-if="section === 'search'"
           title="全局搜索"
-          description="搜索按钮、快捷键和首页精选区共用同一个搜索面板。"
         >
           <div class="grid gap-5">
             <UFormField
@@ -393,7 +387,6 @@ function discard() {
         <SettingSection
           v-else
           title="页脚说明"
-          description="保持简短，说明这个导航站为什么存在。"
         >
           <UFormField
             name="footerTagline"
