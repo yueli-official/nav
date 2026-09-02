@@ -209,7 +209,7 @@ function memberKey(member: NavigationMember) {
 function avatarURL(member: NavigationMember) {
   if (!member.avatarMediaKey || avatarFailures.value.has(member.userKey)) return "";
   const account = String(runtime.public.accountUrl || "").replace(/\/$/, "");
-  return `${account}/media/${encodeURIComponent(member.avatarMediaKey)}?format=webp&name=thumbnail`;
+  return `${account}/media/${encodeURIComponent(member.avatarMediaKey)}?format=webp&name=thumbnail&v=1`;
 }
 
 function markAvatarFailed(userKey: string) {
