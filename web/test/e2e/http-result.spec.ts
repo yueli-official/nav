@@ -54,7 +54,9 @@ test("real category/group/link lifecycle returns raw DTOs, 201 and empty 204", a
   const group = await context.request.post("/api/v1/admin/nav/groups", {data:{categoryId:categoryID,title:"HTTP group test",description:"",sortOrder:0}});
   groupID=(await group.json()).group.id;
   expect(group.status()).toBe(201);
-  expect.soft(group.headers().location, "BFF must preserve creation Location").toContain(groupID);
+  expect(group.headers().location, "BFF must preserve creation Location").toBe("/api/v1/nav/groups/"+groupID);
+  const groupRead=await context.request.get(group.headers().location!);
+  expect(groupRead.status()).toBe(200);
   const input={categoryId:categoryID,groupId:groupID,title:"HTTP link test",url:"https://example.com/",description:"Contract validation",kind:"tool",status:"draft",tags:[],keywords:[],sortOrder:0};
   const created=await context.request.post("/api/v1/admin/nav/links",{data:input});
   expect(created.status()).toBe(201); linkID=(await created.json()).link.id;
@@ -76,6 +78,22 @@ test("real category/group/link lifecycle returns raw DTOs, 201 and empty 204", a
   if(categoryID) await context.request.delete("/api/v1/admin/nav/categories/"+categoryID);
   await context.close();
  }
+});
+
+test("accepted check jobs expose a usable Location and top-level operation DTO", async ({browser}) => {
+ const context=await authenticated(browser);
+ try {
+  const response=await context.request.post("/api/v1/admin/nav/checks/run", {data:{scope:"filtered",q:"__nav_http_result_no_matching_links__"}});
+  expect(response.status()).toBe(202);
+  const job=await response.json();
+  expect(job.id).toEqual(expect.any(String));
+  expect(["running","completed"]).toContain(job.status);
+  expect(job).not.toHaveProperty("job");
+  expect(response.headers().location).toBe("/api/v1/admin/nav/checks/jobs/"+job.id);
+  const status=await context.request.get(response.headers().location!);
+  expect(status.status()).toBe(200);
+  expect((await status.json()).id).toBe(job.id);
+ } finally {await context.close();}
 });
 
 test("settings keeps field violations, unknown summary and separate trace details", async ({browser}) => {

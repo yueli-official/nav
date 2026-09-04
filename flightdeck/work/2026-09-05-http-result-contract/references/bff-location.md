@@ -16,7 +16,7 @@ for the asset profile. The normal API profile used by Identity's inherited
 projection hook; changing all Nav API requests to asset profile would widen
 redirect and download-header behavior.
 
-## Proposed shared fix
+## Implemented shared fix
 
 Within Foundation createBffHandler, after copying permitted response headers:
 
@@ -33,5 +33,8 @@ Tests: 201/202 forwarding, differing mount/target prefix rewrite, invalid paths
 and external origins rejected, existing API 302 filtering and Asset 302 behavior.
 Then rerun Nav's real browser lifecycle and job Location tests.
 
-This requires a Foundation-owned change. No Foundation source was modified in
-this Nav session. Tag/package release remains a separate action.
+Foundation now implements this behavior in the nuxt-runtime 0.1.4 local candidate.
+The 39 module tests, typecheck/lint, packaged HTTP smoke and 3 browser conformance
+tests pass. Nav's five real browser tests pass, including 201 resource and 202 job
+Location follow-up GETs. Package/tag release and consumer artifact updates remain
+owned by the Workspace release-hardening Work.
