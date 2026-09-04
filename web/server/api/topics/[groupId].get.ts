@@ -1,5 +1,4 @@
 import type { NavigationGroupResponse } from "../../../app/types/navigation";
-import { decodeNavApiResponse } from "../../../app/utils/apiCompat";
 
 export default defineEventHandler(
   async (
@@ -22,7 +21,7 @@ export default defineEventHandler(
       throw createError({ statusCode: 502, message: "导航服务暂时不可用" });
     }
     try {
-      return decodeNavApiResponse<NavigationGroupResponse>(response);
+      return response as NavigationGroupResponse;
     } catch {
       throw createError({ statusCode: 502, message: "导航服务暂时不可用" });
     }

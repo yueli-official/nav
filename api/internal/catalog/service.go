@@ -23,7 +23,7 @@ import (
 	"github.com/yueli-official/nav/api/internal/dao"
 	"github.com/yueli-official/nav/api/internal/model"
 	"github.com/yueli-official/nav/api/internal/navaudit"
-	"github.com/yueli-official/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/navcause"
 	"github.com/yueli-official/nav/api/internal/navprofile"
 )
 
@@ -190,7 +190,7 @@ func (s *Service) PublicGroup(ctx context.Context, groupID string, page, size in
 	}
 	groupIndex := slices.IndexFunc(groups, func(group *model.Group) bool { return group.ID == groupID })
 	if groupIndex < 0 {
-		return nil, naverr.NotFound(groupID)
+		return nil, navcause.NotFound(groupID)
 	}
 	group := groups[groupIndex]
 	categories, err := s.store.Categories(ctx)
@@ -199,7 +199,7 @@ func (s *Service) PublicGroup(ctx context.Context, groupID string, page, size in
 	}
 	categoryIndex := slices.IndexFunc(categories, func(category *model.Category) bool { return category.ID == group.CategoryID })
 	if categoryIndex < 0 {
-		return nil, naverr.NotFound(group.CategoryID)
+		return nil, navcause.NotFound(group.CategoryID)
 	}
 	page, size = max(page, 1), min(max(size, 1), 60)
 	filter := dao.LinkFilter{GroupID: groupID, Status: StatusPublished, Page: page, Size: size, Sort: sort}
@@ -227,7 +227,7 @@ func (s *Service) RecordClick(ctx context.Context, id string) (bool, error) {
 		return false, err
 	}
 	if !recorded {
-		return false, naverr.NotFound(id)
+		return false, navcause.NotFound(id)
 	}
 	return true, nil
 }
@@ -278,39 +278,39 @@ func (s *Service) AdminChecks(ctx context.Context, filter dao.LinkFilter) (*Admi
 func (s *Service) SetHealthCheckExemption(ctx context.Context, id string, exempt bool) (*model.Link, error) {
 	id = strings.TrimSpace(id)
 	if id == "" {
-		return nil, naverr.Validation("id", "required", nil)
+		return nil, navcause.Validation("id", "required", nil)
 	}
 	updated, err := s.store.UpdateLinkCheckExempt(ctx, id, exempt)
 	if err != nil {
 		return nil, err
 	}
 	if !updated {
-		return nil, naverr.NotFound(id)
+		return nil, navcause.NotFound(id)
 	}
 	link, err := s.store.LinkByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 	if link == nil {
-		return nil, naverr.NotFound(id)
+		return nil, navcause.NotFound(id)
 	}
 	return link, nil
 }
 
 func (s *Service) RunChecks(ctx context.Context, ids []string) ([]*model.Link, error) {
 	if len(ids) > 50 {
-		return nil, naverr.Validation("ids", "maximum", map[string]any{"max": 50})
+		return nil, navcause.Validation("ids", "maximum", map[string]any{"max": 50})
 	}
 	ids = normalize(ids, max(len(ids), 1))
 	if len(ids) == 0 {
-		return nil, naverr.Validation("ids", "required", nil)
+		return nil, navcause.Validation("ids", "required", nil)
 	}
 	links, err := s.store.LinksByIDs(ctx, ids)
 	if err != nil {
 		return nil, err
 	}
 	if len(links) != len(ids) {
-		return nil, naverr.NotFound("one_or_more_links")
+		return nil, navcause.NotFound("one_or_more_links")
 	}
 	return s.runLinkChecks(ctx, checkableLinks(links))
 }
@@ -355,7 +355,7 @@ func (s *Service) runLinkChecksWithProgress(ctx context.Context, links []*model.
 				updated, updateErr := s.store.UpdateLinkHealth(ctx, link.ID, health)
 				if updateErr != nil || !updated {
 					if updateErr == nil {
-						updateErr = naverr.NotFound(link.ID)
+						updateErr = navcause.NotFound(link.ID)
 					}
 					errOnce.Do(func() { firstErr = updateErr })
 					continue
@@ -410,7 +410,7 @@ func (s *Service) CreateLink(ctx context.Context, input LinkInput) (*model.Link,
 		return nil, err
 	}
 	if exists {
-		return nil, naverr.Conflict(link.ID)
+		return nil, navcause.Conflict(link.ID)
 	}
 	var insertErr error
 	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
@@ -442,7 +442,7 @@ func (s *Service) Link(ctx context.Context, id string) (*model.Link, error) {
 		return nil, err
 	}
 	if link == nil {
-		return nil, naverr.NotFound(id)
+		return nil, navcause.NotFound(id)
 	}
 	return link, nil
 }
@@ -466,7 +466,7 @@ func (s *Service) UpdateLink(ctx context.Context, id string, input LinkInput) (*
 		return nil, err
 	}
 	if !updated {
-		return nil, naverr.NotFound(id)
+		return nil, navcause.NotFound(id)
 	}
 	current, err := s.store.LinkByID(ctx, link.ID)
 	if err != nil {
@@ -496,7 +496,7 @@ func (s *Service) DeleteLink(ctx context.Context, id string) error {
 		return err
 	}
 	if !deleted {
-		return naverr.NotFound(id)
+		return navcause.NotFound(id)
 	}
 	return nil
 }
@@ -508,16 +508,16 @@ type BulkResult struct {
 
 func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (BulkResult, error) {
 	if len(ids) > 100 {
-		return BulkResult{}, naverr.Validation("ids", "maximum", map[string]any{"max": 100})
+		return BulkResult{}, navcause.Validation("ids", "maximum", map[string]any{"max": 100})
 	}
 	ids = normalize(ids, max(len(ids), 1))
 	if len(ids) == 0 {
-		return BulkResult{}, naverr.Validation("ids", "required", nil)
+		return BulkResult{}, navcause.Validation("ids", "required", nil)
 	}
 	statuses := map[string]string{"publish": "published", "draft": "draft", "archive": "archived"}
 	status, statusAction := statuses[action]
 	if action != "delete" && !statusAction {
-		return BulkResult{}, naverr.Validation("action", "one_of", map[string]any{"allowed": []string{"publish", "draft", "archive", "delete"}})
+		return BulkResult{}, navcause.Validation("action", "one_of", map[string]any{"allowed": []string{"publish", "draft", "archive", "delete"}})
 	}
 	eligible := make([]string, 0, len(ids))
 	failed := make([]string, 0)
@@ -605,7 +605,7 @@ func (s *Service) UpdateCategory(ctx context.Context, id string, input model.Cat
 		return nil, err
 	}
 	if !updated {
-		return nil, naverr.NotFound(id)
+		return nil, navcause.NotFound(id)
 	}
 	return category, nil
 }
@@ -623,7 +623,7 @@ func (s *Service) DeleteCategory(ctx context.Context, id string) error {
 		return err
 	}
 	if !deleted {
-		return naverr.Conflict(strings.TrimSpace(id))
+		return navcause.Conflict(strings.TrimSpace(id))
 	}
 	return nil
 }
@@ -662,7 +662,7 @@ func (s *Service) UpdateGroup(ctx context.Context, id string, input model.Group)
 		return nil, err
 	}
 	if !updated {
-		return nil, naverr.NotFound(id)
+		return nil, navcause.NotFound(id)
 	}
 	return group, nil
 }
@@ -680,7 +680,7 @@ func (s *Service) DeleteGroup(ctx context.Context, id string) error {
 		return err
 	}
 	if !deleted {
-		return naverr.Conflict(strings.TrimSpace(id))
+		return navcause.Conflict(strings.TrimSpace(id))
 	}
 	return nil
 }
@@ -692,10 +692,10 @@ func (s *Service) Tags(ctx context.Context, query string) ([]*model.Tag, error) 
 func (s *Service) RenameTag(ctx context.Context, source, target string) (int, error) {
 	source, target = strings.TrimSpace(source), strings.TrimSpace(target)
 	if source == "" || target == "" {
-		return 0, naverr.Validation("tag", "required", nil)
+		return 0, navcause.Validation("tag", "required", nil)
 	}
 	if strings.EqualFold(source, target) {
-		return 0, naverr.Validation("target", "different", nil)
+		return 0, navcause.Validation("target", "different", nil)
 	}
 	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
 		return store.RenameTagWithHook(ctx, source, target, s.taxonomyAuditHook(ctx, "tag", source, 0))
@@ -706,7 +706,7 @@ func (s *Service) RenameTag(ctx context.Context, source, target string) (int, er
 func (s *Service) DeleteTag(ctx context.Context, name string) (int, error) {
 	name = strings.TrimSpace(name)
 	if name == "" {
-		return 0, naverr.Validation("name", "required", nil)
+		return 0, navcause.Validation("name", "required", nil)
 	}
 	if store, ok := s.store.(auditedStore); ok && s.audit != nil {
 		return store.DeleteTagWithHook(ctx, name, s.taxonomyAuditHook(ctx, "tag", name, 0))
@@ -723,7 +723,7 @@ func (s *Service) PublicSite(ctx context.Context) (Site, error) {
 		return Site{}, err
 	}
 	if settings == nil {
-		return Site{}, naverr.NotInitialized("site_settings")
+		return Site{}, navcause.NotInitialized("site_settings")
 	}
 	projection, err := s.profiles.PublicAt(ctx)
 	if err != nil {
@@ -741,7 +741,7 @@ func (s *Service) AdminSiteSettings(ctx context.Context) (AdminSiteSettings, err
 		return AdminSiteSettings{}, err
 	}
 	if settings == nil {
-		return AdminSiteSettings{}, naverr.NotInitialized("site_settings")
+		return AdminSiteSettings{}, navcause.NotInitialized("site_settings")
 	}
 	snapshot, err := s.profiles.Get(ctx)
 	if err != nil {
@@ -764,7 +764,7 @@ func (s *Service) SaveAdminSiteSettings(
 ) (AdminSiteSettings, error) {
 	searchPlaceholder = strings.TrimSpace(searchPlaceholder)
 	if searchPlaceholder == "" {
-		return AdminSiteSettings{}, naverr.Validation("searchPlaceholder", "required", nil)
+		return AdminSiteSettings{}, navcause.Validation("searchPlaceholder", "required", nil)
 	}
 	store, ok := s.store.(profileSettingsStore)
 	if !ok {
@@ -792,7 +792,7 @@ func (s *Service) SaveAdminSiteSettings(
 		return hook(ctx, tx)
 	})
 	if errors.Is(err, dao.ErrSiteSettingsRevisionConflict) {
-		return AdminSiteSettings{}, naverr.RevisionConflict()
+		return AdminSiteSettings{}, navcause.RevisionConflict()
 	}
 	if err != nil {
 		return AdminSiteSettings{}, mapSiteProfileError(err)
@@ -814,7 +814,7 @@ func (s *Service) EnsureSiteProfile(ctx context.Context) error {
 			return settingsErr
 		}
 		if settings == nil || strings.TrimSpace(settings.SearchPlaceholder) == "" {
-			return naverr.NotInitialized("site_settings")
+			return navcause.NotInitialized("site_settings")
 		}
 		return store.CutoverSiteSettingsWithHook(ctx, settings.SearchPlaceholder, nil)
 	} else if !errors.Is(err, siteprofile.ErrNotInitialized) {
@@ -835,7 +835,7 @@ func (s *Service) EnsureSiteProfile(ctx context.Context) error {
 		}
 	}
 	if strings.TrimSpace(legacy.SearchPlaceholder) == "" {
-		return naverr.Validation("searchPlaceholder", "required", nil)
+		return navcause.Validation("searchPlaceholder", "required", nil)
 	}
 	return store.CutoverSiteSettingsWithHook(ctx, legacy.SearchPlaceholder, func(ctx context.Context, tx *sql.Tx) error {
 		_, replaceErr := s.profiles.ReplaceTx(ctx, tx, siteprofile.ReplaceCommand{
@@ -850,9 +850,25 @@ func mapSiteProfileError(err error) error {
 	var validation *siteprofile.ValidationError
 	switch {
 	case errors.As(err, &conflict):
-		return naverr.RevisionConflict()
+		return &navcause.Cause{Kind: navcause.KindRevisionConflict, Cause: err}
 	case errors.As(err, &validation):
-		return naverr.Validation("profile", "invalid", map[string]any{"message": validation.Error()})
+		violations := make([]navcause.Violation, 0, len(validation.Diagnostics))
+		for _, diagnostic := range validation.Diagnostics {
+			path := strings.NewReplacer("[", ".", "]", "").Replace(diagnostic.Path)
+			parts := strings.Split(path, ".")
+			for i := range parts {
+				parts[i] = strings.NewReplacer("~", "~0", "/", "~1").Replace(parts[i])
+			}
+			pointer := "/profile"
+			if path != "" {
+				pointer += "/" + strings.Join(parts, "/")
+			}
+			violations = append(violations, navcause.Violation{Pointer: pointer, Rule: diagnostic.Code})
+		}
+		if len(violations) == 0 {
+			violations = append(violations, navcause.Violation{Pointer: "/profile", Rule: "invalid"})
+		}
+		return &navcause.Cause{Kind: navcause.KindValidation, Cause: err, Violations: violations}
 	default:
 		return err
 	}
@@ -926,16 +942,16 @@ func validateCategory(input model.Category) (*model.Category, error) {
 	input.Description = strings.TrimSpace(input.Description)
 	input.Icon = strings.TrimSpace(input.Icon)
 	if input.Title == "" {
-		return nil, naverr.Validation("title", "required", nil)
+		return nil, navcause.Validation("title", "required", nil)
 	}
 	if input.Icon == "" {
 		input.Icon = "i-tabler-folder"
 	}
 	if !iconcontract.IsCategoryTablerIcon(input.Icon) {
-		return nil, naverr.Validation("icon", "one_of", map[string]any{"allowed": iconcontract.CategoryTablerIcons()})
+		return nil, navcause.Validation("icon", "one_of", map[string]any{"allowed": iconcontract.CategoryTablerIcons()})
 	}
 	if input.SortOrder < 0 {
-		return nil, naverr.Validation("sortOrder", "minimum", map[string]any{"min": 0})
+		return nil, navcause.Validation("sortOrder", "minimum", map[string]any{"min": 0})
 	}
 	return &input, nil
 }
@@ -946,20 +962,20 @@ func (s *Service) validateGroup(ctx context.Context, input model.Group) (*model.
 	input.Title = strings.TrimSpace(input.Title)
 	input.Description = strings.TrimSpace(input.Description)
 	if input.CategoryID == "" {
-		return nil, naverr.Validation("categoryId", "required", nil)
+		return nil, navcause.Validation("categoryId", "required", nil)
 	}
 	if input.Title == "" {
-		return nil, naverr.Validation("title", "required", nil)
+		return nil, navcause.Validation("title", "required", nil)
 	}
 	if input.SortOrder < 0 {
-		return nil, naverr.Validation("sortOrder", "minimum", map[string]any{"min": 0})
+		return nil, navcause.Validation("sortOrder", "minimum", map[string]any{"min": 0})
 	}
 	categories, err := s.store.Categories(ctx)
 	if err != nil {
 		return nil, err
 	}
 	if !slices.ContainsFunc(categories, func(category *model.Category) bool { return category.ID == input.CategoryID }) {
-		return nil, naverr.Validation("categoryId", "not_found", nil)
+		return nil, navcause.Validation("categoryId", "not_found", nil)
 	}
 	return &input, nil
 }
@@ -975,36 +991,36 @@ func (s *Service) validate(ctx context.Context, input LinkInput) (*model.Link, e
 	input.Status = strings.TrimSpace(input.Status)
 	input.SubmitterSub = strings.TrimSpace(input.SubmitterSub)
 	if input.Title == "" {
-		return nil, naverr.Validation("title", "required", nil)
+		return nil, navcause.Validation("title", "required", nil)
 	}
 	if input.URL == "" {
-		return nil, naverr.Validation("url", "required", nil)
+		return nil, navcause.Validation("url", "required", nil)
 	}
 	if input.Description == "" {
-		return nil, naverr.Validation("description", "required", nil)
+		return nil, navcause.Validation("description", "required", nil)
 	}
 	parsed, err := url.ParseRequestURI(input.URL)
 	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
-		return nil, naverr.Validation("url", "absolute_http_url", nil)
+		return nil, navcause.Validation("url", "absolute_http_url", nil)
 	}
 	if !slices.Contains(allowedKinds, input.Kind) {
-		return nil, naverr.Validation("kind", "one_of", map[string]any{"allowed": allowedKinds})
+		return nil, navcause.Validation("kind", "one_of", map[string]any{"allowed": allowedKinds})
 	}
 	if input.Status == "" {
 		input.Status = "draft"
 	}
 	if !slices.Contains(allowedStatuses, input.Status) {
-		return nil, naverr.Validation("status", "one_of", map[string]any{"allowed": allowedStatuses})
+		return nil, navcause.Validation("status", "one_of", map[string]any{"allowed": allowedStatuses})
 	}
 	if input.SortOrder < 0 {
-		return nil, naverr.Validation("sortOrder", "minimum", map[string]any{"min": 0})
+		return nil, navcause.Validation("sortOrder", "minimum", map[string]any{"min": 0})
 	}
 	validGroup, err := s.store.GroupBelongsToCategory(ctx, input.GroupID, input.CategoryID)
 	if err != nil {
 		return nil, err
 	}
 	if !validGroup {
-		return nil, naverr.Validation("groupId", "category_mismatch", map[string]any{"categoryId": input.CategoryID})
+		return nil, navcause.Validation("groupId", "category_mismatch", map[string]any{"categoryId": input.CategoryID})
 	}
 	return &model.Link{
 		ID:           input.ID,

@@ -683,12 +683,7 @@
         "type": "object"
       },
       "github.com.yueli-official.nav.api.api.v1.AdminDeleteCategoryRes": {
-        "properties": {
-          "deleted": {
-            "format": "bool",
-            "type": "boolean"
-          }
-        },
+        "properties": {},
         "type": "object"
       },
       "github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupReq": {
@@ -704,12 +699,7 @@
         "type": "object"
       },
       "github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupRes": {
-        "properties": {
-          "deleted": {
-            "format": "bool",
-            "type": "boolean"
-          }
-        },
+        "properties": {},
         "type": "object"
       },
       "github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkReq": {
@@ -725,12 +715,7 @@
         "type": "object"
       },
       "github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkRes": {
-        "properties": {
-          "deleted": {
-            "format": "bool",
-            "type": "boolean"
-          }
-        },
+        "properties": {},
         "type": "object"
       },
       "github.com.yueli-official.nav.api.api.v1.AdminDeleteTagReq": {
@@ -768,9 +753,37 @@
       },
       "github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobRes": {
         "properties": {
-          "job": {
-            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CheckJobView",
-            "description": ""
+          "completed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "string",
+            "type": "string"
+          },
+          "finishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "scope": {
+            "format": "string",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -834,7 +847,7 @@
             "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.HealthCountsView",
             "description": ""
           },
-          "links": {
+          "items": {
             "format": "[]v1.LinkView",
             "items": {
               "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
@@ -929,7 +942,7 @@
             "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LifecycleCountsView",
             "description": ""
           },
-          "links": {
+          "items": {
             "format": "[]v1.LinkView",
             "items": {
               "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
@@ -1000,7 +1013,7 @@
             "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MembershipStatusCountsView",
             "description": ""
           },
-          "members": {
+          "items": {
             "format": "[]v1.MemberView",
             "items": {
               "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MemberView",
@@ -1059,7 +1072,7 @@
       },
       "github.com.yueli-official.nav.api.api.v1.AdminListTagsRes": {
         "properties": {
-          "tags": {
+          "items": {
             "format": "[]v1.TagView",
             "items": {
               "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TagView",
@@ -1137,13 +1150,41 @@
       },
       "github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes": {
         "properties": {
-          "job": {
-            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CheckJobView",
-            "description": ""
+          "completed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "string",
+            "type": "string"
+          },
+          "finishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
           },
           "reused": {
             "format": "bool",
             "type": "boolean"
+          },
+          "scope": {
+            "format": "string",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -1632,43 +1673,6 @@
           "title": {
             "format": "string",
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "github.com.yueli-official.nav.api.api.v1.CheckJobView": {
-        "properties": {
-          "completed": {
-            "format": "int",
-            "type": "integer"
-          },
-          "error": {
-            "format": "string",
-            "type": "string"
-          },
-          "finishedAt": {
-            "format": "string",
-            "type": "string"
-          },
-          "id": {
-            "format": "string",
-            "type": "string"
-          },
-          "scope": {
-            "format": "string",
-            "type": "string"
-          },
-          "startedAt": {
-            "format": "string",
-            "type": "string"
-          },
-          "status": {
-            "format": "string",
-            "type": "string"
-          },
-          "total": {
-            "format": "int",
-            "type": "integer"
           }
         },
         "type": "object"
@@ -2628,7 +2632,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2660,7 +2664,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2938,7 +2942,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -2970,7 +2974,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3173,7 +3177,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3236,7 +3240,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3671,7 +3675,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3835,7 +3839,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {
@@ -4049,7 +4053,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "content": {
               "application/json": {
                 "schema": {

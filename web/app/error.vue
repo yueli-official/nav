@@ -16,7 +16,7 @@ function retry() {
       </p>
       <h1 class="text-3xl font-bold">页面暂时不可用</h1>
       <p class="text-muted">
-        {{ error.statusMessage || error.message || "请稍后重试。" }}
+        {{ error.statusCode === 404 ? "页面不存在或已被移除。" : "页面暂时无法打开，请稍后重试。" }}
       </p>
       <div class="flex flex-wrap justify-center gap-2">
         <UButton icon="i-tabler-refresh" @click="retry">重试</UButton>

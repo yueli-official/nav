@@ -92,7 +92,7 @@ func TestFaviconMissQueuesFetchAndSubsequentReadsUsePersistentCache(t *testing.T
 	service.faviconRunner = func(task func()) { queued = task }
 
 	_, _, err := service.Favicon(context.Background(), "cached-icon")
-	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
+	mapped, ok, resolveErr := problem.FromError(naverr.MapCause(err), "test-trace")
 	if resolveErr != nil || !ok || mapped.Code != naverr.CodeNotFound {
 		t.Fatalf("error = %#v, want nav.not_found", err)
 	}

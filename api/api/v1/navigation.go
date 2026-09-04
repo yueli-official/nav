@@ -151,7 +151,7 @@ type LifecycleCountsView struct {
 }
 
 type AdminListLinksRes struct {
-	Links      []LinkView          `json:"links"`
+	Links      []LinkView          `json:"items"`
 	Categories []CategoryView      `json:"categories"`
 	Tags       []TagView           `json:"tags"`
 	Counts     LifecycleCountsView `json:"counts"`
@@ -180,7 +180,7 @@ type AdminListChecksReq struct {
 }
 
 type AdminListChecksRes struct {
-	Links          []LinkView       `json:"links"`
+	Links          []LinkView       `json:"items"`
 	Counts         HealthCountsView `json:"counts"`
 	Total          int              `json:"total"`
 	CheckableTotal int              `json:"checkableTotal"`
@@ -209,8 +209,8 @@ type CheckJobView struct {
 
 type AdminRunChecksRes struct {
 	g.Meta `status:"202"`
-	Job    CheckJobView `json:"job"`
-	Reused bool         `json:"reused"`
+	CheckJobView
+	Reused bool `json:"reused"`
 }
 
 type AdminGetCheckJobReq struct {
@@ -219,7 +219,7 @@ type AdminGetCheckJobReq struct {
 }
 
 type AdminGetCheckJobRes struct {
-	Job CheckJobView `json:"job"`
+	CheckJobView
 }
 
 type AdminSetCheckExemptionReq struct {
@@ -243,7 +243,8 @@ type AdminCreateLinkReq struct {
 }
 
 type AdminCreateLinkRes struct {
-	Link LinkView `json:"link"`
+	g.Meta `status:"201"`
+	Link   LinkView `json:"link"`
 }
 
 type AdminUpdateLinkReq struct {
@@ -262,7 +263,7 @@ type AdminDeleteLinkReq struct {
 }
 
 type AdminDeleteLinkRes struct {
-	Deleted bool `json:"deleted"`
+	g.Meta `status:"204"`
 }
 
 type AdminBulkLinksReq struct {
@@ -304,6 +305,7 @@ type AdminCreateCategoryReq struct {
 }
 
 type AdminCreateCategoryRes struct {
+	g.Meta   `status:"201"`
 	Category CategoryView `json:"category"`
 }
 
@@ -323,7 +325,7 @@ type AdminDeleteCategoryReq struct {
 }
 
 type AdminDeleteCategoryRes struct {
-	Deleted bool `json:"deleted"`
+	g.Meta `status:"204"`
 }
 
 type AdminCreateGroupReq struct {
@@ -332,7 +334,8 @@ type AdminCreateGroupReq struct {
 }
 
 type AdminCreateGroupRes struct {
-	Group GroupView `json:"group"`
+	g.Meta `status:"201"`
+	Group  GroupView `json:"group"`
 }
 
 type AdminUpdateGroupReq struct {
@@ -351,7 +354,7 @@ type AdminDeleteGroupReq struct {
 }
 
 type AdminDeleteGroupRes struct {
-	Deleted bool `json:"deleted"`
+	g.Meta `status:"204"`
 }
 
 type AdminListTagsReq struct {
@@ -360,7 +363,7 @@ type AdminListTagsReq struct {
 }
 
 type AdminListTagsRes struct {
-	Tags []TagView `json:"tags"`
+	Tags []TagView `json:"items"`
 }
 
 type AdminRenameTagReq struct {

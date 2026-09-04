@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure({"/target":"target","/name":"target"});
 import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
   CollectionPanel,
@@ -49,9 +50,9 @@ const { data, pending, error, refresh } = await useAsyncData(
     call<NavigationTagsResponse>("/api/v1/admin/nav/tags", {
       query: { q: q.value || undefined },
     }),
-  { server: false, watch: [q], default: () => ({ tags: [] }) },
+  { server: false, watch: [q], default: () => ({ items: [] }) },
 );
-const tags = computed(() => data.value?.tags ?? []);
+const tags = computed(() => data.value?.items ?? []);
 const totalPages = computed(() =>
   Math.max(1, Math.ceil(tags.value.length / size.value)),
 );
@@ -106,6 +107,7 @@ function openEdit(tag: NavigationTag) {
   if (!canManageStructure.value) return;
   current.value = tag;
   renameForm.target = tag.name;
+  actionFailure.clear();
   operationError.value = "";
   panelOpen.value = true;
 }
@@ -119,6 +121,7 @@ async function rename() {
   )
     return;
   saving.value = true;
+  actionFailure.clear();
   operationError.value = "";
   try {
     await call("/api/v1/admin/nav/tags/rename", {
@@ -129,7 +132,7 @@ async function rename() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    operationError.value = apiError.data?.message || "重命名失败，请稍后重试。";
+    operationError.value = actionFailure.capture(apiError, "重命名失败，请稍后重试。");
   } finally {
     saving.value = false;
   }
@@ -137,12 +140,14 @@ async function rename() {
 function confirmDelete(tag: NavigationTag) {
   if (!canManageStructure.value) return;
   current.value = tag;
+  actionFailure.clear();
   operationError.value = "";
   deleteOpen.value = true;
 }
 async function remove() {
   if (!canManageStructure.value || !current.value || saving.value) return;
   saving.value = true;
+  actionFailure.clear();
   operationError.value = "";
   try {
     await call("/api/v1/admin/nav/tags/delete", {
@@ -154,7 +159,7 @@ async function remove() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    operationError.value = apiError.data?.message || "删除失败，请稍后重试。";
+    operationError.value = actionFailure.capture(apiError, "删除失败，请稍后重试。");
   } finally {
     saving.value = false;
   }
@@ -254,6 +259,7 @@ async function remove() {
 
     <USlideover v-model:open="panelOpen" title="重命名或合并标签">
       <template #body>
+        <NavFailureDetails v-if="!deleteOpen" :feedback="actionFailure.feedback.value" />
         <UForm
           :schema="schema"
           :state="renameForm"
@@ -268,14 +274,14 @@ async function remove() {
             :description="`将「${current?.name}」改为已有标签名时，所有关联会合并并自动去重。`"
           />
           <UAlert
-            v-if="operationError"
+            v-if="operationError && !deleteOpen"
             color="error"
             variant="subtle"
             icon="i-tabler-alert-circle"
             title="操作失败"
             :description="operationError"
           />
-          <UFormField name="target" label="新标签名称" required
+          <UFormField name="target" :error="actionFailure.feedback.value?.fieldErrors.target?.join(' ')" label="新标签名称" required
             ><UInput v-model="renameForm.target" class="w-full" autofocus
           /></UFormField>
           <UButton
@@ -315,7 +321,8 @@ async function remove() {
       description="删除只会解除站点关联，不会删除站点。"
     >
       <template #body
-        ><p class="text-sm text-toned">
+        >
+        <NavFailureDetails :feedback="actionFailure.feedback.value" /><p class="text-sm text-toned">
           确定删除「{{ current?.name }}」？当前关联
           {{ current?.linkCount }} 个站点。
         </p>

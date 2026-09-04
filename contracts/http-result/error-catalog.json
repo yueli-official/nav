@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "errors.yueli.dev/catalog/v1",
+  "namespace": "nav",
+  "errors": [
+    {
+      "code": "nav.authorization_unavailable",
+      "goName": "AuthorizationUnavailable",
+      "status": 503,
+      "messageKey": "errors.nav.authorization_unavailable"
+    },
+    {
+      "code": "nav.conflict",
+      "goName": "Conflict",
+      "status": 409,
+      "messageKey": "errors.nav.conflict",
+      "params": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "maxLength": 200
+        }
+      }
+    },
+    {
+      "code": "nav.forbidden",
+      "goName": "Forbidden",
+      "status": 403,
+      "messageKey": "errors.nav.forbidden"
+    },
+    {
+      "code": "nav.invalid_input",
+      "goName": "InvalidInput",
+      "status": 400,
+      "messageKey": "errors.nav.invalid_input",
+      "violations": "required"
+    },
+    {
+      "code": "nav.membership_suspended",
+      "goName": "MembershipSuspended",
+      "status": 403,
+      "messageKey": "errors.nav.membership_suspended"
+    },
+    {
+      "code": "nav.membership_unavailable",
+      "goName": "MembershipUnavailable",
+      "status": 503,
+      "messageKey": "errors.nav.membership_unavailable"
+    },
+    {
+      "code": "nav.not_found",
+      "goName": "NotFound",
+      "status": 404,
+      "messageKey": "errors.nav.not_found",
+      "params": {
+        "id": {
+          "type": "string",
+          "required": true,
+          "maxLength": 200
+        },
+        "resource": {
+          "type": "string",
+          "maxLength": 64
+        }
+      }
+    },
+    {
+      "code": "nav.not_initialized",
+      "goName": "NotInitialized",
+      "status": 503,
+      "messageKey": "errors.nav.not_initialized",
+      "params": {
+        "resource": {
+          "type": "string",
+          "required": true,
+          "maxLength": 64
+        }
+      }
+    },
+    {
+      "code": "nav.site_profile_precondition_required",
+      "goName": "PreconditionRequired",
+      "status": 428,
+      "messageKey": "errors.nav.site_profile_precondition_required"
+    },
+    {
+      "code": "nav.site_profile_revision_conflict",
+      "goName": "RevisionConflict",
+      "status": 412,
+      "messageKey": "errors.nav.site_profile_revision_conflict"
+    }
+  ]
+}

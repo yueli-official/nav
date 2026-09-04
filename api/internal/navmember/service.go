@@ -28,6 +28,7 @@ var (
 	ErrInvalidUserKey = errors.New("navmember: invalid public user key")
 	ErrInvalidStatus  = errors.New("navmember: invalid membership status")
 	ErrReasonRequired = errors.New("navmember: suspension reason is required")
+	ErrReasonTooLong  = errors.New("navmember: reason exceeds 500 characters")
 	ErrSelfSuspend    = errors.New("navmember: administrator cannot suspend own membership")
 	ErrNotFound       = errors.New("navmember: membership not found")
 )
@@ -259,7 +260,7 @@ func (service *Service) SetStatus(ctx context.Context, command SetStatusCommand)
 	}
 	command.Reason = strings.TrimSpace(command.Reason)
 	if len([]rune(command.Reason)) > 500 {
-		return Member{}, fmt.Errorf("navmember: reason exceeds 500 characters")
+		return Member{}, ErrReasonTooLong
 	}
 	if command.Status == StatusSuspended && command.UserKey == command.ActorUserKey {
 		return Member{}, ErrSelfSuspend

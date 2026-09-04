@@ -177,8 +177,9 @@ func (c *Admin) AdminRunChecks(ctx context.Context, req *v1.AdminRunChecksReq) (
 	if err != nil {
 		return nil, err
 	}
+	g.RequestFromCtx(ctx).Response.Header().Set("Location", "/api/v1/admin/nav/checks/jobs/"+job.ID)
 	g.RequestFromCtx(ctx).Response.WriteHeader(http.StatusAccepted)
-	return &v1.AdminRunChecksRes{Job: checkJobView(job), Reused: reused}, nil
+	return &v1.AdminRunChecksRes{CheckJobView: checkJobView(job), Reused: reused}, nil
 }
 
 func (c *Admin) AdminGetCheckJob(ctx context.Context, req *v1.AdminGetCheckJobReq) (*v1.AdminGetCheckJobRes, error) {
@@ -189,7 +190,7 @@ func (c *Admin) AdminGetCheckJob(ctx context.Context, req *v1.AdminGetCheckJobRe
 	if err != nil {
 		return nil, err
 	}
-	return &v1.AdminGetCheckJobRes{Job: checkJobView(job)}, nil
+	return &v1.AdminGetCheckJobRes{CheckJobView: checkJobView(job)}, nil
 }
 
 func (c *Admin) AdminSetCheckExemption(ctx context.Context, req *v1.AdminSetCheckExemptionReq) (*v1.AdminSetCheckExemptionRes, error) {
@@ -260,6 +261,7 @@ func (c *Admin) AdminCreateCategory(ctx context.Context, req *v1.AdminCreateCate
 	if err := ensureCategoryScope(ctx, category.ID); err != nil {
 		return nil, err
 	}
+	writeResultStatus(ctx, http.StatusCreated)
 	return &v1.AdminCreateCategoryRes{Category: categoryView(category)}, nil
 }
 
@@ -287,7 +289,8 @@ func (c *Admin) AdminDeleteCategory(ctx context.Context, req *v1.AdminDeleteCate
 	if err := c.service.DeleteCategory(ctx, req.ID); err != nil {
 		return nil, err
 	}
-	return &v1.AdminDeleteCategoryRes{Deleted: true}, nil
+	writeResultStatus(ctx, http.StatusNoContent)
+	return &v1.AdminDeleteCategoryRes{}, nil
 }
 
 func (c *Admin) AdminCreateGroup(ctx context.Context, req *v1.AdminCreateGroupReq) (*v1.AdminCreateGroupRes, error) {
@@ -304,6 +307,10 @@ func (c *Admin) AdminCreateGroup(ctx context.Context, req *v1.AdminCreateGroupRe
 	if err := ensureGroupScope(ctx, group.ID, group.CategoryID); err != nil {
 		return nil, err
 	}
+	if request := ghttp.RequestFromCtx(ctx); request != nil {
+		request.Response.Header().Set("Location", "/api/v1/nav/groups/"+group.ID)
+	}
+	writeResultStatus(ctx, http.StatusCreated)
 	return &v1.AdminCreateGroupRes{Group: groupView(group)}, nil
 }
 
@@ -331,7 +338,8 @@ func (c *Admin) AdminDeleteGroup(ctx context.Context, req *v1.AdminDeleteGroupRe
 	if err := c.service.DeleteGroup(ctx, req.ID); err != nil {
 		return nil, err
 	}
-	return &v1.AdminDeleteGroupRes{Deleted: true}, nil
+	writeResultStatus(ctx, http.StatusNoContent)
+	return &v1.AdminDeleteGroupRes{}, nil
 }
 
 func (c *Admin) AdminListTags(ctx context.Context, req *v1.AdminListTagsReq) (*v1.AdminListTagsRes, error) {
@@ -429,6 +437,7 @@ func (c *Admin) AdminCreateLink(ctx context.Context, req *v1.AdminCreateLinkReq)
 	if err := ensureLinkScope(ctx, link.ID, link.GroupID, link.CategoryID); err != nil {
 		return nil, err
 	}
+	writeResultStatus(ctx, http.StatusCreated)
 	return &v1.AdminCreateLinkRes{Link: linkView(link, true)}, nil
 }
 
@@ -488,7 +497,8 @@ func (c *Admin) AdminDeleteLink(ctx context.Context, req *v1.AdminDeleteLinkReq)
 	if err := c.service.DeleteLink(ctx, req.ID); err != nil {
 		return nil, err
 	}
-	return &v1.AdminDeleteLinkRes{Deleted: true}, nil
+	writeResultStatus(ctx, http.StatusNoContent)
+	return &v1.AdminDeleteLinkRes{}, nil
 }
 
 func input(value v1.LinkInput) catalog.LinkInput {
@@ -668,4 +678,10 @@ func checkJobView(job catalog.CheckJob) v1.CheckJobView {
 		view.FinishedAt = job.FinishedAt.UTC().Format(time.RFC3339)
 	}
 	return view
+}
+
+func writeResultStatus(ctx context.Context, status int) {
+	if request := ghttp.RequestFromCtx(ctx); request != nil {
+		request.Response.WriteHeader(status)
+	}
 }

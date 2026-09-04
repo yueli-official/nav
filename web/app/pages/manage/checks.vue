@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure();
 import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
   CollectionPanel,
@@ -87,7 +88,7 @@ const { data, pending, error, refresh } = await useAsyncData(
     server: false,
     watch: [q, health, page, size],
     default: () => ({
-      links: [],
+      items: [],
       counts: emptyCounts,
       total: 0,
       checkableTotal: 0,
@@ -96,7 +97,7 @@ const { data, pending, error, refresh } = await useAsyncData(
     }),
   },
 );
-const links = computed(() => data.value?.links ?? []);
+const links = computed(() => data.value?.items ?? []);
 const counts = computed(() => data.value?.counts ?? emptyCounts);
 const total = computed(() => data.value?.total ?? 0);
 const checkableTotal = computed(() => data.value?.checkableTotal ?? 0);
@@ -220,8 +221,8 @@ const checkAlertIcon = computed(() => {
   if (activeJob.value?.status === "completed") return "i-tabler-circle-check";
   return "i-tabler-heartbeat";
 });
-const linkKey = (link: NavigationChecksResponse["links"][number]) => link.id;
-const linkLabel = (link: NavigationChecksResponse["links"][number]) =>
+const linkKey = (link: NavigationChecksResponse["items"][number]) => link.id;
+const linkLabel = (link: NavigationChecksResponse["items"][number]) =>
   link.title;
 const isSelected = (id: string | number) => selected.value.has(String(id));
 const isLinkSelectable = (link: AdminNavigationLink) =>
@@ -254,7 +255,8 @@ function togglePage(value: boolean) {
   });
   selected.value = next;
 }
-function toggle(id: string, value: boolean) {
+function toggle(key: string | number, value: boolean) {
+  const id = String(key);
   const next = new Set(selected.value);
   if (value) next.add(id);
   else next.delete(id);
@@ -345,7 +347,7 @@ function progressValueText(value: number | null | undefined, max: number) {
 
 function apiFailureMessage(failure: unknown, fallback: string) {
   const apiError = failure as { data?: { message?: string } };
-  return apiError.data?.message || fallback;
+  return actionFailure.capture(apiError, fallback);
 }
 
 async function acceptCheckJob(job: NavigationCheckJob, reused: boolean) {
@@ -368,8 +370,8 @@ async function pollCheckJob(jobId: string, token: number) {
     );
     if (token !== checkPollToken) return;
     resumingJob.value = false;
-    await acceptCheckJob(result.job, joinedExistingJob.value);
-    if (result.job.status === "running" && token === checkPollToken) {
+    await acceptCheckJob(result, joinedExistingJob.value);
+    if (result.status === "running" && token === checkPollToken) {
       checkPollTimer = setTimeout(
         () => void pollCheckJob(jobId, token),
         CHECK_JOB_POLL_MS,
@@ -436,7 +438,7 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
               },
       },
     );
-    followCheckJob(result.job, result.reused);
+    followCheckJob(result, result.reused);
   } catch (failure) {
     checkError.value = apiFailureMessage(
       failure,
@@ -457,6 +459,7 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
+    <NavFailureDetails :feedback="actionFailure.feedback.value" />
     <template #actions>
       <UButton
         icon="i-tabler-heartbeat"

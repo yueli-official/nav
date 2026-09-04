@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "http.yueli.dev/project/v1",
+  "namespace": "nav",
+  "openapi": {
+    "output": "../contracts/openapi/nav.json",
+    "producer": {
+      "command": [
+        "go",
+        "run",
+        "./cmd/nav"
+      ],
+      "outputEnv": "NAV_OPENAPI_OUTPUT",
+      "env": {
+        "GF_GCFG_FILE": "manifest/config/config.example.yaml"
+      }
+    }
+  },
+  "errorCatalog": "../contracts/http-result/error-catalog.json",
+  "operations": {
+    "output": "../contracts/http-result/operations.json",
+    "errorsFile": "../contracts/http-result/operation-errors.json"
+  },
+  "generate": {
+    "goOutput": "internal/naverr/catalog_gen.go",
+    "goPackage": "naverr",
+    "tsOutput": "../web/app/generated/navFailure.ts",
+    "tsType": "NavFailure",
+    "i18nOutput": "../web/app/generated/error-i18n-inventory.json"
+  },
+  "legacyCatalog": {
+    "output": "contracts/errors/catalog.json",
+    "schemaVersion": "nav.yueli.dev/error-catalog/v1"
+  }
+}
+

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/yueli-official/foundation/go/authorization"
 
@@ -79,6 +80,7 @@ func (*Authorization) CreateAuthorizationDraft(
 	if err != nil {
 		return nil, mapAuthorizationError(err)
 	}
+	writeResultStatus(ctx, http.StatusCreated)
 	return &v1.CreateAuthorizationDraftRes{Policy: authorizationPolicyView(revision)}, nil
 }
 
@@ -111,6 +113,7 @@ func (*Authorization) CreateAuthorizationRole(
 	if err != nil {
 		return nil, mapAuthorizationError(err)
 	}
+	writeResultStatus(ctx, http.StatusCreated)
 	return &v1.CreateAuthorizationRoleRes{Role: authorizationRoleView(role)}, nil
 }
 
@@ -213,6 +216,7 @@ func (*Authorization) ApplyForRole(
 	if err != nil {
 		return nil, mapAuthorizationError(err)
 	}
+	writeResultStatus(ctx, http.StatusCreated)
 	return &v1.ApplyForRoleRes{Application: authorizationApplicationView(application)}, nil
 }
 
@@ -272,7 +276,7 @@ func mapAuthorizationError(err error) error {
 		authorization.Is(err, authorization.ErrorConflict),
 		authorization.Is(err, authorization.ErrorExpired),
 		authorization.Is(err, authorization.ErrorInvariant):
-		return naverr.Validation("authorization", "invalid", map[string]any{"message": err.Error()})
+		return naverr.Validation("authorization", "invalid", nil)
 	default:
 		return naverr.AuthorizationUnavailable()
 	}

@@ -56,8 +56,8 @@ func TestAdminRunChecksDeclaresAcceptedJobResponse(t *testing.T) {
 	if got := meta.Tag.Get("status"); got != "202" {
 		t.Fatalf("AdminRunChecksRes status = %q, want 202", got)
 	}
-	if _, ok := reflect.TypeOf(AdminRunChecksRes{}).FieldByName("Job"); !ok {
-		t.Fatal("AdminRunChecksRes.Job is missing")
+	if _, ok := reflect.TypeOf(AdminRunChecksRes{}).FieldByName("CheckJobView"); !ok {
+		t.Fatal("AdminRunChecksRes.CheckJobView is missing")
 	}
 }
 

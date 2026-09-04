@@ -1,0 +1,723 @@
+{
+  "schemaVersion": "http.yueli.dev/operations/v1",
+  "namespace": "nav",
+  "operations": [
+    {
+      "id": "nav.delete.api.v1.admin.nav.categories.by-id",
+      "method": "DELETE",
+      "path": "/api/v1/admin/nav/categories/{id}",
+      "success": {
+        "status": 204,
+        "kind": "empty"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.conflict"
+      ]
+    },
+    {
+      "id": "nav.delete.api.v1.admin.nav.groups.by-id",
+      "method": "DELETE",
+      "path": "/api/v1/admin/nav/groups/{id}",
+      "success": {
+        "status": 204,
+        "kind": "empty"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.conflict"
+      ]
+    },
+    {
+      "id": "nav.delete.api.v1.admin.nav.links.by-id",
+      "method": "DELETE",
+      "path": "/api/v1/admin/nav/links/{id}",
+      "success": {
+        "status": 204,
+        "kind": "empty"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.checks",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/checks",
+      "success": {
+        "status": 200,
+        "kind": "page",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListChecksRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.checks.jobs.by-jobId",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/checks/jobs/{jobId}",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.links",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/links",
+      "success": {
+        "status": 200,
+        "kind": "page",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListLinksRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.members",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/members",
+      "success": {
+        "status": 200,
+        "kind": "page",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListMembersRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.settings",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/settings",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminGetSettingsRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.not_initialized"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.structure",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/structure",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListStructureRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.admin.nav.tags",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/tags",
+      "success": {
+        "status": 200,
+        "kind": "collection",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListTagsRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.authorization.applications.mine",
+      "method": "GET",
+      "path": "/api/v1/authorization/applications/mine",
+      "success": {
+        "status": 200,
+        "kind": "collection",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ListMyApplicationsRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.authorization.manage.console",
+      "method": "GET",
+      "path": "/api/v1/authorization/manage/console",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetAuthorizationConsoleRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.authorization.requestable-roles",
+      "method": "GET",
+      "path": "/api/v1/authorization/requestable-roles",
+      "success": {
+        "status": 200,
+        "kind": "collection",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ListRequestableRolesRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.me",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.MeRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.nav.catalog",
+      "method": "GET",
+      "path": "/api/v1/nav/catalog",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetCatalogRes"
+      },
+      "errors": [
+        "nav.not_initialized"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.nav.groups.by-groupId",
+      "method": "GET",
+      "path": "/api/v1/nav/groups/{groupId}",
+      "success": {
+        "status": 200,
+        "kind": "page",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetGroupRes"
+      },
+      "errors": [
+        "nav.not_found",
+        "nav.not_initialized"
+      ]
+    },
+    {
+      "id": "nav.get.api.v1.nav.links.by-id.favicon",
+      "method": "GET",
+      "path": "/api/v1/nav/links/{id}/favicon",
+      "success": {
+        "status": 200,
+        "kind": "binary"
+      },
+      "errors": [
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.patch.api.v1.admin.nav.categories.by-id",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/categories/{id}",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateCategoryRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.patch.api.v1.admin.nav.groups.by-id",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/groups/{id}",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateGroupRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.patch.api.v1.admin.nav.links.by-id",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/links/{id}",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateLinkRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.conflict",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.patch.api.v1.admin.nav.members.by-userKey.status",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/members/{userKey}/status",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSetMemberStatusRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.not_found",
+        "nav.invalid_input",
+        "nav.conflict"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.categories",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/categories",
+      "success": {
+        "status": 201,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.checks.run",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/checks/run",
+      "success": {
+        "status": 202,
+        "kind": "operation",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.groups",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/groups",
+      "success": {
+        "status": 201,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateGroupRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.links",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/links",
+      "success": {
+        "status": 201,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateLinkRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.conflict",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.links.bulk",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/links/bulk",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinksRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.tags.delete",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/tags/delete",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteTagRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.admin.nav.tags.rename",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/tags/rename",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRenameTagRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.applications",
+      "method": "POST",
+      "path": "/api/v1/authorization/applications",
+      "success": {
+        "status": 201,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ApplyForRoleRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.applications.by-id.withdraw",
+      "method": "POST",
+      "path": "/api/v1/authorization/applications/{id}/withdraw",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.WithdrawRoleApplicationRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.applications.by-id.review",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/applications/{id}/review",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ReviewRoleApplicationRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.policies.by-revision.activate",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/policies/{revision}/activate",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ActivateAuthorizationPolicyRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.policies.by-revision.preview",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/policies/{revision}/preview",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PreviewAuthorizationPolicyRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.policies.by-revision.roles",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/policies/{revision}/roles",
+      "success": {
+        "status": 201,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CreateAuthorizationRoleRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.policies.by-revision.roles.by-role.retire",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/policies/{revision}/roles/{role}/retire",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RetireAuthorizationRoleRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.policies.by-revision.validate",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/policies/{revision}/validate",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.ValidateAuthorizationPolicyRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.authorization.manage.policies.drafts",
+      "method": "POST",
+      "path": "/api/v1/authorization/manage/policies/drafts",
+      "success": {
+        "status": 201,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CreateAuthorizationDraftRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.nav.links.by-id.click",
+      "method": "POST",
+      "path": "/api/v1/nav/links/{id}/click",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RecordClickRes"
+      },
+      "errors": [
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.put.api.v1.admin.nav.checks.by-id.exemption",
+      "method": "PUT",
+      "path": "/api/v1/admin/nav/checks/{id}/exemption",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.put.api.v1.admin.nav.settings",
+      "method": "PUT",
+      "path": "/api/v1/admin/nav/settings",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.not_initialized",
+        "nav.site_profile_precondition_required",
+        "nav.site_profile_revision_conflict",
+        "nav.invalid_input"
+      ]
+    },
+    {
+      "id": "nav.put.api.v1.authorization.manage.policies.by-revision.automatic.by-rule",
+      "method": "PUT",
+      "path": "/api/v1/authorization/manage/policies/{revision}/automatic/{rule}",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SetAuthorizationAutomaticRuleRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.put.api.v1.authorization.manage.policies.by-revision.roles.by-role.capabilities",
+      "method": "PUT",
+      "path": "/api/v1/authorization/manage/policies/{revision}/roles/{role}/capabilities",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SetAuthorizationRoleCapabilitiesRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.invalid_input",
+        "nav.not_found"
+      ]
+    }
+  ]
+}

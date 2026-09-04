@@ -224,7 +224,7 @@ func TestSettingsRequiresProvisionedConfiguration(t *testing.T) {
 	service := New(&fakeStore{}, Site{Name: "compiled fallback must not be used"})
 	service.SetSiteProfile(navprofile.NewMemory())
 	_, err := service.PublicSite(context.Background())
-	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
+	mapped, ok, resolveErr := problem.FromError(naverr.MapCause(err), "test-trace")
 	if resolveErr != nil || !ok || mapped.Code != naverr.CodeNotInitialized {
 		t.Fatalf("error = %#v, want nav.not_initialized", err)
 	}
@@ -516,8 +516,8 @@ func TestCreateLinkRejectsUnsafeURL(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected invalid URL error")
 	}
-	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
-	if resolveErr != nil || !ok || mapped.Code != "common.validation_failed" {
+	mapped, ok, resolveErr := problem.FromError(naverr.MapCause(err), "test-trace")
+	if resolveErr != nil || !ok || mapped.Code != naverr.CodeInvalidInput {
 		t.Fatalf("error = %#v, want common.validation_failed", err)
 	}
 	if len(mapped.Violations) == 0 {
@@ -533,8 +533,8 @@ func TestCreateCategoryRejectsIconOutsideClientBundleContract(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected an icon outside the finite client bundle to be rejected")
 	}
-	mapped, ok, resolveErr := problem.FromError(err, "test-trace")
-	if resolveErr != nil || !ok || mapped.Code != "common.validation_failed" {
+	mapped, ok, resolveErr := problem.FromError(naverr.MapCause(err), "test-trace")
+	if resolveErr != nil || !ok || mapped.Code != naverr.CodeInvalidInput {
 		t.Fatalf("error = %#v, want common.validation_failed", err)
 	}
 }

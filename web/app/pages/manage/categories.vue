@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure({"/categoryId":"categoryId","/title":"title","/icon":"icon","/description":"description","/sortOrder":"sortOrder"});
 import {
   ManageClientBoundary,
   ManageEmpty,
@@ -100,6 +101,7 @@ function openCategory(category?: NavigationCategory) {
     icon: category?.icon ?? "i-tabler-folder",
     sortOrder: category?.sortOrder ?? 0,
   });
+  actionFailure.clear();
   saveError.value = "";
   panelOpen.value = true;
 }
@@ -114,12 +116,14 @@ function openGroup(category: NavigationCategory, group?: NavigationGroup) {
     icon: "",
     sortOrder: group?.sortOrder ?? category.groups.length,
   });
+  actionFailure.clear();
   saveError.value = "";
   panelOpen.value = true;
 }
 async function save() {
   if (!canManageStructure.value || saving.value) return;
   saving.value = true;
+  actionFailure.clear();
   saveError.value = "";
   const base = entityKind.value === "category" ? "categories" : "groups";
   try {
@@ -147,7 +151,7 @@ async function save() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    saveError.value = apiError.data?.message || "保存失败，请检查输入后重试。";
+    saveError.value = actionFailure.capture(apiError, "保存失败，请检查输入后重试。");
   } finally {
     saving.value = false;
   }
@@ -157,12 +161,14 @@ function confirmDelete(kind: "category" | "group", id: string, name: string) {
   deleteKind.value = kind;
   deleteId.value = id;
   deleteName.value = name;
+  actionFailure.clear();
   deleteError.value = "";
   deleteOpen.value = true;
 }
 async function remove() {
   if (!canManageStructure.value || deleting.value) return;
   deleting.value = true;
+  actionFailure.clear();
   deleteError.value = "";
   try {
     await call(
@@ -174,11 +180,7 @@ async function remove() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    deleteError.value =
-      apiError.data?.message ||
-      (deleteKind.value === "category"
-        ? "请先清空分类下的主题。"
-        : "请先移动或删除主题下的站点。");
+    deleteError.value = actionFailure.capture(apiError, deleteKind.value === "category" ? "请先清空分类下的主题。" : "请先移动或删除主题下的站点。");
   } finally {
     deleting.value = false;
   }
@@ -333,6 +335,7 @@ async function remove() {
       :title="`${currentId ? '编辑' : '新建'}${entityKind === 'category' ? '分类' : '主题'}`"
     >
       <template #body>
+        <NavFailureDetails v-if="!deleteOpen" :feedback="actionFailure.feedback.value" />
         <UForm :schema="schema" :state="form" class="space-y-5" @submit="save">
           <UAlert
             v-if="saveError"
@@ -344,7 +347,7 @@ async function remove() {
           />
           <UFormField
             v-if="entityKind === 'group'"
-            name="categoryId"
+            name="categoryId" :error="actionFailure.feedback.value?.fieldErrors.categoryId?.join(' ')"
             label="所属分类"
             required
             ><USelectMenu
@@ -354,21 +357,21 @@ async function remove() {
               :search-input="{ placeholder: '搜索分类…' }"
               class="w-full"
           /></UFormField>
-          <UFormField name="title" label="名称" required
+          <UFormField name="title" :error="actionFailure.feedback.value?.fieldErrors.title?.join(' ')" label="名称" required
             ><UInput v-model="form.title" class="w-full" autofocus
           /></UFormField>
           <UFormField
             v-if="entityKind === 'category'"
-            name="icon"
+            name="icon" :error="actionFailure.feedback.value?.fieldErrors.icon?.join(' ')"
             label="图标"
             help="选择一个易识别的分类图标"
           >
             <ManageIconPicker v-model="form.icon" compact />
           </UFormField>
-          <UFormField name="description" label="描述"
+          <UFormField name="description" :error="actionFailure.feedback.value?.fieldErrors.description?.join(' ')" label="描述"
             ><UTextarea v-model="form.description" :rows="4" class="w-full"
           /></UFormField>
-          <UFormField name="sortOrder" label="排序"
+          <UFormField name="sortOrder" :error="actionFailure.feedback.value?.fieldErrors.sortOrder?.join(' ')" label="排序"
             ><UInputNumber v-model="form.sortOrder" :min="0" class="w-full"
           /></UFormField>
           <UButton
@@ -407,7 +410,8 @@ async function remove() {
       description="只有不再被下级内容使用时才能删除。"
     >
       <template #body
-        ><p class="text-sm text-toned">确定删除「{{ deleteName }}」？</p>
+        >
+        <NavFailureDetails :feedback="actionFailure.feedback.value" /><p class="text-sm text-toned">确定删除「{{ deleteName }}」？</p>
         <UAlert
           v-if="deleteError"
           class="mt-4"

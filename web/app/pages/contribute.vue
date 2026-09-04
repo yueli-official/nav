@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure({ "/role": "role", "/reason": "reason" });
 interface RoleView {
   key: string;
   displayName: string;
@@ -44,6 +45,7 @@ async function apply() {
   if (!selectedRole.value || submitting.value || pendingApplication.value) return;
   submitting.value = true;
   message.value = "";
+  actionFailure.clear();
   try {
     await call("/api/v1/authorization/applications", {
       method: "POST",
@@ -54,7 +56,7 @@ async function apply() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    message.value = apiError.data?.message || "申请提交失败，请稍后重试。";
+    message.value = actionFailure.capture(apiError, "申请提交失败，请稍后重试。");
   } finally {
     submitting.value = false;
   }
@@ -64,6 +66,7 @@ async function withdraw() {
   if (!pendingApplication.value || submitting.value) return;
   submitting.value = true;
   message.value = "";
+  actionFailure.clear();
   try {
     await call(
       `/api/v1/authorization/applications/${pendingApplication.value.id}/withdraw`,
@@ -73,7 +76,7 @@ async function withdraw() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    message.value = apiError.data?.message || "撤回失败，请稍后重试。";
+    message.value = actionFailure.capture(apiError, "撤回失败，请稍后重试。");
   } finally {
     submitting.value = false;
   }
@@ -81,7 +84,7 @@ async function withdraw() {
 </script>
 
 <template>
-  <main class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:py-16">
+  <div class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:py-16">
     <UButton
       to="/"
       label="返回导航"
@@ -129,7 +132,7 @@ async function withdraw() {
           @click="withdraw"
         />
         <template v-else-if="data?.roles.length">
-          <UFormField label="申请角色" required>
+          <UFormField :error="actionFailure.feedback.value?.fieldErrors.role?.join(' ')" label="申请角色" required>
             <USelect
               v-model="selectedRole"
               :items="data.roles.map((role) => ({ label: role.displayName, value: role.key }))"
@@ -138,7 +141,7 @@ async function withdraw() {
             />
           </UFormField>
           <UFormField
-            label="申请说明"
+            label="申请说明" :error="actionFailure.feedback.value?.fieldErrors.reason?.join(' ')"
             description="说明你希望维护的内容或范围，方便管理员判断。"
           >
             <UTextarea v-model="reason" :rows="5" class="w-full" maxlength="2000" />
@@ -164,7 +167,8 @@ async function withdraw() {
           icon="i-tabler-info-circle"
           :description="message"
         />
+        <NavFailureDetails :feedback="actionFailure.feedback.value" />
       </div>
     </div>
-  </main>
+  </div>
 </template>

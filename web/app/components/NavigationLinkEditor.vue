@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { createNavNotifier } from "~/utils/feedback";
 import { useActionFeedback } from "@yueli/ui/feedback";
 import { ActionFeedbackButton } from "@yueli/ui/feedback/pattern";
 import { z } from "zod";
@@ -22,7 +21,6 @@ const emit = defineEmits<{
 }>();
 const open = defineModel<boolean>("open", { required: true });
 const { call } = useApi();
-const toast = createNavNotifier(useToast());
 
 const kindItems = [
   { label: "官方站点", value: "official" },
@@ -71,10 +69,12 @@ const schema = z.object({
   url: z.string().trim().url("请输入完整网址"),
   description: z.string().trim().min(1, "请输入简介").max(500),
 });
-const saveError = ref("");
+const saveFailure = useNavFailure(Object.fromEntries(Object.keys(form).map(key => ["/" + key, key])));
+const saveError = saveFailure.message;
 const deleteOpen = ref(false);
 const deleting = ref(false);
-const deleteError = ref("");
+const deleteFailure = useNavFailure();
+const deleteError = deleteFailure.message;
 const {
   status: saveStatus,
   pending: markSaving,
@@ -88,7 +88,7 @@ watch(
   () => [open.value, link] as const,
   ([isOpen]) => {
     if (!isOpen) return;
-    saveError.value = "";
+    saveFailure.clear();
     resetSave();
     const firstCategory = categories[0];
     Object.assign(form, {
@@ -119,7 +119,7 @@ watch(
 
 async function save() {
   if (saving.value) return;
-  saveError.value = "";
+  saveFailure.clear();
   markSaving();
   try {
     const path = link
@@ -134,36 +134,22 @@ async function save() {
     await new Promise((resolve) => setTimeout(resolve, 700));
     open.value = false;
   } catch (error) {
-    const apiError = error as { data?: { message?: string } };
-    saveError.value = apiError.data?.message || "请检查输入后重试。";
+    saveFailure.capture(error, "请检查输入后重试。");
     markSaveError();
-    toast.add({
-      title: "保存失败",
-      description: saveError.value,
-      color: "error",
-      icon: "i-tabler-alert-circle",
-    });
   }
 }
 
 async function remove() {
   if (!link || !canDelete || deleting.value) return;
   deleting.value = true;
-  deleteError.value = "";
+  deleteFailure.clear();
   try {
     await call(`/api/v1/admin/nav/links/${link.id}`, { method: "DELETE" });
     emit("deleted", link.id);
     deleteOpen.value = false;
     open.value = false;
   } catch (error) {
-    const apiError = error as { data?: { message?: string } };
-    deleteError.value = apiError.data?.message || "删除失败，请稍后重试。";
-    toast.add({
-      title: "删除失败",
-      description: deleteError.value,
-      color: "error",
-      icon: "i-tabler-alert-circle",
-    });
+    deleteFailure.capture(error, "删除失败，请稍后重试。");
   } finally {
     deleting.value = false;
   }
@@ -171,7 +157,7 @@ async function remove() {
 
 function openDelete() {
   if (!canDelete) return;
-  deleteError.value = "";
+  deleteFailure.clear();
   deleteOpen.value = true;
 }
 
@@ -191,7 +177,7 @@ function closeDelete() {
       <template #body>
         <UForm :schema="schema" :state="form" class="space-y-5" @submit="save">
           <div class="grid gap-4 sm:grid-cols-2">
-            <UFormField name="categoryId" label="分类" required>
+            <UFormField name="categoryId" :error="saveFailure.feedback.value?.fieldErrors.categoryId?.join(' ')" label="分类" required>
               <USelect
                 v-model="form.categoryId"
                 :items="categoryItems"
@@ -199,7 +185,7 @@ function closeDelete() {
                 class="w-full"
               />
             </UFormField>
-            <UFormField name="groupId" label="主题" required>
+            <UFormField name="groupId" :error="saveFailure.feedback.value?.fieldErrors.groupId?.join(' ')" label="主题" required>
               <USelect
                 v-model="form.groupId"
                 :items="groupItems"
@@ -209,7 +195,7 @@ function closeDelete() {
             </UFormField>
           </div>
 
-          <UFormField name="title" label="名称" required>
+          <UFormField name="title" :error="saveFailure.feedback.value?.fieldErrors.title?.join(' ')" label="名称" required>
             <UInput
               v-model="form.title"
               class="w-full"
@@ -217,7 +203,7 @@ function closeDelete() {
               autofocus
             />
           </UFormField>
-          <UFormField name="url" label="网址" required>
+          <UFormField name="url" :error="saveFailure.feedback.value?.fieldErrors.url?.join(' ')" label="网址" required>
             <UInput
               v-model="form.url"
               class="w-full"
@@ -225,7 +211,7 @@ function closeDelete() {
               placeholder="https://example.com/"
             />
           </UFormField>
-          <UFormField name="description" label="简介" required>
+          <UFormField name="description" :error="saveFailure.feedback.value?.fieldErrors.description?.join(' ')" label="简介" required>
             <UTextarea
               v-model="form.description"
               class="w-full"
@@ -236,7 +222,7 @@ function closeDelete() {
           </UFormField>
 
           <div class="grid gap-4 sm:grid-cols-2">
-            <UFormField label="标签" hint="最多 6 个">
+            <UFormField :error="saveFailure.feedback.value?.fieldErrors.tags?.join(' ')" label="标签" hint="最多 6 个">
               <UInputTags
                 v-model="form.tags"
                 class="w-full"
@@ -244,7 +230,7 @@ function closeDelete() {
                 placeholder="输入后回车"
               />
             </UFormField>
-            <UFormField label="搜索关键词" hint="最多 12 个">
+            <UFormField :error="saveFailure.feedback.value?.fieldErrors.keywords?.join(' ')" label="搜索关键词" hint="最多 12 个">
               <UInputTags
                 v-model="form.keywords"
                 class="w-full"
@@ -255,7 +241,7 @@ function closeDelete() {
           </div>
 
           <div class="grid gap-4 sm:grid-cols-3">
-            <UFormField label="类型">
+            <UFormField :error="saveFailure.feedback.value?.fieldErrors.kind?.join(' ')" label="类型">
               <USelect
                 v-model="form.kind"
                 :items="kindItems"
@@ -263,7 +249,7 @@ function closeDelete() {
                 class="w-full"
               />
             </UFormField>
-            <UFormField label="状态">
+            <UFormField :error="saveFailure.feedback.value?.fieldErrors.status?.join(' ')" label="状态">
               <USelect
                 v-model="form.status"
                 :items="statusItems"
@@ -272,7 +258,7 @@ function closeDelete() {
                 :disabled="!canModerate"
               />
             </UFormField>
-            <UFormField label="排序">
+            <UFormField :error="saveFailure.feedback.value?.fieldErrors.sortOrder?.join(' ')" label="排序">
               <UInputNumber v-model="form.sortOrder" class="w-full" :min="0" />
             </UFormField>
           </div>
@@ -290,6 +276,7 @@ function closeDelete() {
             title="未能保存站点"
             :description="saveError"
           />
+          <NavFailureDetails :feedback="saveFailure.feedback.value" />
 
           <div
             class="flex flex-col-reverse gap-2 border-t border-default pt-5 sm:flex-row sm:items-center"
@@ -350,6 +337,7 @@ function closeDelete() {
           :description="deleteError"
           role="alert"
         />
+        <NavFailureDetails :feedback="deleteFailure.feedback.value" />
       </template>
       <template #footer>
         <div class="flex w-full justify-end gap-2">

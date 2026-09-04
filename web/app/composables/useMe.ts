@@ -33,15 +33,8 @@ interface NavAccessSnapshot {
 }
 
 function toAccessError(failure: unknown): NavAccessError {
-  const response = failure as {
-    data?: { message?: string; correlationId?: string; correlation_id?: string };
-  };
-  return {
-    message:
-      response.data?.message || "本站权限状态暂时不可用，请稍后重试。",
-    correlationId:
-      response.data?.correlationId || response.data?.correlation_id || undefined,
-  };
+  const feedback = navFailureFeedback(failure, "本站权限状态暂时不可用，请稍后重试。");
+  return { message: feedback.message, correlationId: feedback.technical.traceId };
 }
 
 // Effective access comes from this Nav instance, never Identity role claims

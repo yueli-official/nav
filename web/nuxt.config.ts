@@ -21,6 +21,9 @@ export default defineNuxtConfig({
   extends: ["@yueli/identity-nuxt"],
   modules: ["@nuxt/ui", "@yueli/ui", "@yueli/nuxt-runtime"],
   vite: {
+    resolve: {
+      dedupe: ["vue", "vue-router", "@vue/runtime-core", "@vue/runtime-dom"],
+    },
     optimizeDeps: {
       include: ["zod"],
     },

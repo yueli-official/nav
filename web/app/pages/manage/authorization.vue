@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure({"/key":"key","/displayName":"displayName","/capabilities":"capabilities"});
 interface RoleView {
   key: string;
   displayName: string;
@@ -29,9 +30,9 @@ useSeoMeta({ title: "权限策略 · 月离导航" });
 
 const { call } = useApi();
 const { isAdministrator } = useMe();
-const toast = useToast();
 const busy = ref(false);
 const createRoleOpen = ref(false);
+watch(createRoleOpen, () => actionFailure.clear());
 const roleForm = reactive({
   key: "",
   displayName: "",
@@ -48,6 +49,7 @@ const draft = computed(() => consoleState.value?.policy.state === "draft");
 
 async function mutate(task: () => Promise<unknown>, _success: string) {
   if (busy.value) return;
+  actionFailure.clear();
   busy.value = true;
   try {
     const result = await task();
@@ -55,12 +57,7 @@ async function mutate(task: () => Promise<unknown>, _success: string) {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    toast.add({
-      title: "操作失败",
-      description: apiError.data?.message || "请刷新后重试。",
-      color: "error",
-      icon: "i-tabler-alert-circle",
-    });
+    actionFailure.capture(apiError, "请刷新后重试。");
   } finally {
     busy.value = false;
   }
@@ -178,6 +175,8 @@ function createRole() {
     main-id="manage-main"
     body-class="w-full space-y-5"
   >
+    <UAlert v-if="actionFailure.message.value && !createRoleOpen" color="error" title="操作失败" :description="actionFailure.message.value" />
+    <NavFailureDetails v-if="!createRoleOpen" :feedback="actionFailure.feedback.value" />
     <template #actions>
       <UButton
         v-if="consoleState && !draft"
@@ -353,14 +352,16 @@ function createRole() {
       description="角色能力写入当前策略草稿，发布后才生效。"
     >
       <template #body>
+        <UAlert v-if="actionFailure.message.value" color="error" title="操作失败" :description="actionFailure.message.value" />
+        <NavFailureDetails :feedback="actionFailure.feedback.value" />
         <div class="space-y-4">
-          <UFormField label="角色标识" required>
+          <UFormField :error="actionFailure.feedback.value?.fieldErrors.key?.join(' ')" label="角色标识" required>
             <UInput v-model="roleForm.key" placeholder="editor" class="w-full" />
           </UFormField>
-          <UFormField label="显示名称" required>
+          <UFormField :error="actionFailure.feedback.value?.fieldErrors.displayName?.join(' ')" label="显示名称" required>
             <UInput v-model="roleForm.displayName" placeholder="编辑" class="w-full" />
           </UFormField>
-          <UFormField label="能力">
+          <UFormField :error="actionFailure.feedback.value?.fieldErrors.capabilities?.join(' ')" label="能力">
             <div class="space-y-2">
               <UCheckbox
                 v-for="capability in consoleState?.capabilities ?? []"

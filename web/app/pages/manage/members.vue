@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure({"/reason":"reason"});
 import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
   CollectionPanel,
@@ -24,7 +25,7 @@ const emptyCounts: NavigationMemberCounts = {
 };
 const { call } = useApi();
 const { me } = useMe();
-const toast = createNavNotifier(useToast());
+
 const runtime = useRuntimeConfig();
 const search = ref("");
 const q = ref("");
@@ -35,6 +36,7 @@ const size = ref(15);
 const selected = ref<NavigationMember>();
 const detailOpen = ref(false);
 const suspendOpen = ref(false);
+watch([suspendOpen, detailOpen], () => actionFailure.clear());
 const suspensionReason = ref("");
 const suspensionReasonTouched = ref(false);
 const saving = ref(false);
@@ -69,7 +71,7 @@ const { data, pending, error, refresh } = await useAsyncData(
     server: false,
     watch: [q, status, role, page, size],
     default: () => ({
-      members: [],
+      items: [],
       counts: emptyCounts,
       roles: [],
       total: 0,
@@ -78,7 +80,7 @@ const { data, pending, error, refresh } = await useAsyncData(
     }),
   },
 );
-const members = computed(() => data.value?.members ?? []);
+const members = computed(() => data.value?.items ?? []);
 const counts = computed(() => data.value?.counts ?? emptyCounts);
 const total = computed(() => data.value?.total ?? 0);
 const roleOptions = computed(() => [
@@ -253,6 +255,7 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
     suspensionReasonTouched.value = true;
     return;
   }
+  actionFailure.clear();
   saving.value = true;
   try {
     const result = await call<{ member: NavigationMember }>(
@@ -270,12 +273,7 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    toast.add({
-      title: "成员状态更新失败",
-      description: apiError.data?.message || "请稍后重试。",
-      color: "error",
-      icon: "i-tabler-alert-circle",
-    });
+    actionFailure.capture(apiError, "请稍后重试。");
   } finally {
     saving.value = false;
   }
@@ -299,6 +297,8 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
+    <UAlert v-if="actionFailure.message.value && !detailOpen && !suspendOpen" color="error" title="操作失败" :description="actionFailure.message.value" />
+    <NavFailureDetails v-if="!detailOpen && !suspendOpen" :feedback="actionFailure.feedback.value" />
     <ManageClientBoundary :rows="8">
       <div class="flex min-h-0 flex-1 flex-col">
         <CollectionPanel
@@ -444,6 +444,8 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
       :ui="{ content: 'w-full sm:max-w-lg' }"
     >
       <template #body>
+        <UAlert v-if="actionFailure.message.value && !suspendOpen" color="error" title="操作失败" :description="actionFailure.message.value" />
+        <NavFailureDetails v-if="!suspendOpen" :feedback="actionFailure.feedback.value" />
         <div v-if="selected" class="space-y-6">
           <section aria-labelledby="member-identity-title">
             <div class="flex items-center gap-3">
@@ -619,6 +621,8 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
       description="该成员仍可浏览公开导航，但所有本站已认证操作会立即被阻止。"
     >
       <template #body>
+        <UAlert v-if="actionFailure.message.value" color="error" title="操作失败" :description="actionFailure.message.value" />
+        <NavFailureDetails :feedback="actionFailure.feedback.value" />
         <div class="space-y-4">
           <UAlert
             color="warning"
@@ -631,7 +635,7 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
             label="暂停原因"
             hint="必填；会显示在成员详情中"
             required
-            :error="suspensionReasonError"
+            :error="actionFailure.feedback.value?.fieldErrors.reason?.join(' ') || suspensionReasonError"
           >
             <UTextarea
               v-model="suspensionReason"

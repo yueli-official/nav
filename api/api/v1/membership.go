@@ -44,7 +44,7 @@ type AdminListMembersReq struct {
 }
 
 type AdminListMembersRes struct {
-	Members []MemberView               `json:"members"`
+	Members []MemberView               `json:"items"`
 	Counts  MembershipStatusCountsView `json:"counts"`
 	Roles   []AuthorizationRoleView    `json:"roles"`
 	Total   int                        `json:"total"`

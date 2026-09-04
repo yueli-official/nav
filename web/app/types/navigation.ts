@@ -126,7 +126,7 @@ export interface NavigationHealthCounts {
 }
 
 export interface NavigationChecksResponse {
-  links: AdminNavigationLink[];
+  items: AdminNavigationLink[];
   counts: NavigationHealthCounts;
   total: number;
   checkableTotal: number;
@@ -147,21 +147,18 @@ export interface NavigationCheckJob {
   error?: string;
 }
 
-export interface NavigationStartCheckJobResponse {
-  job: NavigationCheckJob;
+export interface NavigationStartCheckJobResponse extends NavigationCheckJob {
   reused: boolean;
 }
 
-export interface NavigationCheckJobResponse {
-  job: NavigationCheckJob;
-}
+export type NavigationCheckJobResponse = NavigationCheckJob;
 
 export interface NavigationCheckExemptionResponse {
   link: AdminNavigationLink;
 }
 
 export interface AdminNavigationResponse {
-  links: AdminNavigationLink[];
+  items: AdminNavigationLink[];
   categories: NavigationCategory[];
   tags: NavigationTag[];
   counts: NavigationLifecycleCounts;
@@ -187,7 +184,7 @@ export interface NavigationStructureResponse {
 }
 
 export interface NavigationTagsResponse {
-  tags: NavigationTag[];
+  items: NavigationTag[];
 }
 
 export interface NavigationSettingsResponse {
@@ -248,7 +245,7 @@ export interface NavigationMemberRoleOption {
 }
 
 export interface NavigationMembersResponse {
-  members: NavigationMember[];
+  items: NavigationMember[];
   counts: NavigationMemberCounts;
   roles: NavigationMemberRoleOption[];
   total: number;

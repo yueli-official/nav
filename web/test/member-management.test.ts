@@ -43,7 +43,7 @@ describe("Nav member management surface", () => {
   });
 
   it("makes suspension auditable and requires an operator reason", () => {
-    expect(page).toContain('required\n            :error="suspensionReasonError"');
+    expect(page).toContain('required\n            :error="actionFailure.feedback.value?.fieldErrors.reason?.join(\' \') || suspensionReasonError"');
     expect(page).toContain(':disabled="!suspensionReason.trim()"');
     expect(page).toContain("selected.suspendedAt");
     expect(page).toContain("selected.suspendedBy");

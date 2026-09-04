@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const actionFailure = useNavFailure();
 import {
   ManageClientBoundary,
   ManageTaxonomyChips,
@@ -108,7 +109,7 @@ async function loadLinks(
     tags.value = data.tags ?? [];
     counts.value = data.counts ?? emptyCounts;
     activeWorkflow.resolveLoad(token, {
-      items: data.links ?? [],
+      items: data.items ?? [],
       total: data.total ?? 0,
     });
   } catch {
@@ -473,7 +474,7 @@ async function executeBatch() {
     await refresh();
   } catch (failure) {
     const apiError = failure as { data?: { message?: string } };
-    batchMessage.value = apiError.data?.message || "批量操作失败，选择已保留。";
+    batchMessage.value = actionFailure.capture(apiError, "批量操作失败，选择已保留。");
   } finally {
     batchBusy.value = false;
   }
@@ -489,6 +490,7 @@ async function executeBatch() {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
+    <NavFailureDetails :feedback="actionFailure.feedback.value" />
       <template #actions>
         <UButton
           icon="i-tabler-plus"

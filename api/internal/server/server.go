@@ -27,13 +27,13 @@ func Configure(server *ghttp.Server, deps Deps) {
 	}
 	server.Use(runtime.TraceRouteMiddleware)
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware)
+		group.Middleware(apiMiddleware, controller.CauseMappingMiddleware)
 		group.GET("/healthz", controller.Healthz)
 		group.GET("/readyz", runtime.ReadinessHandler(readyChecks))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
 		group.Middleware(
-			apiMiddleware, runtime.OptionalAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization),
+			apiMiddleware, controller.CauseMappingMiddleware, runtime.OptionalAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization),
 			controller.MembershipMiddleware(deps.Membership, deps.Authorization, false),
 		)
 		group.Bind(controller.NewMe())
@@ -42,12 +42,12 @@ func Configure(server *ghttp.Server, deps Deps) {
 		return
 	}
 	server.Group("/", func(group *ghttp.RouterGroup) {
-		group.Middleware(apiMiddleware)
+		group.Middleware(apiMiddleware, controller.CauseMappingMiddleware)
 		group.Bind(controller.NewPublic(deps.Catalog))
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
 		group.Middleware(
-			apiMiddleware, runtime.RequiredAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization),
+			apiMiddleware, controller.CauseMappingMiddleware, runtime.RequiredAuth(deps.Verifier), controller.AuthorizationMiddleware(deps.Authorization),
 			controller.MembershipMiddleware(deps.Membership, deps.Authorization, true),
 		)
 		group.Bind(controller.NewAuthorization())

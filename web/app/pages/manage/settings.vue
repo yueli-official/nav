@@ -78,7 +78,8 @@ const settingsETag = ref("");
 const settingsForm = useTemplateRef<{ submit: () => Promise<void> }>(
   "settings-form",
 );
-const saveError = ref("");
+const saveFailure = useNavFailure({ "/searchPlaceholder": "searchPlaceholder", "/profile/identity/name": "name", "/profile/identity/tagline": "title", "/profile/identity/description": "description", "/profile/footer/tagline": "footerTagline" });
+const saveError = saveFailure.message;
 const {
   status: saveStatus,
   pending: markSaving,
@@ -134,7 +135,7 @@ watch(section, (value) => {
 async function save() {
   if (!canManageSettings.value) return;
   markSaving();
-  saveError.value = "";
+  saveFailure.clear();
   try {
     if (!profileEditor.value) throw new Error("站点资料尚未加载");
     profileEditor.value.replaceDraft(toRaw(profileForm));
@@ -162,8 +163,7 @@ async function save() {
     markSaved();
   } catch (failure) {
     resetSave();
-    const apiError = failure as { data?: { message?: string } };
-    saveError.value = apiError.data?.message || "保存失败，请稍后重试。";
+    saveFailure.capture(failure, "保存失败，请稍后重试。");
   }
 }
 
@@ -175,7 +175,7 @@ function submitSettings() {
 }
 function discard() {
   settingsState.discard();
-  saveError.value = "";
+  saveFailure.clear();
   resetSave();
 }
 </script>
@@ -259,7 +259,7 @@ function discard() {
         >
           <div class="grid gap-5">
             <UFormField
-              name="name"
+              name="name" :error="saveFailure.feedback.value?.fieldErrors.name?.join(' ')"
               label="导航名称"
               description="显示在公开页左上角，并作为页面标题的品牌名称。"
               required
@@ -271,7 +271,7 @@ function discard() {
               />
             </UFormField>
             <UFormField
-              name="title"
+              name="title" :error="saveFailure.feedback.value?.fieldErrors.title?.join(' ')"
               label="品牌短句"
               description="显示在导航名称下方，同时用于社交分享标题。"
               required
@@ -283,7 +283,7 @@ function discard() {
               />
             </UFormField>
             <UFormField
-              name="description"
+              name="description" :error="saveFailure.feedback.value?.fieldErrors.description?.join(' ')"
               label="站点描述"
               description="用于搜索引擎和社交平台理解本站内容。"
               required
@@ -355,7 +355,7 @@ function discard() {
         >
           <div class="grid gap-5">
             <UFormField
-              name="searchPlaceholder"
+              name="searchPlaceholder" :error="saveFailure.feedback.value?.fieldErrors.searchPlaceholder?.join(' ')"
               label="搜索提示文案"
               description="建议说明可搜索的内容，不要重复写“点击搜索”。"
               required
@@ -389,7 +389,7 @@ function discard() {
           title="页脚说明"
         >
           <UFormField
-            name="footerTagline"
+            name="footerTagline" :error="saveFailure.feedback.value?.fieldErrors.footerTagline?.join(' ')"
             label="页脚标语"
             description="显示在所有公开页面底部，建议控制在一句话以内。"
             required
@@ -403,6 +403,7 @@ function discard() {
           </UFormField>
         </SettingSection>
 
+        <NavFailureDetails :feedback="saveFailure.feedback.value" />
         <SettingsSaveDock
           :dirty="settingsState.dirty.value"
           :status="saveStatus"

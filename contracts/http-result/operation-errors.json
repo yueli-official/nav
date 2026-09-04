@@ -1,0 +1,315 @@
+{
+  "schemaVersion": "http.yueli.dev/operation-errors/v1",
+  "namespace": "nav",
+  "operations": {
+    "POST /api/v1/admin/nav/categories": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "DELETE /api/v1/admin/nav/categories/{id}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.conflict"
+    ],
+    "PATCH /api/v1/admin/nav/categories/{id}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/admin/nav/checks": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden"
+    ],
+    "GET /api/v1/admin/nav/checks/jobs/{jobId}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.not_found"
+    ],
+    "POST /api/v1/admin/nav/checks/run": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "PUT /api/v1/admin/nav/checks/{id}/exemption": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/admin/nav/groups": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "DELETE /api/v1/admin/nav/groups/{id}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.conflict"
+    ],
+    "PATCH /api/v1/admin/nav/groups/{id}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/admin/nav/links": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden"
+    ],
+    "POST /api/v1/admin/nav/links": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.conflict",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/admin/nav/links/bulk": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input"
+    ],
+    "DELETE /api/v1/admin/nav/links/{id}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.not_found"
+    ],
+    "PATCH /api/v1/admin/nav/links/{id}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.conflict",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/admin/nav/members": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input"
+    ],
+    "PATCH /api/v1/admin/nav/members/{userKey}/status": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.not_found",
+      "nav.invalid_input",
+      "nav.conflict"
+    ],
+    "GET /api/v1/admin/nav/settings": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.not_initialized"
+    ],
+    "PUT /api/v1/admin/nav/settings": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.not_initialized",
+      "nav.site_profile_precondition_required",
+      "nav.site_profile_revision_conflict",
+      "nav.invalid_input"
+    ],
+    "GET /api/v1/admin/nav/structure": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden"
+    ],
+    "GET /api/v1/admin/nav/tags": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden"
+    ],
+    "POST /api/v1/admin/nav/tags/delete": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input"
+    ],
+    "POST /api/v1/admin/nav/tags/rename": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input"
+    ],
+    "POST /api/v1/authorization/applications": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/authorization/applications/mine": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/applications/{id}/withdraw": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/applications/{id}/review": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/authorization/manage/console": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/policies/drafts": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/policies/{revision}/activate": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "PUT /api/v1/authorization/manage/policies/{revision}/automatic/{rule}": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/policies/{revision}/preview": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/policies/{revision}/roles": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "PUT /api/v1/authorization/manage/policies/{revision}/roles/{role}/capabilities": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/policies/{revision}/roles/{role}/retire": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "POST /api/v1/authorization/manage/policies/{revision}/validate": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/authorization/requestable-roles": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden",
+      "nav.invalid_input",
+      "nav.not_found"
+    ],
+    "GET /api/v1/me": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable"
+    ],
+    "GET /api/v1/nav/catalog": [
+      "nav.not_initialized"
+    ],
+    "GET /api/v1/nav/groups/{groupId}": [
+      "nav.not_found",
+      "nav.not_initialized"
+    ],
+    "POST /api/v1/nav/links/{id}/click": [
+      "nav.not_found"
+    ],
+    "GET /api/v1/nav/links/{id}/favicon": [
+      "nav.not_found"
+    ]
+  },
+  "overrides": {
+    "GET /api/v1/nav/links/{id}/favicon": {
+      "success": {
+        "status": 200,
+        "kind": "binary"
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "errors.yueli.dev/i18n-inventory/v1",
+  "namespace": "nav",
+  "messages": [
+    {
+      "code": "nav.authorization_unavailable",
+      "messageKey": "errors.nav.authorization_unavailable"
+    },
+    {
+      "code": "nav.conflict",
+      "messageKey": "errors.nav.conflict",
+      "params": [
+        "id"
+      ]
+    },
+    {
+      "code": "nav.forbidden",
+      "messageKey": "errors.nav.forbidden"
+    },
+    {
+      "code": "nav.invalid_input",
+      "messageKey": "errors.nav.invalid_input"
+    },
+    {
+      "code": "nav.membership_suspended",
+      "messageKey": "errors.nav.membership_suspended"
+    },
+    {
+      "code": "nav.membership_unavailable",
+      "messageKey": "errors.nav.membership_unavailable"
+    },
+    {
+      "code": "nav.not_found",
+      "messageKey": "errors.nav.not_found",
+      "params": [
+        "id",
+        "resource"
+      ]
+    },
+    {
+      "code": "nav.not_initialized",
+      "messageKey": "errors.nav.not_initialized",
+      "params": [
+        "resource"
+      ]
+    },
+    {
+      "code": "nav.site_profile_precondition_required",
+      "messageKey": "errors.nav.site_profile_precondition_required"
+    },
+    {
+      "code": "nav.site_profile_revision_conflict",
+      "messageKey": "errors.nav.site_profile_revision_conflict"
+    }
+  ]
+}

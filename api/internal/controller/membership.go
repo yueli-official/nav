@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"sort"
-	"strings"
 
 	"github.com/gogf/gf/v2/net/ghttp"
 	foundationauth "github.com/yueli-official/foundation/go/auth"
@@ -263,7 +262,7 @@ func mapMembershipError(err error) error {
 		return naverr.Conflict("cannot-suspend-current-administrator")
 	case errors.Is(err, navmember.ErrReasonRequired):
 		return naverr.Validation("reason", "required", nil)
-	case strings.Contains(err.Error(), "500 characters"):
+	case errors.Is(err, navmember.ErrReasonTooLong):
 		return naverr.Validation("reason", "length", map[string]any{"max": 500})
 	default:
 		return naverr.MembershipUnavailable()

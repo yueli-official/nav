@@ -12,7 +12,7 @@ import (
 
 	"github.com/yueli-official/nav/api/internal/dao"
 	"github.com/yueli-official/nav/api/internal/model"
-	"github.com/yueli-official/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/navcause"
 )
 
 const (
@@ -146,11 +146,11 @@ func cloneCheckJob(job *CheckJob) CheckJob {
 
 func (s *Service) StartSelectedCheckJob(ctx context.Context, ids []string) (CheckJob, bool, error) {
 	if len(ids) > 50 {
-		return CheckJob{}, false, naverr.Validation("ids", "maximum", map[string]any{"max": 50})
+		return CheckJob{}, false, navcause.Validation("ids", "maximum", map[string]any{"max": 50})
 	}
 	ids = normalize(ids, max(len(ids), 1))
 	if len(ids) == 0 {
-		return CheckJob{}, false, naverr.Validation("ids", "required", nil)
+		return CheckJob{}, false, navcause.Validation("ids", "required", nil)
 	}
 	if active, ok := s.checkJobs.active(); ok {
 		return active, true, nil
@@ -160,7 +160,7 @@ func (s *Service) StartSelectedCheckJob(ctx context.Context, ids []string) (Chec
 		return CheckJob{}, false, err
 	}
 	if len(links) != len(ids) {
-		return CheckJob{}, false, naverr.NotFound("one_or_more_links")
+		return CheckJob{}, false, navcause.NotFound("one_or_more_links")
 	}
 	return s.startCheckJob(ctx, "selected", checkableLinks(links))
 }
@@ -211,7 +211,7 @@ func (s *Service) executeCheckJob(ctx context.Context, id string, links []*model
 func (s *Service) CheckJob(id string) (CheckJob, error) {
 	job, ok := s.checkJobs.get(id)
 	if !ok {
-		return CheckJob{}, naverr.NotFound(strings.TrimSpace(id))
+		return CheckJob{}, navcause.NotFound(strings.TrimSpace(id))
 	}
 	return job, nil
 }

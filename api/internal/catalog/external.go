@@ -17,7 +17,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/yueli-official/nav/api/internal/model"
-	"github.com/yueli-official/nav/api/internal/naverr"
+	"github.com/yueli-official/nav/api/internal/navcause"
 )
 
 const (
@@ -83,11 +83,11 @@ func (s *Service) Favicon(ctx context.Context, id string) ([]byte, string, error
 		return nil, "", err
 	}
 	if link == nil || link.Status != StatusPublished {
-		return nil, "", naverr.NotFound(id)
+		return nil, "", navcause.NotFound(id)
 	}
 	store, ok := s.store.(faviconCacheStore)
 	if !ok {
-		return nil, "", naverr.FaviconNotFound(id)
+		return nil, "", navcause.FaviconNotFound(id)
 	}
 	cached, err := store.FaviconByLinkID(ctx, id)
 	if err != nil {
@@ -103,7 +103,7 @@ func (s *Service) Favicon(ctx context.Context, id string) ([]byte, string, error
 	if cached == nil || cached.SourceURL != link.URL || faviconRefreshDue(cached, now) {
 		s.enqueueFaviconRefresh(id, false)
 	}
-	return nil, "", naverr.FaviconNotFound(id)
+	return nil, "", navcause.FaviconNotFound(id)
 }
 
 func faviconReady(cached *model.FaviconCache, sourceURL string) bool {
