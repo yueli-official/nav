@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CollectionHeaderTools } from "@yueli/ui/collection/pattern";
+
 const actionFailure = useNavFailure();
 import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
@@ -459,6 +461,25 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
+    <template #tools>
+      <CollectionHeaderTools v-model:search="search"
+        label="搜索与筛选"
+        :search-placeholder="messages.searchPlaceholder"
+        :controls="controls.filter(c => c.kind !== 'direction' && !/sort|direction/i.test(c.id))"
+        :sort-controls="controls.filter(c => c.kind === 'direction' || /sort|direction/i.test(c.id))"
+        :filter-count="activeFilterCount"
+        @search="submitSearch"
+        @control-change="changeControl"><template #view>
+            <UButton
+              icon="i-tabler-refresh"
+              color="neutral"
+              variant="outline"
+              size="xs"
+              aria-label="刷新检查结果"
+              @click="refresh()"
+            />
+          </template></CollectionHeaderTools>
+    </template>
     <NavFailureDetails :feedback="actionFailure.feedback.value" />
     <template #actions>
       <UButton
@@ -531,7 +552,7 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
           :description="exemptionError"
         />
 
-        <CollectionPanel
+        <CollectionPanel external-controls
           data-check-list-panel
           class="flex min-h-0 flex-1 flex-col [&>[aria-live=polite]]:min-h-0 [&>[aria-live=polite]]:flex-1 [&>[aria-live=polite]]:overflow-y-auto [&>[aria-live=polite]]:overscroll-contain [&>footer]:shrink-0"
           v-model:search="search"
@@ -564,16 +585,7 @@ async function runChecks(scope: "filtered" | "selected", ids: string[] = []) {
           @page-change="page = $event"
           @page-size-change="changePageSize"
         >
-          <template #view>
-            <UButton
-              icon="i-tabler-refresh"
-              color="neutral"
-              variant="outline"
-              size="xs"
-              aria-label="刷新检查结果"
-              @click="refresh()"
-            />
-          </template>
+
 
           <template #columns>
             <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-3">

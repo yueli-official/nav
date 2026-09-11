@@ -1,0 +1,54 @@
+{
+  "site": "nav",
+  "pages": [
+    {
+      "route": "/manage",
+      "width": 390,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage/tags",
+      "width": 390,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage/checks",
+      "width": 390,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage/members",
+      "width": 390,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage",
+      "width": 1440,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage/tags",
+      "width": 1440,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage/checks",
+      "width": 1440,
+      "pagination": 1,
+      "tools": 1
+    },
+    {
+      "route": "/manage/members",
+      "width": 1440,
+      "pagination": 1,
+      "tools": 1
+    }
+  ],
+  "errors": []
+}

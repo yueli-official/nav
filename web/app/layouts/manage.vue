@@ -170,18 +170,3 @@ const searchGroups = computed<readonly AdminSearchGroup[]>(() => {
     <slot />
   </YAdminConsoleLayout>
 </template>
-
-<style scoped>
-@media (max-width: 640px) {
-  [data-nav-manage-shell] :deep(button),
-  [data-nav-manage-shell] :deep(a[href]),
-  [data-nav-manage-shell] :deep(summary) {
-    min-height: 44px;
-  }
-
-  [data-nav-manage-shell] :deep(button[aria-label]),
-  [data-nav-manage-shell] :deep(a[aria-label]) {
-    min-width: 44px;
-  }
-}
-</style>

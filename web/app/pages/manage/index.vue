@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CollectionHeaderTools } from "@yueli/ui/collection/pattern";
+
 const actionFailure = useNavFailure();
 import {
   ManageClientBoundary,
@@ -490,6 +492,16 @@ async function executeBatch() {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
+    <template #tools>
+      <CollectionHeaderTools v-model:search="searchInput"
+        label="搜索与筛选"
+        :search-placeholder="messages.searchPlaceholder"
+        :controls="controls.filter(c => c.kind !== 'direction' && !/sort|direction/i.test(c.id))"
+        :sort-controls="controls.filter(c => c.kind === 'direction' || /sort|direction/i.test(c.id))"
+        :filter-count="activeFilterCount"
+        @search="submitSearch"
+        @control-change="changeControl"></CollectionHeaderTools>
+    </template>
     <NavFailureDetails :feedback="actionFailure.feedback.value" />
       <template #actions>
         <UButton
@@ -514,7 +526,7 @@ async function executeBatch() {
         :inert="batchBusy"
         :aria-busy="batchBusy"
       >
-        <CollectionPanel
+        <CollectionPanel external-controls
           data-link-list-panel
           class="flex min-h-0 flex-1 flex-col [&>[aria-live=polite]]:min-h-0 [&>[aria-live=polite]]:flex-1 [&>[aria-live=polite]]:overflow-y-auto [&>[aria-live=polite]]:overscroll-contain [&>footer]:shrink-0"
           v-model:search="searchInput"

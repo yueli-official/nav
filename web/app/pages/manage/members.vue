@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CollectionHeaderTools } from "@yueli/ui/collection/pattern";
+
 const actionFailure = useNavFailure({"/reason":"reason"});
 import { ManageClientBoundary } from "~/utils/manageComponents";
 import {
@@ -211,7 +213,7 @@ function memberKey(member: NavigationMember) {
 function avatarURL(member: NavigationMember) {
   if (!member.avatarMediaKey || avatarFailures.value.has(member.userKey)) return "";
   const account = String(runtime.public.accountUrl || "").replace(/\/$/, "");
-  return `${account}/media/${encodeURIComponent(member.avatarMediaKey)}?format=webp&name=thumbnail&v=1`;
+  return `${account}/media/${encodeURIComponent(member.avatarMediaKey)}?format=webp&preset=thumbnail&v=1`;
 }
 
 function markAvatarFailed(userKey: string) {
@@ -297,11 +299,30 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
+    <template #tools>
+      <CollectionHeaderTools v-model:search="search"
+        label="搜索与筛选"
+        :search-placeholder="messages.searchPlaceholder"
+        :controls="controls.filter(c => c.kind !== 'direction' && !/sort|direction/i.test(c.id))"
+        :sort-controls="controls.filter(c => c.kind === 'direction' || /sort|direction/i.test(c.id))"
+        :filter-count="activeFilterCount"
+        @search="submitSearch"
+        @control-change="changeControl"><template #view>
+            <UButton
+              icon="i-tabler-refresh"
+              color="neutral"
+              variant="outline"
+              size="xs"
+              aria-label="刷新成员列表"
+              @click="refresh()"
+            />
+          </template></CollectionHeaderTools>
+    </template>
     <UAlert v-if="actionFailure.message.value && !detailOpen && !suspendOpen" color="error" title="操作失败" :description="actionFailure.message.value" />
     <NavFailureDetails v-if="!detailOpen && !suspendOpen" :feedback="actionFailure.feedback.value" />
     <ManageClientBoundary :rows="8">
       <div class="flex min-h-0 flex-1 flex-col">
-        <CollectionPanel
+        <CollectionPanel external-controls
           data-member-list-panel
           class="flex min-h-0 flex-1 flex-col [&>[aria-live=polite]]:min-h-0 [&>[aria-live=polite]]:flex-1 [&>[aria-live=polite]]:overflow-y-auto [&>[aria-live=polite]]:overscroll-contain [&>footer]:shrink-0"
           v-model:search="search"
@@ -325,16 +346,7 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
           @page-change="page = $event"
           @page-size-change="changePageSize"
         >
-          <template #view>
-            <UButton
-              icon="i-tabler-refresh"
-              color="neutral"
-              variant="outline"
-              size="xs"
-              aria-label="刷新成员列表"
-              @click="refresh()"
-            />
-          </template>
+
 
           <template #columns>
             <div
