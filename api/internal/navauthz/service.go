@@ -47,6 +47,14 @@ func (service *Service) Subject(ctx context.Context) authorization.SubjectRef {
 	if !ok {
 		return authorization.SubjectRef{Kind: authorization.SubjectAnonymous}
 	}
+	if principal.SubjectKind == foundationauth.SubjectUser {
+		if userKey, ok := navidentity.PublicUserKey(principal); ok {
+			return authorization.SubjectRef{Kind: authorization.SubjectUser, ID: userKey}
+		}
+	}
+	if principal.SubjectKind == foundationauth.SubjectClient && principal.ClientID != "" {
+		return authorization.SubjectRef{Kind: authorization.SubjectService, ID: principal.ClientID}
+	}
 	subjectKind, _ := principal.Claim("subject_kind")
 	if subjectKind == "user" {
 		if userKey, ok := navidentity.PublicUserKey(principal); ok {
@@ -69,6 +77,10 @@ func (service *Service) Decide(
 		return authorization.Decision{}, &authorization.Error{
 			Kind: authorization.ErrorUnavailable, Field: "runtime", Message: "is not configured",
 		}
+	}
+	if principal, ok := foundationauth.FromContext(ctx); ok && principal.IsPersonalToken() &&
+		!foundationauth.AllowsPersonalCapability(ctx, string(capability)) {
+		return authorization.Decision{Allowed: false}, nil
 	}
 	return service.runtime.Decide(ctx, authorization.DecisionRequest{
 		Subject: service.Subject(ctx), Capability: capability, ScopeID: scopeID, Resource: resource,
@@ -183,9 +195,18 @@ type ManageLinkAccess struct {
 // Descendant grants are checked per group so scoped curators cannot see links
 // outside the scope delegated to them.
 func (service *Service) ManageLinkFilter(ctx context.Context) (ManageLinkAccess, error) {
-	if service == nil || service.runtime == nil || service.db == nil {
+	if service == nil || service.runtime == nil {
 		return ManageLinkAccess{}, &authorization.Error{
 			Kind: authorization.ErrorUnavailable, Field: "runtime", Message: "is not configured",
+		}
+	}
+	if principal, ok := foundationauth.FromContext(ctx); ok && principal.IsPersonalToken() &&
+		!foundationauth.AllowsPersonalCapability(ctx, string(CapabilityLinkUpdate)) {
+		return ManageLinkAccess{}, nil
+	}
+	if service.db == nil {
+		return ManageLinkAccess{}, &authorization.Error{
+			Kind: authorization.ErrorUnavailable, Field: "database", Message: "is not configured",
 		}
 	}
 	subject := service.Subject(ctx)

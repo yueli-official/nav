@@ -2,9 +2,7 @@
 
 ## Open Work
 
-
-
-None.
+- [Nav 开发者令牌](work/2026-09-22-developer-tokens/index.md)：六项细粒度 PAT、现有 Nav 权限交集与显式路由边界已完成本地真实组合验收，待查收。
 
 ## Finished Work
 

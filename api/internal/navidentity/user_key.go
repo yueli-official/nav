@@ -22,7 +22,10 @@ func PublicUserKey(principal *foundationauth.Principal) (string, bool) {
 		return "", false
 	}
 	kind, _ := principal.Claim("subject_kind")
-	if kind != "user" || strings.TrimSpace(principal.Subject) == "" {
+	if principal.SubjectKind != foundationauth.SubjectUser && kind != "user" {
+		return "", false
+	}
+	if strings.TrimSpace(principal.Subject) == "" {
 		return "", false
 	}
 	if claim, ok := principal.Claim("user_key"); ok {

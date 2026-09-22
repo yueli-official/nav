@@ -3,6 +3,8 @@
 Nav 是独立的导航消费者：管理精选链接、分类、主题、推荐、搜索、点击指标和站点展示配置。
 `api/` 持有领域、权限策略和数据库事实，`web/` 提供公开发现与运营管理，`research/` 只保存设计输入。
 
+脚本和外部客户端接入见 [开发者令牌 API](docs/developer-tokens.md)。
+
 ## 边界
 
 - Nav 依赖 Identity 的 `auth.oidc` 与公开 `/api/v1/users*` 合同，不引用 Identity 的数据库、私有状态、角色模型或源码包。

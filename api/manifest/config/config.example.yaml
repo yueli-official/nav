@@ -19,6 +19,10 @@ database:
 nav:
   siteSlug: "nav-local"
   brand: "月离导航"
+  personalToken:
+    siteId: ""
+    verifyUrl: ""
+    allowHttp: false
   identity:
     baseUrl: "http://localhost:8081"
   authorization:

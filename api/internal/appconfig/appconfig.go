@@ -2,6 +2,7 @@ package appconfig
 
 import (
 	"context"
+	"strings"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -13,12 +14,26 @@ type JWKS struct {
 	AllowLoopbackHTTP bool
 }
 
+type PersonalToken struct {
+	SiteID    string
+	VerifyURL string
+	AllowHTTP bool
+}
+
 func LoadJWKS(ctx context.Context) JWKS {
 	return JWKS{
 		URL:               g.Cfg().MustGet(ctx, "nav.jwks.url", "http://localhost:8081/oauth2/jwks.json").String(),
 		Issuer:            g.Cfg().MustGet(ctx, "nav.jwks.issuer", "http://localhost:8081").String(),
 		Audience:          g.Cfg().MustGet(ctx, "nav.jwks.audience", "").String(),
 		AllowLoopbackHTTP: g.Cfg().MustGet(ctx, "nav.jwks.allowLoopbackHttp", false).Bool(),
+	}
+}
+
+func LoadPersonalToken(ctx context.Context) PersonalToken {
+	return PersonalToken{
+		SiteID:    strings.TrimSpace(g.Cfg().MustGet(ctx, "nav.personalToken.siteId", "").String()),
+		VerifyURL: strings.TrimSpace(g.Cfg().MustGet(ctx, "nav.personalToken.verifyUrl", "").String()),
+		AllowHTTP: g.Cfg().MustGet(ctx, "nav.personalToken.allowHttp", false).Bool(),
 	}
 }
 

@@ -21,8 +21,12 @@ type membershipContextKey struct{}
 func MembershipMiddleware(directory navmember.Directory, authorizationService *navauthz.Service, requireActive bool) ghttp.HandlerFunc {
 	return func(request *ghttp.Request) {
 		principal, authenticated := foundationauth.FromContext(request.Context())
+		if !authenticated || principal == nil {
+			request.Middleware.Next()
+			return
+		}
 		kind, _ := principal.Claim("subject_kind")
-		if !authenticated || principal == nil || kind != "user" {
+		if principal.SubjectKind != foundationauth.SubjectUser && kind != "user" {
 			request.Middleware.Next()
 			return
 		}

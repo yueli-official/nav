@@ -6,6 +6,7 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
+	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
 	authorizationpostgres "github.com/yueli-official/foundation/go/authorization/postgres"
 
@@ -107,9 +108,26 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	personalToken := appconfig.LoadPersonalToken(ctx)
+	var personalVerifier *foundationauth.PersonalTokenVerifier
+	if personalToken.SiteID != "" {
+		if personalToken.VerifyURL == "" {
+			panic("nav.personalToken.verifyUrl is required when Nav PAT is enabled")
+		}
+		personalVerifier, err = foundationauth.NewPersonalTokenVerifier(
+			personalToken.VerifyURL,
+			personalToken.SiteID,
+			nil,
+			foundationauth.PersonalTransportOptions{AllowHTTP: personalToken.AllowHTTP},
+		)
+		if err != nil {
+			panic(err)
+		}
+	}
 
 	server.Configure(httpServer, server.Deps{
-		Verifier: verifier, Catalog: service, Authorization: authorizationService, Membership: membershipService,
+		Verifier: verifier, PersonalVerifier: personalVerifier, PersonalSite: personalToken.SiteID,
+		Catalog: service, Authorization: authorizationService, Membership: membershipService,
 	})
 	g.Log().Info(ctx, "nav service starting")
 	httpServer.Run()

@@ -31,3 +31,10 @@ func TestPublicUserKeyRejectsUnstableSubjectWithoutClaim(t *testing.T) {
 		t.Fatalf("FromContext() = %q, %v; want rejected", got, ok)
 	}
 }
+
+func TestPublicUserKeyAcceptsTypedPersonalTokenUser(t *testing.T) {
+	principal := &foundationauth.Principal{Subject: "TestA123", SubjectKind: foundationauth.SubjectUser}
+	if got, ok := navidentity.PublicUserKey(principal); !ok || got != "TestA123" {
+		t.Fatalf("PublicUserKey() = %q, %v; want typed user", got, ok)
+	}
+}
