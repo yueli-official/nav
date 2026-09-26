@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CollectionHeaderTools } from "@yueli/ui/collection/pattern";
+import { rel } from "~/utils/date";
 
 const actionFailure = useNavFailure({"/reason":"reason"});
 import { ManageClientBoundary } from "~/utils/manageComponents";
@@ -299,30 +299,11 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
     main-id="manage-main"
     body-class="flex min-h-0 w-full flex-col gap-5"
   >
-    <template #tools>
-      <CollectionHeaderTools v-model:search="search"
-        label="搜索与筛选"
-        :search-placeholder="messages.searchPlaceholder"
-        :controls="controls.filter(c => c.kind !== 'direction' && !/sort|direction/i.test(c.id))"
-        :sort-controls="controls.filter(c => c.kind === 'direction' || /sort|direction/i.test(c.id))"
-        :filter-count="activeFilterCount"
-        @search="submitSearch"
-        @control-change="changeControl"><template #view>
-            <UButton
-              icon="i-tabler-refresh"
-              color="neutral"
-              variant="outline"
-              size="xs"
-              aria-label="刷新成员列表"
-              @click="refresh()"
-            />
-          </template></CollectionHeaderTools>
-    </template>
     <UAlert v-if="actionFailure.message.value && !detailOpen && !suspendOpen" color="error" title="操作失败" :description="actionFailure.message.value" />
     <NavFailureDetails v-if="!detailOpen && !suspendOpen" :feedback="actionFailure.feedback.value" />
     <ManageClientBoundary :rows="8">
       <div class="flex min-h-0 flex-1 flex-col">
-        <CollectionPanel external-controls
+        <CollectionPanel
           data-member-list-panel
           class="flex min-h-0 flex-1 flex-col [&>[aria-live=polite]]:min-h-0 [&>[aria-live=polite]]:flex-1 [&>[aria-live=polite]]:overflow-y-auto [&>[aria-live=polite]]:overscroll-contain [&>footer]:shrink-0"
           v-model:search="search"
@@ -348,7 +329,17 @@ async function setMemberStatus(nextStatus: "active" | "suspended") {
         >
 
 
-          <template #columns>
+          <template #view>
+            <UButton
+              icon="i-tabler-refresh"
+              color="neutral"
+              variant="outline"
+              size="xs"
+              aria-label="刷新成员列表"
+              @click="refresh()"
+            />
+          </template>
+        <template #columns>
             <div
               class="hidden grid-cols-[minmax(15rem,1.2fr)_minmax(12rem,0.8fr)_minmax(16rem,1fr)_auto] gap-4 md:grid"
             >

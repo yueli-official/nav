@@ -31,15 +31,15 @@
     "@yueli/identity-nuxt": "https://github.com/yueli-official/identity/releases/download/nuxt-v0.2.1/yueli-identity-nuxt-0.2.1.tgz",
     "@yueli/nuxt-runtime": "https://github.com/yueli-official/foundation/releases/download/js-v0.7.5/yueli-nuxt-runtime-0.1.4.tgz",
     "@yueli/site-profile": "https://github.com/yueli-official/foundation/releases/download/js-v0.7.2/yueli-site-profile-0.1.0.tgz",
-    "@yueli/ui": "https://github.com/yueli-official/foundation/releases/download/js-v0.7.2/yueli-ui-0.3.2.tgz",
+    "@yueli/ui": "file:vendor/yueli-ui-0.6.0-preview.20260926.admin-brand.1.tgz",
     "nuxt": "4.5.1",
     "tailwindcss": "4.3.1",
     "zod": "4.4.3",
     "vue": "3.5.39",
-    "vue-router": "5.1.0"
+    "vue-router": "5.1.0",
+    "@iconify-json/tabler": "1.2.35"
   },
   "devDependencies": {
-    "@iconify-json/tabler": "1.2.35",
     "@types/node": "24.13.3",
     "typescript": "6.0.3",
     "vitest": "4.1.10",

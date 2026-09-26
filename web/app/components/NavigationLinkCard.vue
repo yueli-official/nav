@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { kindLabel } from "~/utils/navigation";
 import type { NavigationResult } from "~/types/navigation";
 
 const { entry, showContext = false } = defineProps<{
