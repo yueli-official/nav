@@ -1,0 +1,2834 @@
+{
+  "components": {
+    "schemas": {
+      "github.com.yueli-official.foundation.go.siteprofile.Announcement": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+            "description": ""
+          },
+          "dismissible": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "enabled": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "endsAt": {
+            "format": "*time.Time",
+            "type": "string"
+          },
+          "startsAt": {
+            "format": "*time.Time",
+            "type": "string"
+          },
+          "text": {
+            "format": "string",
+            "type": "string"
+          },
+          "tone": {
+            "format": "siteprofile.AnnouncementTone",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Branding": {
+        "properties": {
+          "darkLogo": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          },
+          "favicon": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          },
+          "logo": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Compliance": {
+        "properties": {
+          "extraText": {
+            "format": "string",
+            "type": "string"
+          },
+          "records": {
+            "format": "[]siteprofile.ComplianceRecord",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.ComplianceRecord",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.ComplianceRecord": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "number": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Contact": {
+        "properties": {
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "siteprofile.ContactKind",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "value": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FieldOption": {
+        "properties": {
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "value": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Footer": {
+        "properties": {
+          "compliance": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Compliance",
+            "description": ""
+          },
+          "copyright": {
+            "format": "string",
+            "type": "string"
+          },
+          "legal": {
+            "format": "[]siteprofile.Link",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "linkGroups": {
+            "format": "[]siteprofile.LinkGroup",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.LinkGroup",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "social": {
+            "format": "[]siteprofile.SocialLink",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.SocialLink",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "tagline": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormField": {
+        "properties": {
+          "control": {
+            "format": "siteprofile.FieldControl",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "itemFields": {
+            "format": "[]siteprofile.FormField",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormField",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "maxItems": {
+            "format": "int",
+            "type": "integer"
+          },
+          "maxLength": {
+            "format": "int",
+            "type": "integer"
+          },
+          "options": {
+            "format": "[]siteprofile.FieldOption",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FieldOption",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "path": {
+            "format": "string",
+            "type": "string"
+          },
+          "required": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormSchema": {
+        "properties": {
+          "digest": {
+            "format": "siteprofile.Digest",
+            "type": "string"
+          },
+          "sections": {
+            "format": "[]siteprofile.FormSection",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormSection",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "version": {
+            "format": "uint64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.FormSection": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "fields": {
+            "format": "[]siteprofile.FormField",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormField",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Identity": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          },
+          "tagline": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Link": {
+        "properties": {
+          "href": {
+            "format": "string",
+            "type": "string"
+          },
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.LinkGroup": {
+        "properties": {
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "links": {
+            "format": "[]siteprofile.Link",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Link",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Profile": {
+        "properties": {
+          "announcement": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Announcement",
+            "description": ""
+          },
+          "branding": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Branding",
+            "description": ""
+          },
+          "footer": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Footer",
+            "description": ""
+          },
+          "identity": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Identity",
+            "description": ""
+          },
+          "support": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Support",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Snapshot": {
+        "properties": {
+          "documentDigest": {
+            "format": "siteprofile.Digest",
+            "type": "string"
+          },
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
+            "description": ""
+          },
+          "revision": {
+            "format": "siteprofile.Revision",
+            "type": "integer"
+          },
+          "schemaVersion": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "updatedAt": {
+            "format": "time.Time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.SocialLink": {
+        "properties": {
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "label": {
+            "format": "string",
+            "type": "string"
+          },
+          "platform": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Support": {
+        "properties": {
+          "contacts": {
+            "format": "[]siteprofile.Contact",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Contact",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.siteprofile.Visual": {
+        "properties": {
+          "alt": {
+            "format": "string",
+            "type": "string"
+          },
+          "kind": {
+            "format": "siteprofile.VisualKind",
+            "type": "string"
+          },
+          "ref": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminBulkLinksReq": {
+        "properties": {
+          "action": {
+            "enum": [
+              "publish",
+              "draft",
+              "archive",
+              "delete"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "ids": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "ids",
+          "action"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminBulkLinksRes": {
+        "properties": {
+          "changed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "failedIds": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryReq": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "icon": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "icon"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateGroupReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "title"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateGroupRes": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateLinkReq": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "published",
+              "draft",
+              "archived"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "categoryId",
+          "groupId",
+          "title",
+          "url",
+          "description",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminCreateLinkRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteCategoryRes": {
+        "properties": {},
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupRes": {
+        "properties": {},
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkRes": {
+        "properties": {},
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteTagReq": {
+        "properties": {
+          "name": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminDeleteTagRes": {
+        "properties": {
+          "changed": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobRes": {
+        "properties": {
+          "completed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "string",
+            "type": "string"
+          },
+          "finishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "scope": {
+            "format": "string",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminGetSettingsRes": {
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSiteSettingsView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminListChecksRes": {
+        "properties": {
+          "checkableTotal": {
+            "format": "int",
+            "type": "integer"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.HealthCountsView",
+            "description": ""
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminListLinksRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LifecycleCountsView",
+            "description": ""
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "tags": {
+            "format": "[]v1.TagView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TagView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminListStructureRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminListTagsRes": {
+        "properties": {
+          "items": {
+            "format": "[]v1.TagView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TagView",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminRenameTagReq": {
+        "properties": {
+          "source": {
+            "format": "string",
+            "type": "string"
+          },
+          "target": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "target"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminRenameTagRes": {
+        "properties": {
+          "changed": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminRunChecksReq": {
+        "properties": {
+          "health": {
+            "enum": [
+              "unchecked",
+              "healthy",
+              "redirected",
+              "broken",
+              "timeout",
+              "error",
+              "issue"
+            ],
+            "format": "string",
+            "type": "string"
+          },
+          "ids": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "q": {
+            "format": "string",
+            "type": "string"
+          },
+          "scope": {
+            "default": "selected",
+            "enum": [
+              "selected",
+              "filtered"
+            ],
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes": {
+        "properties": {
+          "completed": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "string",
+            "type": "string"
+          },
+          "finishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "reused": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "scope": {
+            "format": "string",
+            "type": "string"
+          },
+          "startedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminSiteSettingsView": {
+        "properties": {
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "runtimeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "schema": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.FormSchema",
+            "description": ""
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          },
+          "snapshot": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Snapshot",
+            "description": ""
+          }
+        },
+        "required": [
+          "searchPlaceholder"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateCategoryRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateGroupRes": {
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateLinkRes": {
+        "properties": {
+          "link": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsReq": {
+        "properties": {
+          "profile": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Profile",
+            "description": ""
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "searchPlaceholder"
+        ],
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsRes": {
+        "properties": {
+          "settings": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSiteSettingsView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.CategoryView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "groups": {
+            "format": "[]v1.GroupView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "icon": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GetCatalogRes": {
+        "properties": {
+          "categories": {
+            "format": "[]v1.CategoryView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "site": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SiteView",
+            "description": ""
+          },
+          "stats": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.StatsView",
+            "description": ""
+          },
+          "version": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GetFaviconRes": {
+        "description": "Favicon image bytes",
+        "format": "binary",
+        "properties": {},
+        "type": "string"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GetGroupRes": {
+        "properties": {
+          "category": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.CategoryView",
+            "description": ""
+          },
+          "group": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GroupView",
+            "description": ""
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "page": {
+            "format": "int",
+            "type": "integer"
+          },
+          "site": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.SiteView",
+            "description": ""
+          },
+          "size": {
+            "format": "int",
+            "type": "integer"
+          },
+          "total": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GroupView": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "items": {
+            "format": "[]v1.LinkView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.LinkView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.HealthCountsView": {
+        "properties": {
+          "all": {
+            "format": "int",
+            "type": "integer"
+          },
+          "broken": {
+            "format": "int",
+            "type": "integer"
+          },
+          "error": {
+            "format": "int",
+            "type": "integer"
+          },
+          "exempt": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthy": {
+            "format": "int",
+            "type": "integer"
+          },
+          "redirected": {
+            "format": "int",
+            "type": "integer"
+          },
+          "timeout": {
+            "format": "int",
+            "type": "integer"
+          },
+          "unchecked": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.LifecycleCountsView": {
+        "properties": {
+          "all": {
+            "format": "int",
+            "type": "integer"
+          },
+          "archived": {
+            "format": "int",
+            "type": "integer"
+          },
+          "draft": {
+            "format": "int",
+            "type": "integer"
+          },
+          "published": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.LinkView": {
+        "properties": {
+          "categoryId": {
+            "format": "string",
+            "type": "string"
+          },
+          "clickCount": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "createdAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "faviconRevision": {
+            "format": "string",
+            "type": "string"
+          },
+          "featured": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "groupId": {
+            "format": "string",
+            "type": "string"
+          },
+          "healthCheckExempt": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "healthError": {
+            "format": "string",
+            "type": "string"
+          },
+          "healthHttpStatus": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthLatencyMs": {
+            "format": "int",
+            "type": "integer"
+          },
+          "healthStatus": {
+            "format": "string",
+            "type": "string"
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          },
+          "keywords": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "format": "string",
+            "type": "string"
+          },
+          "lastCheckedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "lastClickedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "publishedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "sortOrder": {
+            "format": "int",
+            "type": "integer"
+          },
+          "status": {
+            "format": "string",
+            "type": "string"
+          },
+          "tags": {
+            "format": "[]string",
+            "items": {
+              "format": "string",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "url": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.RecordClickRes": {
+        "properties": {
+          "recorded": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.SiteView": {
+        "properties": {
+          "description": {
+            "format": "string",
+            "type": "string"
+          },
+          "etag": {
+            "format": "string",
+            "type": "string"
+          },
+          "footerTagline": {
+            "format": "string",
+            "type": "string"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          },
+          "revision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "runtimeRevision": {
+            "format": "uint64",
+            "type": "integer"
+          },
+          "searchPlaceholder": {
+            "format": "string",
+            "type": "string"
+          },
+          "title": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.StatsView": {
+        "properties": {
+          "categoryCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "groupCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.TagView": {
+        "properties": {
+          "linkCount": {
+            "format": "int",
+            "type": "integer"
+          },
+          "name": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "DeveloperSite": {
+        "in": "header",
+        "name": "X-Yueli-Token-Site",
+        "type": "apiKey"
+      },
+      "DeveloperToken": {
+        "bearerFormat": "PAT",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "title": "Nav Developer API",
+    "version": "1"
+  },
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/admin/nav/categories": {
+      "post": {
+        "operationId": "post_api_v1_admin_nav_categories",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateCategoryRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Create navigation category",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/categories/{id}": {
+      "delete": {
+        "operationId": "delete_api_v1_admin_nav_categories_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteCategoryRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Delete navigation category",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      },
+      "patch": {
+        "operationId": "patch_api_v1_admin_nav_categories_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "icon": {
+                    "format": "string",
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "icon"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateCategoryRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Update navigation category",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks": {
+      "get": {
+        "operationId": "get_api_v1_admin_nav_checks",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "health",
+            "schema": {
+              "enum": [
+                "unchecked",
+                "healthy",
+                "redirected",
+                "broken",
+                "timeout",
+                "error",
+                "issue",
+                "exempt"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 20,
+              "format": "int",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListChecksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "List navigation link health checks",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.health_check.run"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks/jobs/{jobId}": {
+      "get": {
+        "operationId": "get_api_v1_admin_nav_checks_jobs_jobId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "jobId",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminGetCheckJobRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Get a navigation link health check job",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.health_check.run"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks/run": {
+      "post": {
+        "operationId": "post_api_v1_admin_nav_checks_run",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRunChecksReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRunChecksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Start a navigation link health check job",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.health_check.run"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/checks/{id}/exemption": {
+      "put": {
+        "operationId": "put_api_v1_admin_nav_checks_id_exemption",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "exempt": {
+                    "format": "*bool",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "exempt"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminSetCheckExemptionRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Set a navigation link health check exemption",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.health_check.run"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/groups": {
+      "post": {
+        "operationId": "post_api_v1_admin_nav_groups",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateGroupReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Create navigation group",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/groups/{id}": {
+      "delete": {
+        "operationId": "delete_api_v1_admin_nav_groups_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Delete navigation group",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      },
+      "patch": {
+        "operationId": "patch_api_v1_admin_nav_groups_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "categoryId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 120,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "categoryId",
+                  "title"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Update navigation group",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links": {
+      "get": {
+        "operationId": "get_api_v1_admin_nav_links",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "categoryId",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "groupId",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "updated",
+              "enum": [
+                "default",
+                "updated",
+                "title",
+                "published"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "direction",
+            "schema": {
+              "default": "desc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 20,
+              "format": "int",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListLinksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "List navigation links",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.link.update"
+          ]
+        ]
+      },
+      "post": {
+        "operationId": "post_api_v1_admin_nav_links",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateLinkReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminCreateLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Create a navigation link",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.link.submit"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links/bulk": {
+      "post": {
+        "operationId": "post_api_v1_admin_nav_links_bulk",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinksReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinksRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Bulk update navigation links",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.link.moderate"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/links/{id}": {
+      "delete": {
+        "operationId": "delete_api_v1_admin_nav_links_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Delete a navigation link",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.link.moderate"
+          ]
+        ]
+      },
+      "patch": {
+        "operationId": "patch_api_v1_admin_nav_links_id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "categoryId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "description": {
+                    "format": "string",
+                    "maxLength": 500,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "featured": {
+                    "format": "bool",
+                    "type": "boolean"
+                  },
+                  "groupId": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "keywords": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "kind": {
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "sortOrder": {
+                    "format": "int",
+                    "type": "integer"
+                  },
+                  "status": {
+                    "enum": [
+                      "published",
+                      "draft",
+                      "archived"
+                    ],
+                    "format": "string",
+                    "type": "string"
+                  },
+                  "tags": {
+                    "format": "[]string",
+                    "items": {
+                      "format": "string",
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "title": {
+                    "format": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "url": {
+                    "format": "string",
+                    "maxLength": 2048,
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "categoryId",
+                  "groupId",
+                  "title",
+                  "url",
+                  "description",
+                  "kind"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateLinkRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Update a navigation link",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.link.update"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/settings": {
+      "get": {
+        "operationId": "get_api_v1_admin_nav_settings",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminGetSettingsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Get navigation site settings",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.settings.manage"
+          ]
+        ]
+      },
+      "put": {
+        "operationId": "put_api_v1_admin_nav_settings",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminUpdateSettingsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Update navigation site settings",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.settings.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/structure": {
+      "get": {
+        "operationId": "get_api_v1_admin_nav_structure",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListStructureRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "List categories and groups",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/tags": {
+      "get": {
+        "operationId": "get_api_v1_admin_nav_tags",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminListTagsRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "List navigation tags",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/tags/delete": {
+      "post": {
+        "operationId": "post_api_v1_admin_nav_tags_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteTagReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminDeleteTagRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Delete a navigation tag",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/admin/nav/tags/rename": {
+      "post": {
+        "operationId": "post_api_v1_admin_nav_tags_rename",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRenameTagReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminRenameTagRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Rename or merge a navigation tag",
+        "tags": [
+          "Admin Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.structure.manage"
+          ]
+        ]
+      }
+    },
+    "/api/v1/nav/catalog": {
+      "get": {
+        "operationId": "get_api_v1_nav_catalog",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetCatalogRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {},
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Get the published navigation catalog",
+        "tags": [
+          "Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          []
+        ]
+      }
+    },
+    "/api/v1/nav/groups/{groupId}": {
+      "get": {
+        "operationId": "get_api_v1_nav_groups_groupId",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "groupId",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "default": 1,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "schema": {
+              "default": 18,
+              "format": "int",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "schema": {
+              "default": "default",
+              "enum": [
+                "default",
+                "popular"
+              ],
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetGroupRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {},
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Get a paginated published navigation topic",
+        "tags": [
+          "Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          []
+        ]
+      }
+    },
+    "/api/v1/nav/links/{id}/click": {
+      "post": {
+        "operationId": "post_api_v1_nav_links_id_click",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RecordClickRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {},
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Record a navigation link visit",
+        "tags": [
+          "Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          []
+        ]
+      }
+    },
+    "/api/v1/nav/links/{id}/favicon": {
+      "get": {
+        "operationId": "get_api_v1_nav_links_id_favicon",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "v",
+            "schema": {
+              "format": "string",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "image/avif": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/gif": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/png": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/vnd.microsoft.icon": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/webp": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              },
+              "image/x-icon": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetFaviconRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": "Favicon image bytes"
+          }
+        },
+        "security": [
+          {},
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Get a proxied navigation link favicon",
+        "tags": [
+          "Nav"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          []
+        ]
+      }
+    }
+  },
+  "x-yueli-deployment-status": "unknown",
+  "x-yueli-source-digest": "a54fdaf70a6b8dd27ea43ae39519c6796edc048dc019b56ddaf29ee6fad72f54"
+}

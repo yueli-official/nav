@@ -1,0 +1,379 @@
+{
+  "authorization": {
+    "scopeSemantics": "OR across branches; AND within each branch; current account/resource authorization also required",
+    "siteHeader": "X-Yueli-Token-Site",
+    "tokenHeader": "Authorization: Bearer <PAT>"
+  },
+  "deployment": {
+    "status": "unknown"
+  },
+  "liveVerification": {
+    "status": "unknown"
+  },
+  "mediaProfiles": [],
+  "operations": [
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_categories",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1categories/post",
+      "path": "/api/v1/admin/nav/categories",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Create navigation category"
+    },
+    {
+      "authentication": "pat",
+      "id": "delete_api_v1_admin_nav_categories_id",
+      "method": "DELETE",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1categories~1{id}/delete",
+      "path": "/api/v1/admin/nav/categories/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Delete navigation category"
+    },
+    {
+      "authentication": "pat",
+      "id": "patch_api_v1_admin_nav_categories_id",
+      "method": "PATCH",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1categories~1{id}/patch",
+      "path": "/api/v1/admin/nav/categories/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Update navigation category"
+    },
+    {
+      "authentication": "pat",
+      "id": "get_api_v1_admin_nav_checks",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1checks/get",
+      "path": "/api/v1/admin/nav/checks",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ],
+      "summary": "List navigation link health checks"
+    },
+    {
+      "authentication": "pat",
+      "id": "get_api_v1_admin_nav_checks_jobs_jobId",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1checks~1jobs~1{jobId}/get",
+      "path": "/api/v1/admin/nav/checks/jobs/{jobId}",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ],
+      "summary": "Get a navigation link health check job"
+    },
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_checks_run",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1checks~1run/post",
+      "path": "/api/v1/admin/nav/checks/run",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ],
+      "summary": "Start a navigation link health check job"
+    },
+    {
+      "authentication": "pat",
+      "id": "put_api_v1_admin_nav_checks_id_exemption",
+      "method": "PUT",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1checks~1{id}~1exemption/put",
+      "path": "/api/v1/admin/nav/checks/{id}/exemption",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ],
+      "summary": "Set a navigation link health check exemption"
+    },
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_groups",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1groups/post",
+      "path": "/api/v1/admin/nav/groups",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Create navigation group"
+    },
+    {
+      "authentication": "pat",
+      "id": "delete_api_v1_admin_nav_groups_id",
+      "method": "DELETE",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1groups~1{id}/delete",
+      "path": "/api/v1/admin/nav/groups/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Delete navigation group"
+    },
+    {
+      "authentication": "pat",
+      "id": "patch_api_v1_admin_nav_groups_id",
+      "method": "PATCH",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1groups~1{id}/patch",
+      "path": "/api/v1/admin/nav/groups/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Update navigation group"
+    },
+    {
+      "authentication": "pat",
+      "id": "get_api_v1_admin_nav_links",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1links/get",
+      "path": "/api/v1/admin/nav/links",
+      "scopeAnyOf": [
+        [
+          "nav.link.update"
+        ]
+      ],
+      "summary": "List navigation links"
+    },
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_links",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1links/post",
+      "path": "/api/v1/admin/nav/links",
+      "scopeAnyOf": [
+        [
+          "nav.link.submit"
+        ]
+      ],
+      "summary": "Create a navigation link"
+    },
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_links_bulk",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1links~1bulk/post",
+      "path": "/api/v1/admin/nav/links/bulk",
+      "scopeAnyOf": [
+        [
+          "nav.link.moderate"
+        ]
+      ],
+      "summary": "Bulk update navigation links"
+    },
+    {
+      "authentication": "pat",
+      "id": "delete_api_v1_admin_nav_links_id",
+      "method": "DELETE",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1links~1{id}/delete",
+      "path": "/api/v1/admin/nav/links/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.link.moderate"
+        ]
+      ],
+      "summary": "Delete a navigation link"
+    },
+    {
+      "authentication": "pat",
+      "id": "patch_api_v1_admin_nav_links_id",
+      "method": "PATCH",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1links~1{id}/patch",
+      "path": "/api/v1/admin/nav/links/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.link.update"
+        ]
+      ],
+      "summary": "Update a navigation link"
+    },
+    {
+      "authentication": "pat",
+      "id": "get_api_v1_admin_nav_settings",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1settings/get",
+      "path": "/api/v1/admin/nav/settings",
+      "scopeAnyOf": [
+        [
+          "nav.settings.manage"
+        ]
+      ],
+      "summary": "Get navigation site settings"
+    },
+    {
+      "authentication": "pat",
+      "id": "put_api_v1_admin_nav_settings",
+      "method": "PUT",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1settings/put",
+      "path": "/api/v1/admin/nav/settings",
+      "scopeAnyOf": [
+        [
+          "nav.settings.manage"
+        ]
+      ],
+      "summary": "Update navigation site settings"
+    },
+    {
+      "authentication": "pat",
+      "id": "get_api_v1_admin_nav_structure",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1structure/get",
+      "path": "/api/v1/admin/nav/structure",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "List categories and groups"
+    },
+    {
+      "authentication": "pat",
+      "id": "get_api_v1_admin_nav_tags",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1tags/get",
+      "path": "/api/v1/admin/nav/tags",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "List navigation tags"
+    },
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_tags_delete",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1tags~1delete/post",
+      "path": "/api/v1/admin/nav/tags/delete",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Delete a navigation tag"
+    },
+    {
+      "authentication": "pat",
+      "id": "post_api_v1_admin_nav_tags_rename",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1admin~1nav~1tags~1rename/post",
+      "path": "/api/v1/admin/nav/tags/rename",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ],
+      "summary": "Rename or merge a navigation tag"
+    },
+    {
+      "authentication": "public-or-pat",
+      "id": "get_api_v1_nav_catalog",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1nav~1catalog/get",
+      "path": "/api/v1/nav/catalog",
+      "scopeAnyOf": [
+        []
+      ],
+      "summary": "Get the published navigation catalog"
+    },
+    {
+      "authentication": "public-or-pat",
+      "id": "get_api_v1_nav_groups_groupId",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1nav~1groups~1{groupId}/get",
+      "path": "/api/v1/nav/groups/{groupId}",
+      "scopeAnyOf": [
+        []
+      ],
+      "summary": "Get a paginated published navigation topic"
+    },
+    {
+      "authentication": "public-or-pat",
+      "id": "post_api_v1_nav_links_id_click",
+      "method": "POST",
+      "openapiPointer": "#/paths/~1api~1v1~1nav~1links~1{id}~1click/post",
+      "path": "/api/v1/nav/links/{id}/click",
+      "scopeAnyOf": [
+        []
+      ],
+      "summary": "Record a navigation link visit"
+    },
+    {
+      "authentication": "public-or-pat",
+      "id": "get_api_v1_nav_links_id_favicon",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1nav~1links~1{id}~1favicon/get",
+      "path": "/api/v1/nav/links/{id}/favicon",
+      "scopeAnyOf": [
+        []
+      ],
+      "summary": "Get a proxied navigation link favicon"
+    }
+  ],
+  "permissions": [
+    {
+      "capability": "nav.health_check.run",
+      "description": "读取健康状态、运行检查并维护豁免；仍需当前管理员权限。",
+      "key": "nav.health_check.run",
+      "label": "管理链接健康检查"
+    },
+    {
+      "capability": "nav.link.moderate",
+      "description": "发布、归档、删除或批量治理链接；仍需当前账号拥有对应权限。",
+      "key": "nav.link.moderate",
+      "label": "治理链接"
+    },
+    {
+      "capability": "nav.link.submit",
+      "description": "创建链接草稿；发布或推荐仍需审核权限。",
+      "key": "nav.link.submit",
+      "label": "提交链接"
+    },
+    {
+      "capability": "nav.link.update",
+      "description": "读取可管理链接并编辑当前账号授权范围内的链接。",
+      "key": "nav.link.update",
+      "label": "读取和编辑链接"
+    },
+    {
+      "capability": "nav.settings.manage",
+      "description": "读取和修改 Nav 公开站点设置；仍需当前管理员权限。",
+      "key": "nav.settings.manage",
+      "label": "管理站点设置"
+    },
+    {
+      "capability": "nav.structure.manage",
+      "description": "读取和管理分类、分组与标签；仍需当前管理员权限。",
+      "key": "nav.structure.manage",
+      "label": "管理导航结构"
+    }
+  ],
+  "product": {
+    "guide": "../developer-tokens.md",
+    "id": "nav",
+    "name": "Nav",
+    "openapi": "../../contracts/openapi/nav.json"
+  },
+  "schemaVersion": 1,
+  "sourceDigest": "a54fdaf70a6b8dd27ea43ae39519c6796edc048dc019b56ddaf29ee6fad72f54"
+}

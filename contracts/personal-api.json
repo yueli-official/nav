@@ -1,0 +1,292 @@
+{
+  "mediaProfiles": [],
+  "permissions": [
+    {
+      "capability": "nav.link.submit",
+      "description": "创建链接草稿；发布或推荐仍需审核权限。",
+      "key": "nav.link.submit",
+      "label": "提交链接"
+    },
+    {
+      "capability": "nav.link.update",
+      "description": "读取可管理链接并编辑当前账号授权范围内的链接。",
+      "key": "nav.link.update",
+      "label": "读取和编辑链接"
+    },
+    {
+      "capability": "nav.link.moderate",
+      "description": "发布、归档、删除或批量治理链接；仍需当前账号拥有对应权限。",
+      "key": "nav.link.moderate",
+      "label": "治理链接"
+    },
+    {
+      "capability": "nav.structure.manage",
+      "description": "读取和管理分类、分组与标签；仍需当前管理员权限。",
+      "key": "nav.structure.manage",
+      "label": "管理导航结构"
+    },
+    {
+      "capability": "nav.health_check.run",
+      "description": "读取健康状态、运行检查并维护豁免；仍需当前管理员权限。",
+      "key": "nav.health_check.run",
+      "label": "管理链接健康检查"
+    },
+    {
+      "capability": "nav.settings.manage",
+      "description": "读取和修改 Nav 公开站点设置；仍需当前管理员权限。",
+      "key": "nav.settings.manage",
+      "label": "管理站点设置"
+    }
+  ],
+  "product": {
+    "guide": "../developer-tokens.md",
+    "id": "nav",
+    "name": "Nav",
+    "openapi": "../../contracts/openapi/nav.json"
+  },
+  "routes": [
+    {
+      "authentication": "public-or-pat",
+      "method": "GET",
+      "path": "/api/v1/nav/catalog",
+      "scopeAnyOf": [
+        []
+      ]
+    },
+    {
+      "authentication": "public-or-pat",
+      "method": "GET",
+      "path": "/api/v1/nav/groups/{groupId}",
+      "scopeAnyOf": [
+        []
+      ]
+    },
+    {
+      "authentication": "public-or-pat",
+      "method": "POST",
+      "path": "/api/v1/nav/links/{id}/click",
+      "scopeAnyOf": [
+        []
+      ]
+    },
+    {
+      "authentication": "public-or-pat",
+      "method": "GET",
+      "path": "/api/v1/nav/links/{id}/favicon",
+      "scopeAnyOf": [
+        []
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/links",
+      "scopeAnyOf": [
+        [
+          "nav.link.update"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/links",
+      "scopeAnyOf": [
+        [
+          "nav.link.submit"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/links/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.link.update"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "DELETE",
+      "path": "/api/v1/admin/nav/links/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.link.moderate"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/links/bulk",
+      "scopeAnyOf": [
+        [
+          "nav.link.moderate"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/checks",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/checks/run",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/checks/jobs/{jobId}",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "PUT",
+      "path": "/api/v1/admin/nav/checks/{id}/exemption",
+      "scopeAnyOf": [
+        [
+          "nav.health_check.run"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/structure",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/categories",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/categories/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "DELETE",
+      "path": "/api/v1/admin/nav/categories/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/groups",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "PATCH",
+      "path": "/api/v1/admin/nav/groups/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "DELETE",
+      "path": "/api/v1/admin/nav/groups/{id}",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/tags",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/tags/rename",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "POST",
+      "path": "/api/v1/admin/nav/tags/delete",
+      "scopeAnyOf": [
+        [
+          "nav.structure.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/settings",
+      "scopeAnyOf": [
+        [
+          "nav.settings.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "PUT",
+      "path": "/api/v1/admin/nav/settings",
+      "scopeAnyOf": [
+        [
+          "nav.settings.manage"
+        ]
+      ]
+    }
+  ],
+  "schemaVersion": 1
+}
