@@ -3,8 +3,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const { user, refresh, login } = useAuth();
   if (!user.value) await refresh();
   if (!user.value) return login(to.fullPath);
-  if (import.meta.server) return;
-
   const {
     canManage,
     accessStatus,
