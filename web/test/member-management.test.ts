@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const page = readFileSync(
   fileURLToPath(new URL("../app/pages/manage/members.vue", import.meta.url)),
   "utf8",
-);
+).replace(/\r\n/g, "\n");
 const layout = readFileSync(
   fileURLToPath(new URL("../app/layouts/manage.vue", import.meta.url)),
   "utf8",
