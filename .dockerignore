@@ -1,0 +1,9 @@
+.git
+.task
+.doctor
+**/node_modules
+**/.nuxt
+**/.output
+**/.data
+**/.env*
+**/*.log

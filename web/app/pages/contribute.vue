@@ -86,8 +86,8 @@ async function withdraw() {
 <template>
   <div class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 lg:py-16">
     <UButton
-      to="/"
-      label="返回导航"
+      to="/#categories"
+      label="返回分类"
       icon="i-tabler-arrow-left"
       color="neutral"
       variant="ghost"

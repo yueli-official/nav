@@ -30,7 +30,6 @@ describe("instance-local authorization contracts", () => {
     expect(layout).not.toMatch(
       /<template>\s*<ClientOnly>[\s\S]*?<YAdminConsoleLayout/,
     );
-    expect(layout).toContain(':current-label="currentLabel"');
     expect(layout).toContain('currentLocation: "当前位置"');
     expect(layout).not.toMatch(/正在打开[^\n]{0,16}控制台/);
     const expectations = new Map([

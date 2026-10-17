@@ -6,7 +6,7 @@ import {
   ManageIconPicker,
   SkeletonList,
 } from "~/utils/manageComponents";
-import { CollectionTableToolbar } from "@yueli/ui/collection/pattern";
+import { CollectionHeaderTools } from "@yueli/ui/collection/pattern";
 import { z } from "zod";
 import type {
   NavigationCategory,
@@ -212,10 +212,9 @@ async function remove() {
     />
 
     <ManageClientBoundary :rows="6">
-      <CollectionTableToolbar
+      <CollectionHeaderTools
         v-model:search="search"
         label="分类与主题搜索"
-        filter-label="筛选"
         search-placeholder="搜索分类、主题或描述…"
       />
       <UAlert

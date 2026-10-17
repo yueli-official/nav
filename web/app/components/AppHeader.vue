@@ -7,6 +7,11 @@ const { widthClass, brandName, brandTagline } = defineProps<{
   brandTagline?: string;
 }>();
 const { openSearch } = useNavigationSearch();
+const route = useRoute();
+const publicPages = computed(() => [
+  { label: "首页", to: "/", active: route.path === "/" },
+  { label: "分类", to: "/#categories", active: route.path.startsWith("/categories/") || route.path.startsWith("/topics/") },
+]);
 const { user } = useAuth();
 const {
   accessStatus,
@@ -97,7 +102,7 @@ if (import.meta.client) {
     class="yueli-topbar sticky top-0 z-30 border-b border-default backdrop-blur-xl"
   >
     <div
-      class="mx-auto flex h-16 w-full items-center gap-3 px-4 sm:px-6 lg:px-8"
+      class="mx-auto flex min-h-16 w-full flex-wrap items-center gap-x-3 gap-y-2 px-4 py-2 sm:px-6 lg:px-8"
       :class="widthClass"
     >
       <NuxtLink
@@ -119,6 +124,10 @@ if (import.meta.client) {
           }}</span>
         </span>
       </NuxtLink>
+
+      <nav aria-label="主导航" class="order-3 flex w-full gap-1 sm:order-none sm:w-auto sm:ml-3">
+        <UButton v-for="page in publicPages" :key="page.to" :to="page.to" :label="page.label" :color="page.active ? 'primary' : 'neutral'" :variant="page.active ? 'soft' : 'ghost'" :aria-current="page.active ? 'page' : undefined" />
+      </nav>
 
       <div class="ml-auto flex items-center gap-1">
         <UButton

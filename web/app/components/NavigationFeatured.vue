@@ -19,7 +19,7 @@ function recordClick(entry: NavigationResult) {
 <template>
   <section
     v-if="leadPick"
-    class="overflow-hidden rounded-2xl border border-default bg-default shadow-[var(--shadow-soft)] dark:border-transparent dark:bg-[var(--yueli-surface-card)]"
+    class="nav-featured overflow-hidden rounded-2xl border border-default bg-default"
     aria-labelledby="featured-title"
   >
     <header
@@ -33,12 +33,12 @@ function recordClick(entry: NavigationResult) {
             aria-hidden="true"
           />编辑精选
         </p>
-        <h1
+        <h2
           id="featured-title"
-          class="font-display mt-1 text-2xl font-bold tracking-tight text-highlighted sm:text-3xl"
+          class="font-display mt-1 text-xl font-semibold tracking-tight text-highlighted sm:text-2xl"
         >
           本周值得逛
-        </h1>
+        </h2>
         <p class="mt-1.5 max-w-2xl text-sm leading-6 text-muted">
           从 {{ entries.length }} 个互联网入口里，挑出适合立即开始的工具与资料。
         </p>
@@ -61,7 +61,8 @@ function recordClick(entry: NavigationResult) {
         external
         target="_blank"
         rel="noopener noreferrer"
-        class="nav-hero-surface group relative flex min-h-56 min-w-0 flex-col justify-between overflow-hidden p-5 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:p-6 lg:min-h-64"
+        data-spotlight
+        class="nav-hero-surface nav-spotlight group relative flex min-h-56 min-w-0 flex-col justify-between overflow-hidden p-5 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-primary sm:p-6 lg:min-h-64"
         @click="recordClick(leadPick)"
       >
         <span
@@ -115,7 +116,7 @@ function recordClick(entry: NavigationResult) {
       </NuxtLink>
 
       <div
-        class="grid gap-3 bg-elevated/45 p-3 dark:bg-[var(--yueli-surface-region)] sm:grid-cols-2 sm:p-4"
+        class="nav-featured-list grid gap-3 p-3 sm:grid-cols-2 sm:p-4"
       >
         <NuxtLink
           v-for="(entry, index) in secondaryPicks"
@@ -124,7 +125,8 @@ function recordClick(entry: NavigationResult) {
           external
           target="_blank"
           rel="noopener noreferrer"
-          class="group flex min-h-28 min-w-0 flex-col justify-between rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-[var(--yueli-surface-card)]"
+          data-spotlight
+          class="nav-pick nav-spotlight group flex min-h-28 min-w-0 flex-col justify-between rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           @click="recordClick(entry)"
         >
           <div class="flex min-w-0 items-start gap-3">

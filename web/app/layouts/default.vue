@@ -17,6 +17,15 @@ const entries = computed(() =>
 );
 const { openSearch } = useNavigationSearch();
 
+function moveSpotlight(event: PointerEvent) {
+  if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const card = (event.target as Element).closest<HTMLElement>("[data-spotlight]");
+  if (!card) return;
+  const bounds = card.getBoundingClientRect();
+  card.style.setProperty("--pointer-x", `${event.clientX - bounds.left}px`);
+  card.style.setProperty("--pointer-y", `${event.clientY - bounds.top}px`);
+}
+
 defineShortcuts({
   "/": { usingInput: false, handler: openSearch },
   meta_k: openSearch,
@@ -25,7 +34,7 @@ defineShortcuts({
 </script>
 
 <template>
-  <div class="yueli-app-shell flex min-h-dvh flex-col text-default">
+  <div class="nav-public yueli-app-shell flex min-h-dvh flex-col text-default" @pointermove="moveSpotlight">
     <AppHeader
       :width-class="mainWidth"
       :brand-name="data?.site.name"
@@ -58,3 +67,5 @@ defineShortcuts({
     </footer>
   </div>
 </template>
+
+<style src="~/assets/css/public.css"></style>

@@ -17,7 +17,8 @@ function recordClick() {
     external
     target="_blank"
     rel="noopener noreferrer"
-    class="group flex h-full min-w-0 flex-col rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[var(--shadow-soft)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:bg-[var(--yueli-surface-card)]"
+    data-spotlight
+    class="nav-link-card nav-spotlight group flex h-full min-w-0 flex-col rounded-xl border border-default bg-default p-4 transition duration-200 hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     @click="recordClick"
   >
     <div class="flex min-w-0 items-start gap-3">

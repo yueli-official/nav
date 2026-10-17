@@ -121,12 +121,14 @@ jobs:
         include:
           - name: api
             context: api
+            dockerfile: api/Dockerfile
           - name: web
-            context: web
+            context: .
+            dockerfile: web/Dockerfile
     steps:
       - uses: actions/checkout@v4
       - name: 构建 ${{ matrix.name }} 容器
-        run: docker build --tag yueli-nav-${{ matrix.name }}:ci ${{ matrix.context }}
+        run: docker build --file ${{ matrix.dockerfile }} --tag yueli-nav-${{ matrix.name }}:ci ${{ matrix.context }}
 
   compose:
     runs-on: ubuntu-latest

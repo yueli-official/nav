@@ -16,7 +16,7 @@ defineExpose({ focus });
 </script>
 
 <template>
-  <div class="relative">
+  <div class="nav-search relative">
     <UInput
       ref="search-input"
       v-model="query"
@@ -27,7 +27,7 @@ defineExpose({ focus });
       aria-label="搜索导航站点"
       class="w-full"
       :ui="{
-        base: 'h-12 rounded-xl bg-default pl-11 pr-12 text-base shadow-sm ring-1 ring-default focus-visible:ring-2 focus-visible:ring-primary',
+        base: 'h-12 rounded-xl bg-default pl-11 pr-12 text-sm shadow-sm ring-1 ring-default focus-visible:ring-2 focus-visible:ring-primary',
         leadingIcon: 'ml-1 size-5 text-primary',
       }"
       @keydown.enter.prevent="emit('submit')"

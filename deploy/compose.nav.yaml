@@ -104,7 +104,8 @@ services:
     image: ${NAV_WEB_IMAGE:-yueli/nav-web:local}
     pull_policy: build
     build:
-      context: ../web
+      context: ..
+      dockerfile: web/Dockerfile
     restart: unless-stopped
     environment:
       NUXT_API_BASE: http://nav-api:8090
