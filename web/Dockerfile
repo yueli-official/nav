@@ -1,4 +1,4 @@
-FROM node:24.18.0-bookworm-slim AS build
+FROM node:24.22.1-bookworm-slim AS build
 
 RUN corepack enable && corepack prepare pnpm@10.28.2 --activate
 WORKDIR /app/web
@@ -11,7 +11,7 @@ COPY api/contracts /app/api/contracts
 ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN pnpm build
 
-FROM node:24.18.0-bookworm-slim
+FROM node:24.22.1-bookworm-slim
 
 WORKDIR /app
 COPY --from=build /app/web/.output ./.output
