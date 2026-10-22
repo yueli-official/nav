@@ -1,0 +1,20 @@
+--- a/main.go
++++ b/main.go
+@@ -32,7 +32,7 @@
+ 		log.Fatal().Err(err).Msg("资源加载失败")
+ 	}
+ 
+-	key := conf.InitAPIKey()
++	conf.InitAPIKey()
+ 
+ 	// 禁用默认 Gin 输出
+ 	gin.DefaultWriter = io.Discard
+@@ -53,7 +53,7 @@
+ 		SPAPath:    "./frontend/dist",
+ 	}
+ 
+-	logger.Info().Msg("后台访问密码为:" + key)
++	logger.Info().Msg("后台鉴权已初始化")
+ 
+ 	// 启动服务器
+ 	err = server.Start(cfg, func(api *gin.RouterGroup) {
