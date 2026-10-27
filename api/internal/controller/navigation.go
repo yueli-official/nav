@@ -11,6 +11,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/yueli-official/foundation/go/authorization"
+	"github.com/yueli-official/foundation/go/identifier"
+	"github.com/yueli-official/foundation/go/problem"
 	v1 "github.com/yueli-official/nav/api/api/v1"
 	"github.com/yueli-official/nav/api/internal/catalog"
 	"github.com/yueli-official/nav/api/internal/dao"
@@ -210,10 +212,29 @@ func (c *Admin) AdminSetCheckExemption(ctx context.Context, req *v1.AdminSetChec
 func (c *Admin) AdminBulkLinks(ctx context.Context, req *v1.AdminBulkLinksReq) (*v1.AdminBulkLinksRes, error) {
 	eligible := make([]string, 0, len(req.IDs))
 	failed := make([]string, 0)
+	failures := make([]v1.AdminBulkLinkFailure, 0)
+	trace := identifier.MustNew().String()
+	if r := ghttp.RequestFromCtx(ctx); r != nil {
+		trace = r.Response.Header().Get("X-Trace-Id")
+	}
+	addFailure := func(id string, cause error) error {
+		value, ok, err := problem.FromError(naverr.MapCause(cause), trace)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return cause
+		}
+		failed = append(failed, id)
+		failures = append(failures, v1.AdminBulkLinkFailure{ID: id, Failure: value})
+		return nil
+	}
 	for _, id := range req.IDs {
 		link, err := c.service.Link(ctx, id)
 		if err != nil {
-			failed = append(failed, id)
+			if err := addFailure(id, err); err != nil {
+				return nil, err
+			}
 			continue
 		}
 		if err := ensureLinkScope(ctx, link.ID, link.GroupID, link.CategoryID); err != nil {
@@ -223,20 +244,26 @@ func (c *Admin) AdminBulkLinks(ctx context.Context, req *v1.AdminBulkLinksReq) (
 			ctx, navauthz.CapabilityLinkModerate, navauthz.LinkScopeID(link.ID),
 			navauthz.LinkResource(link.ID, link.SubmitterSub),
 		); err != nil {
-			failed = append(failed, id)
+			if err := addFailure(id, err); err != nil {
+				return nil, err
+			}
 			continue
 		}
 		eligible = append(eligible, id)
 	}
 	if len(eligible) == 0 {
-		return &v1.AdminBulkLinksRes{FailedIDs: failed}, nil
+		return &v1.AdminBulkLinksRes{FailedIDs: failed, Failures: failures}, nil
 	}
 	result, err := c.service.BulkLinks(ctx, eligible, req.Action)
 	if err != nil {
 		return nil, err
 	}
-	result.FailedIDs = append(result.FailedIDs, failed...)
-	return &v1.AdminBulkLinksRes{Changed: result.Changed, FailedIDs: result.FailedIDs}, nil
+	for _, failure := range result.Failures {
+		if err := addFailure(failure.ID, failure.Cause); err != nil {
+			return nil, err
+		}
+	}
+	return &v1.AdminBulkLinksRes{Changed: result.Changed, FailedIDs: failed, Failures: failures}, nil
 }
 
 func (c *Admin) AdminListStructure(ctx context.Context, _ *v1.AdminListStructureReq) (*v1.AdminListStructureRes, error) {

@@ -504,6 +504,12 @@ func (s *Service) DeleteLink(ctx context.Context, id string) error {
 type BulkResult struct {
 	Changed   int
 	FailedIDs []string
+	Failures  []BulkLinkFailure
+}
+
+type BulkLinkFailure struct {
+	ID    string
+	Cause error
 }
 
 func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (BulkResult, error) {
@@ -521,6 +527,7 @@ func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (B
 	}
 	eligible := make([]string, 0, len(ids))
 	failed := make([]string, 0)
+	failures := make([]BulkLinkFailure, 0)
 	for _, id := range ids {
 		exists, existsErr := s.store.LinkExists(ctx, id)
 		if existsErr != nil {
@@ -530,10 +537,11 @@ func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (B
 			eligible = append(eligible, id)
 		} else {
 			failed = append(failed, id)
+			failures = append(failures, BulkLinkFailure{ID: id, Cause: navcause.NotFound(id)})
 		}
 	}
 	if len(eligible) == 0 {
-		return BulkResult{FailedIDs: failed}, nil
+		return BulkResult{FailedIDs: failed, Failures: failures}, nil
 	}
 	var changed int
 	var err error
@@ -566,9 +574,14 @@ func (s *Service) BulkLinks(ctx context.Context, ids []string, action string) (B
 		}
 		if (action == "delete" && exists) || (action != "delete" && !exists) {
 			failed = append(failed, id)
+			cause := navcause.NotFound(id)
+			if exists {
+				cause = navcause.Conflict(id)
+			}
+			failures = append(failures, BulkLinkFailure{ID: id, Cause: cause})
 		}
 	}
-	return BulkResult{Changed: changed, FailedIDs: failed}, nil
+	return BulkResult{Changed: changed, FailedIDs: failed, Failures: failures}, nil
 }
 
 func (s *Service) CreateCategory(ctx context.Context, input model.Category) (*model.Category, error) {

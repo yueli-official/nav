@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/yueli-official/foundation/go/problem"
 	"github.com/yueli-official/foundation/go/siteprofile"
 )
 
@@ -273,8 +274,14 @@ type AdminBulkLinksReq struct {
 }
 
 type AdminBulkLinksRes struct {
-	Changed   int      `json:"changed"`
-	FailedIDs []string `json:"failedIds"`
+	Changed   int                    `json:"changed"`
+	FailedIDs []string               `json:"failedIds"`
+	Failures  []AdminBulkLinkFailure `json:"failures"`
+}
+
+type AdminBulkLinkFailure struct {
+	ID      string          `json:"id"`
+	Failure problem.Problem `json:"failure"`
 }
 
 type CategoryInput struct {

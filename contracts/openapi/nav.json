@@ -39,6 +39,64 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.foundation.go.problem.Problem": {
+        "properties": {
+          "code": {
+            "format": "string",
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/interface",
+              "description": ""
+            },
+            "format": "problem.Parameters",
+            "type": "object"
+          },
+          "status": {
+            "format": "int",
+            "type": "integer"
+          },
+          "traceId": {
+            "format": "string",
+            "type": "string"
+          },
+          "type": {
+            "format": "string",
+            "type": "string"
+          },
+          "violations": {
+            "format": "[]problem.Violation",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.problem.Violation",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.problem.Violation": {
+        "properties": {
+          "code": {
+            "format": "string",
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/interface",
+              "description": ""
+            },
+            "format": "problem.Parameters",
+            "type": "object"
+          },
+          "pointer": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.foundation.go.siteprofile.Announcement": {
         "properties": {
           "action": {
@@ -501,6 +559,19 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.AdminBulkLinkFailure": {
+        "properties": {
+          "failure": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.problem.Problem",
+            "description": ""
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.AdminBulkLinksReq": {
         "properties": {
           "action": {
@@ -539,6 +610,14 @@
             "items": {
               "format": "string",
               "type": "string"
+            },
+            "type": "array"
+          },
+          "failures": {
+            "format": "[]v1.AdminBulkLinkFailure",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinkFailure",
+              "description": ""
             },
             "type": "array"
           }
@@ -2661,6 +2740,10 @@
             "description": ""
           }
         },
+        "type": "object"
+      },
+      "interface": {
+        "properties": {},
         "type": "object"
       }
     }

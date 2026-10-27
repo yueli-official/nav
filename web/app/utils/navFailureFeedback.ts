@@ -41,3 +41,12 @@ export function navFailureMessage(error: unknown, fallback: string) {
  const feedback = navFailureFeedback(error, fallback);
  return [feedback.message, feedback.recovery, ...feedback.summary].filter(Boolean).join(" ");
 }
+
+export interface NavBatchFailure {
+ id: string;
+ failure: { status: number; code: string; traceId: string; params?: ProblemParams; violations?: readonly import('@yueli/http-runtime').Violation[] };
+}
+
+export function navBatchFailureMessage(item: NavBatchFailure) {
+ return navFailureMessage({ kind: 'remote', ...item.failure, params: item.failure.params ?? {}, violations: item.failure.violations ?? [], reauth: 'not-attempted' }, '站点处理失败，请核对当前状态后重试。');
+}

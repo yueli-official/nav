@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { navBatchFailureMessage, type NavBatchFailure } from '~/utils/navFailureFeedback';
 
 const actionFailure = useNavFailure();
 import {
@@ -457,27 +458,28 @@ async function executeBatch() {
     return;
   batchBusy.value = true;
   batchMessage.value = "";
+  actionFailure.clear();
+  const requestedIds = [...selectedIds.value];
   try {
-    const result = await call<{ changed: number; failedIds: string[] }>(
+    const result = await call<{ changed: number; failedIds: string[]; failures: NavBatchFailure[] }>(
       "/api/v1/admin/nav/links/bulk",
       {
         method: "POST",
-        body: { ids: selectedIds.value, action: batchAction.value },
+        body: { ids: requestedIds, action: batchAction.value },
       },
     );
     batchMessage.value = result.failedIds.length
-      ? `已处理 ${result.changed} 个，${result.failedIds.length} 个失败；失败项已保留选择。`
+      ? `已处理 ${result.changed} 个，${result.failedIds.length} 个失败；失败项已保留选择。${[...new Set(result.failures.map(navBatchFailureMessage))].join(' ')}`
       : `已处理 ${result.changed} 个站点`;
     if (result.failedIds.length) replaceSelection(result.failedIds);
     else clearSelection();
     batchDeleteOpen.value = false;
     batchAction.value = undefined;
-    await refresh();
   } catch (failure) {
-    const apiError = failure as { data?: { message?: string } };
-    batchMessage.value = actionFailure.capture(apiError, "批量操作失败，选择已保留。");
+    replaceSelection(requestedIds);
+    batchMessage.value = actionFailure.capture(failure, "批量操作失败，选择已保留，请核对当前状态。");
   } finally {
-    batchBusy.value = false;
+    try { await refresh(); } finally { batchBusy.value = false; }
   }
 }
 </script>
