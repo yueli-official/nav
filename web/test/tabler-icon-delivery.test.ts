@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "vitest";
+import { expect, test, vi } from "vitest";
 
 const contractUrl = new URL(
   "../../api/contracts/iconcontract/category-tabler.v1.json",
   import.meta.url,
 );
 
-test("every persisted category icon is in the build-time Tabler allowlist", () => {
+test("every persisted category icon is bundled by the local icon provider", async () => {
   const contract = JSON.parse(readFileSync(contractUrl, "utf8")) as {
     icons: string[];
   };
@@ -19,7 +19,9 @@ test("every persisted category icon is in the build-time Tabler allowlist", () =
     new URL("../app/components/ManageIconPicker.vue", import.meta.url),
     "utf8",
   );
-  const config = readFileSync(new URL("../nuxt.config.ts", import.meta.url), "utf8");
+  vi.stubGlobal("defineNuxtConfig", (config: unknown) => config);
+  const config = await import("../nuxt.config").then(({ default: config }) => config);
+  vi.unstubAllGlobals();
 
   const persisted = migration.match(/i-tabler-[a-z0-9-]+/g) ?? [];
   const selectable = picker.match(/i-tabler-[a-z0-9-]+/g) ?? [];
@@ -29,9 +31,8 @@ test("every persisted category icon is in the build-time Tabler allowlist", () =
     );
   }
 
-  expect(config).toContain("category-tabler.v1.json");
-  expect(config).toContain("icons: categoryTablerIcons.map");
-  expect(config).toContain('icon.replace(/^i-tabler-/, "tabler:")');
-  expect(config).toContain('provider: "none"');
-  expect(config).toContain("fallbackToApi: false");
+  expect(config.icon?.clientBundle).toMatchObject({
+    icons: expect.arrayContaining(contract.icons.map((icon) => icon.replace(/^i-tabler-/, "tabler:"))),
+  });
+  expect(config.icon).toMatchObject({ provider: "none", fallbackToApi: false });
 });

@@ -4,8 +4,10 @@ import { expect, test } from "vitest";
 
 test("includes responsive utilities declared by the shared UI package", () => {
   const css = readFileSync(
-    resolve(process.cwd(), "app/assets/css/main.css"),
+    resolve(process.cwd(), ".nuxt/yueli-styles.css"),
     "utf8",
   );
-  expect(css).toContain('@import "@yueli/ui/tailwind.css";');
+  expect(css).toMatch(/@import "[^"]*\/tailwindcss\/index\.css";/);
+  expect(css).toMatch(/@import "[^"]*\/app\/assets\/css\/main\.css";/);
+  expect(css).toMatch(/@source "[^"]*\/ui\/src";/);
 });
