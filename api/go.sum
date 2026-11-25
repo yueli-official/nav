@@ -72,6 +72,8 @@ github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWD
 github.com/stretchr/testify v1.12.1/go.mod h1:MDEgiDPPsNp5cuIrHPPCyornHKgEVbtFUmoNlxoYthg=
 github.com/yueli-official/foundation/go v0.5.1-0.20261125094027-59b334a9bcc5 h1:tVcuFVOY73DmrnWeaxpCxB6zGMX6EBDnAPwEK6wr39o=
 github.com/yueli-official/foundation/go v0.5.1-0.20261125094027-59b334a9bcc5/go.mod h1:k0407WF6UG15RHDPYeTWenBykuKE20VI96fWfZed8Fc=
+github.com/yueli-official/foundation/go v0.5.1-0.20261125124240-b39c3cd15f9d h1:TYKSL9yZS2buF8S60djAMmxzjIiHmTpR7Vy3oC4BIXY=
+github.com/yueli-official/foundation/go v0.5.1-0.20261125124240-b39c3cd15f9d/go.mod h1:k0407WF6UG15RHDPYeTWenBykuKE20VI96fWfZed8Fc=
 go.opentelemetry.io/auto/sdk v1.2.1 h1:jXsnJ4Lmnqd11kwkBV2LgLoFMZKizbCi5fNZ/ipaZ64=
 go.opentelemetry.io/auto/sdk v1.2.1/go.mod h1:KRTj+aOaElaLi+wW1kO/DZRXwkF4C5xPbEe3ZiIhN7Y=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.71.0 h1:3g7B90UzBltIDKq1/5mrTGxTnOFDV0ICOhLoxiZ8jlg=

@@ -23,6 +23,7 @@ export default defineNuxtPlugin((app) => {
   function record() {
     const path = router.currentRoute.value.path.replace(/\/$/, "") || "/";
     if (path === previousPath) return;
+    const referrer = previousPath ? "internal" : document.referrer ? new URL(document.referrer).hostname : "";
     previousPath = path;
     if (error.value || (path !== "/" && !/^\/categories\/[^/]+$/.test(path))) return;
     const privacy = navigator as Navigator & { globalPrivacyControl?: boolean };
@@ -32,6 +33,7 @@ export default defineNuxtPlugin((app) => {
       body: {
         eventId: createBrowserUUID(),
         path,
+        referrer,
         visitorId: visitorID(),
         occurredAt: new Date().toISOString(),
       },

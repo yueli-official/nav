@@ -40,7 +40,7 @@ func New(storage store, catalog *traffic.Catalog) *Service {
 	return &Service{store: storage, catalog: catalog}
 }
 
-func (service *Service) Record(ctx context.Context, eventID, path, visitorID, timestamp string) (traffic.RecordResult, error) {
+func (service *Service) Record(ctx context.Context, eventID, path, visitorID, timestamp, referrer string) (traffic.RecordResult, error) {
 	if path != "/" {
 		path = strings.TrimSuffix(path, "/")
 	}
@@ -58,6 +58,7 @@ func (service *Service) Record(ctx context.Context, eventID, path, visitorID, ti
 		Resource:   traffic.Resource{Kind: pageKind, ID: path},
 		OccurredAt: occurredAt,
 		Class:      traffic.VisitUnknown,
+		Page:       &traffic.PageAttribution{Path: path, Referrer: referrer},
 	}
 	if visitorID != "" {
 		if len(visitorID) < 16 || len(visitorID) > 128 {

@@ -18,7 +18,7 @@ type TrafficPublic struct {
 }
 
 func (c *TrafficPublic) RecordPageView(ctx context.Context, req *v1.RecordPageViewReq) (*v1.RecordPageViewRes, error) {
-	result, err := c.Service.Record(ctx, req.EventID, req.Path, req.VisitorID, req.OccurredAt)
+	result, err := c.Service.Record(ctx, req.EventID, req.Path, req.VisitorID, req.OccurredAt, req.Referrer)
 	if err != nil {
 		var cause *traffic.Error
 		if errors.As(err, &cause) {

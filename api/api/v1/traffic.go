@@ -3,6 +3,7 @@ package v1
 import "github.com/gogf/gf/v2/frame/g"
 
 type RecordPageViewReq struct {
+	Referrer   string `json:"referrer,omitempty"`
 	g.Meta     `path:"/api/v1/traffic/views" method:"post" tags:"Traffic" summary:"Record a public page view"`
 	EventID    string `json:"eventId"`
 	Path       string `json:"path"`
