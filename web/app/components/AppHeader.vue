@@ -91,6 +91,7 @@ if (import.meta.client) {
     { immediate: true },
   );
 }
+const { loggedIn: headerLoggedIn } = useAuth();
 </script>
 
 <template>
@@ -136,7 +137,7 @@ if (import.meta.client) {
           />
         </UTooltip>
         <YSiteLauncher />
-        <ConsumerAccountControl :context-actions="accountActions" />
+        <ConsumerAccountControl :trigger-mode="headerLoggedIn ? 'collapsed' : 'inline'" :context-actions="accountActions" />
       </div>
     </div>
   </header>
