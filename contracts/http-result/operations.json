@@ -166,6 +166,22 @@
       ]
     },
     {
+      "id": "nav.get.api.v1.admin.nav.traffic",
+      "method": "GET",
+      "path": "/api/v1/admin/nav/traffic",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetTrafficOverviewRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden"
+      ]
+    },
+    {
       "id": "nav.get.api.v1.authorization.applications.mine",
       "method": "GET",
       "path": "/api/v1/authorization/applications/mine",
@@ -288,6 +304,19 @@
       ]
     },
     {
+      "id": "nav.get.api.v1.site.branding",
+      "method": "GET",
+      "path": "/api/v1/site/branding",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetSiteBrandingRes"
+      },
+      "errors": [
+        "nav.not_initialized"
+      ]
+    },
+    {
       "id": "nav.patch.api.v1.admin.nav.categories.by-id",
       "method": "PATCH",
       "path": "/api/v1/admin/nav/categories/{id}",
@@ -359,6 +388,25 @@
         "nav.not_found",
         "nav.invalid_input",
         "nav.conflict"
+      ]
+    },
+    {
+      "id": "nav.patch.api.v1.site.branding",
+      "method": "PATCH",
+      "path": "/api/v1/site/branding",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingRes"
+      },
+      "errors": [
+        "nav.authorization_unavailable",
+        "nav.membership_unavailable",
+        "nav.membership_suspended",
+        "nav.forbidden",
+        "nav.not_initialized",
+        "nav.site_profile_revision_conflict",
+        "nav.invalid_input"
       ]
     },
     {
@@ -658,6 +706,20 @@
       },
       "errors": [
         "nav.not_found"
+      ]
+    },
+    {
+      "id": "nav.post.api.v1.traffic.views",
+      "method": "POST",
+      "path": "/api/v1/traffic/views",
+      "success": {
+        "status": 200,
+        "kind": "resource",
+        "schemaRef": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RecordPageViewRes"
+      },
+      "errors": [
+        "nav.invalid_input",
+        "nav.conflict"
       ]
     },
     {

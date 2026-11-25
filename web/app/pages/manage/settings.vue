@@ -26,7 +26,7 @@ const canManageSettings = computed(() => can("nav.settings.manage"));
 const { call } = useApi();
 const route = useRoute();
 const router = useRouter();
-type SectionKey = "site" | "featured" | "search" | "footer";
+type SectionKey = "site" | "search" | "footer";
 
 const section = ref<SectionKey>("site");
 const sections = [
@@ -34,19 +34,13 @@ const sections = [
     key: "site",
     label: "品牌",
     icon: "i-tabler-compass",
-    description: "导航名称、品牌短句与分享摘要",
-  },
-  {
-    key: "featured",
-    label: "首页精选",
-    icon: "i-tabler-sparkles",
-    description: "管理“本周值得逛”的内容来源与排序规则",
+    description: "导航名称、品牌短句与图标",
   },
   {
     key: "search",
     label: "搜索",
     icon: "i-tabler-search",
-    description: "全局搜索面板的引导文案与检索范围",
+    description: "设置搜索输入框的提示",
   },
   {
     key: "footer",
@@ -58,7 +52,9 @@ const sections = [
 const activeSection = computed(
   () => sections.find((item) => item.key === section.value) ?? sections[0],
 );
-const profileForm = reactive<SiteProfile>({
+const profileForm = reactive<SiteProfile & {
+  branding: { logoUrl?: string; faviconUrl?: string };
+}>({
   identity: { name: "", tagline: "", description: "" },
   branding: {},
   announcement: { enabled: false, dismissible: false },
@@ -78,7 +74,7 @@ const settingsETag = ref("");
 const settingsForm = useTemplateRef<{ submit: () => Promise<void> }>(
   "settings-form",
 );
-const saveFailure = useNavFailure({ "/searchPlaceholder": "searchPlaceholder", "/profile/identity/name": "name", "/profile/identity/tagline": "title", "/profile/identity/description": "description", "/profile/footer/tagline": "footerTagline" });
+const saveFailure = useNavFailure({ "/searchPlaceholder": "searchPlaceholder", "/profile/identity/name": "name", "/profile/identity/tagline": "title", "/profile/identity/description": "description", "/profile/footer/tagline": "footerTagline", "/branding/logoUrl": "logoUrl", "/branding/faviconUrl": "faviconUrl", "/profile/branding/logoUrl": "logoUrl", "/profile/branding/faviconUrl": "faviconUrl" });
 const saveError = saveFailure.message;
 const {
   status: saveStatus,
@@ -159,6 +155,7 @@ async function save() {
     applyProfile(profileEditor.value.draft);
     searchPlaceholder.value = response.settings.searchPlaceholder;
     await refresh();
+    await refreshNuxtData(["nav-site-branding", "navigation-catalog"]);
     settingsState.capture();
     markSaved();
   } catch (failure) {
@@ -255,7 +252,7 @@ function discard() {
 
         <SettingSection
           v-else-if="section === 'site'"
-          title="品牌与分享信息"
+          title="站点品牌"
         >
           <div class="grid gap-5">
             <UFormField
@@ -273,7 +270,7 @@ function discard() {
             <UFormField
               name="title" :error="saveFailure.feedback.value?.fieldErrors.title?.join(' ')"
               label="品牌短句"
-              description="显示在导航名称下方，同时用于社交分享标题。"
+              description="显示在导航名称下方。"
               required
             >
               <UInput
@@ -285,7 +282,7 @@ function discard() {
             <UFormField
               name="description" :error="saveFailure.feedback.value?.fieldErrors.description?.join(' ')"
               label="站点描述"
-              description="用于搜索引擎和社交平台理解本站内容。"
+              description="用一句话说明本站收录的内容。"
               required
             >
               <UTextarea
@@ -295,56 +292,13 @@ function discard() {
                 class="w-full"
               />
             </UFormField>
-          </div>
-        </SettingSection>
-
-        <SettingSection
-          v-else-if="section === 'featured'"
-          title="本周值得逛"
-        >
-          <div class="space-y-4">
-            <div
-              class="overflow-hidden rounded-xl border border-primary/20 bg-primary/5"
-            >
-              <div class="flex items-start gap-3 p-4 sm:p-5">
-                <span
-                  class="grid size-10 shrink-0 place-items-center rounded-lg bg-default text-primary shadow-sm ring-1 ring-primary/15"
-                >
-                  <UIcon
-                    name="i-tabler-sparkles"
-                    class="size-5"
-                    aria-hidden="true"
-                  />
-                </span>
-                <div class="min-w-0">
-                  <h3 class="font-display font-semibold text-highlighted">
-                    编辑精选优先，访问数据补位
-                  </h3>
-                  <p class="mt-1 text-sm leading-6 text-muted">
-                    标记“加入首页精选”的站点会按目录顺序进入榜单；不足五项时，再用真实访问次数较高的站点补齐。
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              class="flex flex-col gap-3 rounded-xl border border-default bg-elevated/45 p-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div class="min-w-0">
-                <p class="text-sm font-medium text-highlighted">
-                  在站点条目编辑器中管理精选状态
-                </p>
-                <p class="mt-1 text-sm text-muted">
-                  打开任一站点，切换“加入首页精选”即可更新首页榜单。
-                </p>
-              </div>
-              <UButton
-                to="/manage"
-                color="neutral"
-                variant="soft"
-                trailing-icon="i-tabler-arrow-right"
-                label="管理精选条目"
-                class="shrink-0 self-start sm:self-auto"
-              />
+            <div class="grid gap-4 sm:grid-cols-2">
+              <UFormField name="logoUrl" label="网站 Logo" help="填写公开 HTTPS 图片地址，留空使用默认图标。" :error="saveFailure.feedback.value?.fieldErrors.logoUrl?.join(' ')">
+                <UInput v-model="profileForm.branding.logoUrl" inputmode="url" :maxlength="2048" :disabled="!canManageSettings" class="w-full" />
+              </UFormField>
+              <UFormField name="faviconUrl" label="浏览器标签页图标" help="留空使用默认图标。" :error="saveFailure.feedback.value?.fieldErrors.faviconUrl?.join(' ')">
+                <UInput v-model="profileForm.branding.faviconUrl" inputmode="url" :maxlength="2048" :disabled="!canManageSettings" class="w-full" />
+              </UFormField>
             </div>
           </div>
         </SettingSection>

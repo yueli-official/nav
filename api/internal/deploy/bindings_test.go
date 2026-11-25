@@ -32,7 +32,7 @@ func TestIdentityBindingRequiresOIDCAndPublicUsersContract(t *testing.T) {
 				Key: &privateKey.PublicKey, KeyID: "identity-key", Use: "sig",
 			}}})
 		case "/api/v1/users":
-			_ = json.NewEncoder(writer).Encode(map[string]any{"users": []any{}})
+			_ = json.NewEncoder(writer).Encode(map[string]any{"items": []any{}})
 		default:
 			http.NotFound(writer, request)
 		}

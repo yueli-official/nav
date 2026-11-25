@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import type { AccountMenuAction } from "@yueli/ui/account-menu/pattern";
 
-const { widthClass, brandName, brandTagline } = defineProps<{
+const { widthClass, brandName, brandLogoUrl } = defineProps<{
   widthClass: string;
   brandName?: string;
-  brandTagline?: string;
+  brandLogoUrl?: string;
 }>();
 const { openSearch } = useNavigationSearch();
-const route = useRoute();
-const publicPages = computed(() => [
-  { label: "首页", to: "/", active: route.path === "/" },
-  { label: "分类", to: "/#categories", active: route.path.startsWith("/categories/") || route.path.startsWith("/topics/") },
-]);
+const { brand } = useSiteRuntime();
 const { user } = useAuth();
 const {
   accessStatus,
@@ -107,9 +103,10 @@ if (import.meta.client) {
     >
       <NuxtLink
         to="/"
-        class="group flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+        class="group flex min-w-0 flex-1 items-center gap-2 sm:flex-none sm:gap-3 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
       >
-        <span
+        <img v-if="brandLogoUrl" :src="brandLogoUrl" alt="" width="36" height="36" class="size-9 shrink-0 object-contain" />
+        <span v-else
           class="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-inverted shadow-sm"
         >
           <UIcon name="i-tabler-compass" class="size-5" />
@@ -117,24 +114,18 @@ if (import.meta.client) {
         <span class="min-w-0">
           <span
             class="font-display block truncate text-base font-semibold tracking-tight text-highlighted"
-            >{{ brandName }}</span
+            >{{ brandName || brand }}</span
           >
-          <span class="hidden text-xs text-muted sm:block">{{
-            brandTagline
-          }}</span>
         </span>
       </NuxtLink>
 
-      <nav aria-label="主导航" class="order-3 flex w-full gap-1 sm:order-none sm:w-auto sm:ml-3">
-        <UButton v-for="page in publicPages" :key="page.to" :to="page.to" :label="page.label" :color="page.active ? 'primary' : 'neutral'" :variant="page.active ? 'soft' : 'ghost'" :aria-current="page.active ? 'page' : undefined" />
-      </nav>
-
-      <div class="ml-auto flex items-center gap-1">
+      <div class="ml-auto flex shrink-0 items-center gap-1">
         <UButton
           color="neutral"
           variant="soft"
           icon="i-tabler-search"
-          label="搜索"
+          aria-label="搜索"
+          square
           @click="openSearch"
         />
         <UTooltip text="切换颜色模式">
@@ -144,6 +135,7 @@ if (import.meta.client) {
             aria-label="切换颜色模式"
           />
         </UTooltip>
+        <YSiteLauncher />
         <ConsumerAccountControl :context-actions="accountActions" />
       </div>
     </div>

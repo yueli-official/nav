@@ -328,6 +328,30 @@
         []
       ],
       "summary": "Get a proxied navigation link favicon"
+    },
+    {
+      "authentication": "public-or-pat",
+      "id": "get_api_v1_site_branding",
+      "method": "GET",
+      "openapiPointer": "#/paths/~1api~1v1~1site~1branding/get",
+      "path": "/api/v1/site/branding",
+      "scopeAnyOf": [
+        []
+      ],
+      "summary": "Get public site branding"
+    },
+    {
+      "authentication": "pat",
+      "id": "patch_api_v1_site_branding",
+      "method": "PATCH",
+      "openapiPointer": "#/paths/~1api~1v1~1site~1branding/patch",
+      "path": "/api/v1/site/branding",
+      "scopeAnyOf": [
+        [
+          "nav.settings.manage"
+        ]
+      ],
+      "summary": "Update site branding"
     }
   ],
   "permissions": [
@@ -375,5 +399,5 @@
     "openapi": "../../contracts/openapi/nav.json"
   },
   "schemaVersion": 1,
-  "sourceDigest": "a54fdaf70a6b8dd27ea43ae39519c6796edc048dc019b56ddaf29ee6fad72f54"
+  "sourceDigest": "4b147835ebd5030a91c9705b522902bd93f18f8345a32d0a18dd11dfd3eea56c"
 }

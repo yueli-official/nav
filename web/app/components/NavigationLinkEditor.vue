@@ -263,12 +263,6 @@ function closeDelete() {
             </UFormField>
           </div>
 
-          <USwitch
-            v-model="form.featured"
-            label="加入首页精选"
-            :disabled="!canModerate"
-          />
-
           <UAlert
             v-if="saveError"
             color="error"

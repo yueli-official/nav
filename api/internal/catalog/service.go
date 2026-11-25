@@ -65,6 +65,7 @@ type Store interface {
 }
 
 type Site struct {
+	siteprofile.BrandImageURLs
 	Revision          uint64
 	RuntimeRevision   uint64
 	ETag              string
@@ -910,7 +911,8 @@ func (s *Service) catalog(ctx context.Context, filter dao.LinkFilter) (*Catalog,
 func siteFromSnapshot(snapshot siteprofile.Snapshot, settings model.SiteSettings) Site {
 	runtimeRevision := normalizedRuntimeRevision(settings.RuntimeRevision)
 	return Site{
-		Revision: uint64(snapshot.Revision), RuntimeRevision: runtimeRevision,
+		BrandImageURLs: snapshot.Profile.Branding.BrandImageURLs,
+		Revision:       uint64(snapshot.Revision), RuntimeRevision: runtimeRevision,
 		ETag: consumerETag(snapshot.ETag, runtimeRevision, settings.SearchPlaceholder),
 		Name: snapshot.Profile.Identity.Name, Title: snapshot.Profile.Identity.Tagline,
 		Description: snapshot.Profile.Identity.Description, SearchPlaceholder: settings.SearchPlaceholder,

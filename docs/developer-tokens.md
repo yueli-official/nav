@@ -61,6 +61,8 @@ $created = Invoke-RestMethod "$nav/api/v1/admin/nav/links" -Method Post `
 
 ## 本地接入
 
+`GET /api/v1/site/branding` 无需登录，返回 `logoUrl` 和 `faviconUrl`。使用 `nav.settings.manage` 令牌调用同路径的 `PATCH` 可独立更新两个字段。填写公开 HTTPS 图片地址，省略某字段会保留该字段，传空字符串恢复默认。导航客户端使用站点 Origin 解析返回的相对地址。
+
 从 Workspace 运行：
 
 ```powershell
@@ -74,4 +76,4 @@ $created = Invoke-RestMethod "$nav/api/v1/admin/nav/links" -Method Post `
 - Identity `pat.applications`：登记 `nav-yueli-web`、权限目录 URL 和 audience。
 - Nav `nav.personalToken.*`：site ID、Identity `/api/v1/pat/verify` 和可信 HTTP 策略。
 
-本地实现不代表生产已部署；使用生产 Origin 前必须先核对正式部署记录。
+生产 Origin 为 [月离导航](https://nav.yuelili.com)。已登记 Nav 专用令牌应用，并核验无效令牌拒绝与权限目录的访问隔离。有效生产令牌的端到端调用仍待实测。见 [发布记录](deployment-20261124-navigation.md)。

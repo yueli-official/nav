@@ -2,6 +2,18 @@
   "schemaVersion": "http.yueli.dev/operation-errors/v1",
   "namespace": "nav",
   "operations": {
+    "GET /api/v1/admin/nav/traffic": [
+      "nav.authorization_unavailable",
+      "nav.membership_unavailable",
+      "nav.membership_suspended",
+      "nav.forbidden"
+    ],
+    "POST /api/v1/traffic/views": [
+      "nav.invalid_input",
+      "nav.conflict"
+    ],
+    "GET /api/v1/site/branding": ["nav.not_initialized"],
+    "PATCH /api/v1/site/branding": ["nav.authorization_unavailable", "nav.membership_unavailable", "nav.membership_suspended", "nav.forbidden", "nav.not_initialized", "nav.site_profile_revision_conflict", "nav.invalid_input"],
     "POST /api/v1/admin/nav/categories": [
       "nav.authorization_unavailable",
       "nav.membership_unavailable",

@@ -584,7 +584,8 @@ func groupView(group *model.Group) v1.GroupView {
 
 func siteView(settings catalog.Site) v1.SiteView {
 	return v1.SiteView{
-		Revision: settings.Revision, ETag: settings.ETag,
+		BrandImageURLs: settings.BrandImageURLs,
+		Revision:       settings.Revision, ETag: settings.ETag,
 		RuntimeRevision: settings.RuntimeRevision,
 		Name:            settings.Name, Title: settings.Title, Description: settings.Description,
 		SearchPlaceholder: settings.SearchPlaceholder, FooterTagline: settings.FooterTagline,

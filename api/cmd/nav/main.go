@@ -9,6 +9,7 @@ import (
 	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
 	authorizationpostgres "github.com/yueli-official/foundation/go/authorization/postgres"
+	trafficpostgres "github.com/yueli-official/foundation/go/traffic/postgres"
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 
@@ -20,6 +21,7 @@ import (
 	"github.com/yueli-official/nav/api/internal/navauthz"
 	"github.com/yueli-official/nav/api/internal/navmember"
 	"github.com/yueli-official/nav/api/internal/navprofile"
+	"github.com/yueli-official/nav/api/internal/navtraffic"
 	"github.com/yueli-official/nav/api/internal/runtime"
 	"github.com/yueli-official/nav/api/internal/server"
 )
@@ -39,7 +41,7 @@ func main() {
 	if runtime.OpenAPIRequested() {
 		openAPICatalog := catalog.New(nil, siteMeta("月离导航"))
 		openAPICatalog.SetSiteProfile(navprofile.NewMemory())
-		server.Configure(httpServer, server.Deps{Catalog: openAPICatalog})
+		server.Configure(httpServer, server.Deps{Catalog: openAPICatalog, Traffic: &navtraffic.Service{}})
 		if handled, exportErr := runtime.ExportOpenAPIIfRequested(httpServer); handled {
 			if exportErr != nil {
 				panic(exportErr)
@@ -54,6 +56,11 @@ func main() {
 		panic(err)
 	}
 	defer profileDB.Close()
+	trafficCatalog := navtraffic.Catalog()
+	trafficStore, err := trafficpostgres.New(ctx, trafficCatalog, trafficpostgres.Options{DB: profileDB, InstanceKey: "nav:" + appconfig.SiteSlug(ctx)})
+	if err != nil {
+		panic(err)
+	}
 	auditJournal, err := navaudit.New(ctx, profileDB, appconfig.SiteSlug(ctx))
 	if err != nil {
 		panic(err)
@@ -127,7 +134,7 @@ func main() {
 
 	server.Configure(httpServer, server.Deps{
 		Verifier: verifier, PersonalVerifier: personalVerifier, PersonalSite: personalToken.SiteID,
-		Catalog: service, Authorization: authorizationService, Membership: membershipService,
+		Catalog: service, Traffic: navtraffic.New(trafficStore, trafficCatalog), Authorization: authorizationService, Membership: membershipService,
 	})
 	g.Log().Info(ctx, "nav service starting")
 	httpServer.Run()

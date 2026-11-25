@@ -18,7 +18,7 @@ func TestHTTPClientBatchResolvesAndDeduplicatesPublicUsers(t *testing.T) {
 			t.Fatalf("ids = %q", got)
 		}
 		writer.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(writer).Encode(map[string]any{"users": []map[string]any{
+		_ = json.NewEncoder(writer).Encode(map[string]any{"items": []map[string]any{
 			{"userKey": first, "handle": "alice", "displayName": "Alice"},
 			{"userKey": second, "displayName": "Bob"},
 		}})

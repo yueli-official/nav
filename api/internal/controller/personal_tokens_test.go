@@ -151,6 +151,7 @@ func TestPersonalRoutesAreExplicitAndCapabilityBound(t *testing.T) {
 		{"GET", "/api/v1/admin/nav/structure", string(navauthz.CapabilityStructureManage)},
 		{"POST", "/api/v1/admin/nav/checks/run", string(navauthz.CapabilityHealthCheckRun)},
 		{"PUT", "/api/v1/admin/nav/settings", string(navauthz.CapabilitySettingsManage)},
+		{"PATCH", "/api/v1/site/branding", string(navauthz.CapabilitySettingsManage)},
 	} {
 		if !allowsPersonalRoute(navPersonalContext(t, "TestA123", test.capability), test.method, test.path) {
 			t.Errorf("selected capability denied: %s %s", test.method, test.path)

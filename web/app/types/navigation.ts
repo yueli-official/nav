@@ -46,6 +46,8 @@ export interface NavigationCategory {
 }
 
 export interface NavigationSiteCopy {
+  logoUrl?: string;
+  faviconUrl?: string;
   revision: number;
   runtimeRevision: number;
   etag: string;

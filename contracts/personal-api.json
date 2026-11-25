@@ -56,6 +56,14 @@
     {
       "authentication": "public-or-pat",
       "method": "GET",
+      "path": "/api/v1/site/branding",
+      "scopeAnyOf": [
+        []
+      ]
+    },
+    {
+      "authentication": "public-or-pat",
+      "method": "GET",
       "path": "/api/v1/nav/groups/{groupId}",
       "scopeAnyOf": [
         []
@@ -281,6 +289,16 @@
       "authentication": "pat",
       "method": "PUT",
       "path": "/api/v1/admin/nav/settings",
+      "scopeAnyOf": [
+        [
+          "nav.settings.manage"
+        ]
+      ]
+    },
+    {
+      "authentication": "pat",
+      "method": "PATCH",
+      "path": "/api/v1/site/branding",
       "scopeAnyOf": [
         [
           "nav.settings.manage"

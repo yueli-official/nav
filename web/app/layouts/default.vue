@@ -6,14 +6,11 @@ const mainWidth = computed(
   () =>
     PAGE_WIDTHS[(route.meta.width as PageWidth) ?? "full"] ?? PAGE_WIDTHS.full,
 );
-const { data, error, status } = await useFetch<NavigationResponse>(
+const { data } = await useFetch<NavigationResponse>(
   "/api/navigation",
   {
     key: "navigation-catalog",
   },
-);
-const entries = computed(() =>
-  data.value ? flattenNavigation(data.value) : [],
 );
 const { openSearch } = useNavigationSearch();
 
@@ -28,8 +25,8 @@ function moveSpotlight(event: PointerEvent) {
 
 defineShortcuts({
   "/": { usingInput: false, handler: openSearch },
-  meta_k: openSearch,
-  ctrl_k: openSearch,
+  meta_k: { usingInput: true, handler: openSearch },
+  ctrl_k: { usingInput: true, handler: openSearch },
 });
 </script>
 
@@ -38,14 +35,9 @@ defineShortcuts({
     <AppHeader
       :width-class="mainWidth"
       :brand-name="data?.site.name"
-      :brand-tagline="data?.site.title"
+      :brand-logo-url="data?.site.logoUrl"
     />
-    <NavigationSearchDialog
-      :entries="entries"
-      :placeholder="data?.site.searchPlaceholder ?? '搜索名称、标签或域名'"
-      :loading="status === 'pending'"
-      :failed="Boolean(error)"
-    />
+    <NavigationSearchDialog :placeholder="data?.site.searchPlaceholder" />
     <main
       id="public-main"
       tabindex="-1"
@@ -55,6 +47,7 @@ defineShortcuts({
       <slot />
     </main>
     <footer
+      v-if="data?.site.footerTagline"
       class="border-t border-default bg-default/80 dark:bg-[var(--yueli-surface-region)]"
     >
       <div
@@ -62,7 +55,6 @@ defineShortcuts({
         :class="mainWidth"
       >
         <p>{{ data?.site.footerTagline }}</p>
-        <p>内容以公开链接为准，请遵循目标站点的使用规则。</p>
       </div>
     </footer>
   </div>

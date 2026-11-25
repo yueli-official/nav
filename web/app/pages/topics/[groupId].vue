@@ -80,7 +80,7 @@ useSeoMeta({
     <nav class="flex items-center gap-2 text-sm text-muted" aria-label="面包屑">
       <NuxtLink to="/" class="hover:text-primary">首页</NuxtLink>
       <UIcon name="i-tabler-chevron-right" class="size-4" />
-      <NuxtLink to="/#categories" class="hover:text-primary">分类</NuxtLink>
+      <NuxtLink to="/#categories" class="hover:text-primary">月离站群</NuxtLink>
       <UIcon name="i-tabler-chevron-right" class="size-4" />
       <NuxtLink v-if="data" :to="`/categories/${encodeURIComponent(data.category.id)}`" class="hover:text-primary">{{ data.category.title }}</NuxtLink>
     </nav>

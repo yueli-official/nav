@@ -3,12 +3,6 @@
 
 :root {
   color-scheme: light;
-  --nav-hero-grid: color-mix(in srgb, var(--ui-primary) 11%, transparent);
-  --nav-hero-wash: color-mix(
-    in srgb,
-    var(--ui-primary) 8%,
-    var(--yueli-surface-page)
-  );
 }
 
 .dark {
@@ -35,13 +29,6 @@
   --yueli-surface-inset: var(--nav-dark-inset);
   --yueli-surface-overlay: var(--nav-dark-overlay);
   --shadow-soft: 0 18px 45px rgb(0 0 0 / 0.22);
-
-  --nav-hero-grid: color-mix(in srgb, var(--ui-primary) 18%, transparent);
-  --nav-hero-wash: color-mix(
-    in srgb,
-    var(--ui-primary) 10%,
-    var(--yueli-surface-region)
-  );
 }
 
 html {
@@ -55,14 +42,6 @@ body {
 
 .dark #manage-main {
   background: var(--yueli-surface-page);
-}
-
-.nav-hero-surface {
-  background-color: var(--nav-hero-wash);
-  background-image:
-    linear-gradient(var(--nav-hero-grid) 1px, transparent 1px),
-    linear-gradient(90deg, var(--nav-hero-grid) 1px, transparent 1px);
-  background-size: 32px 32px;
 }
 
 @media (prefers-reduced-motion: reduce) {

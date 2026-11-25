@@ -140,9 +140,17 @@
             "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
             "description": ""
           },
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
           "logo": {
             "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
             "description": ""
+          },
+          "logoUrl": {
+            "format": "string",
+            "type": "string"
           }
         },
         "type": "object"
@@ -2039,6 +2047,48 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.GetSiteBrandingReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GetSiteBrandingRes": {
+        "properties": {
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GetTrafficOverviewReq": {
+        "properties": {},
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.GetTrafficOverviewRes": {
+        "properties": {
+          "series": {
+            "format": "[]v1.TrafficDayView",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TrafficDayView",
+              "description": ""
+            },
+            "type": "array"
+          },
+          "today": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TrafficTotalsView",
+            "description": ""
+          },
+          "total": {
+            "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.TrafficTotalsView",
+            "description": ""
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.GroupView": {
         "properties": {
           "categoryId": {
@@ -2435,6 +2485,32 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingReq": {
+        "properties": {
+          "faviconUrl": {
+            "format": "*string",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "*string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingRes": {
+        "properties": {
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.PersonalPermissionsReq": {
         "properties": {
           "userKey": {
@@ -2490,6 +2566,40 @@
       "github.com.yueli-official.nav.api.api.v1.RecordClickRes": {
         "properties": {
           "recorded": {
+            "format": "bool",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.RecordPageViewReq": {
+        "properties": {
+          "eventId": {
+            "format": "string",
+            "type": "string"
+          },
+          "occurredAt": {
+            "format": "string",
+            "type": "string"
+          },
+          "path": {
+            "format": "string",
+            "type": "string"
+          },
+          "visitorId": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.RecordPageViewRes": {
+        "properties": {
+          "counted": {
+            "format": "bool",
+            "type": "boolean"
+          },
+          "replay": {
             "format": "bool",
             "type": "boolean"
           }
@@ -2634,7 +2744,15 @@
             "format": "string",
             "type": "string"
           },
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
           "footerTagline": {
+            "format": "string",
+            "type": "string"
+          },
+          "logoUrl": {
             "format": "string",
             "type": "string"
           },
@@ -2687,6 +2805,36 @@
           "name": {
             "format": "string",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.TrafficDayView": {
+        "properties": {
+          "day": {
+            "format": "string",
+            "type": "string"
+          },
+          "uniqueVisitorDays": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "views": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.TrafficTotalsView": {
+        "properties": {
+          "uniqueVisitorDays": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "views": {
+            "format": "int64",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -3797,6 +3945,27 @@
         ]
       }
     },
+    "/api/v1/admin/nav/traffic": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetTrafficOverviewRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Read public page view statistics",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
     "/api/v1/authorization/applications": {
       "post": {
         "requestBody": {
@@ -4602,6 +4771,87 @@
         "summary": "Get a proxied navigation link favicon",
         "tags": [
           "Nav"
+        ]
+      }
+    },
+    "/api/v1/site/branding": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetSiteBrandingRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Get public site branding",
+        "tags": [
+          "site"
+        ]
+      },
+      "patch": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Update site branding",
+        "tags": [
+          "site"
+        ]
+      }
+    },
+    "/api/v1/traffic/views": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RecordPageViewReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.RecordPageViewRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "summary": "Record a public page view",
+        "tags": [
+          "Traffic"
         ]
       }
     }

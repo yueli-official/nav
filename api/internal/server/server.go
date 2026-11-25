@@ -9,6 +9,7 @@ import (
 	"github.com/yueli-official/nav/api/internal/controller"
 	"github.com/yueli-official/nav/api/internal/navauthz"
 	"github.com/yueli-official/nav/api/internal/navmember"
+	"github.com/yueli-official/nav/api/internal/navtraffic"
 	"github.com/yueli-official/nav/api/internal/runtime"
 )
 
@@ -17,6 +18,7 @@ type Deps struct {
 	PersonalVerifier *foundationauth.PersonalTokenVerifier
 	PersonalSite     string
 	Catalog          *catalog.Service
+	Traffic          *navtraffic.Service
 	Authorization    *navauthz.Service
 	Membership       navmember.Directory
 	ReadyChecks      map[string]runtime.ReadinessCheck
@@ -57,6 +59,9 @@ func Configure(server *ghttp.Server, deps Deps) {
 		}
 		group.Middleware(middlewares...)
 		group.Bind(controller.NewPublic(deps.Catalog))
+		if deps.Traffic != nil {
+			group.Bind(&controller.TrafficPublic{Service: deps.Traffic})
+		}
 	})
 	server.Group("/", func(group *ghttp.RouterGroup) {
 		middlewares := []ghttp.HandlerFunc{apiMiddleware, controller.CauseMappingMiddleware}
@@ -67,6 +72,9 @@ func Configure(server *ghttp.Server, deps Deps) {
 		group.Middleware(middlewares...)
 		group.Bind(controller.NewAuthorization())
 		group.Bind(controller.NewAdmin(deps.Catalog))
+		if deps.Traffic != nil {
+			group.Bind(&controller.TrafficAdmin{Service: deps.Traffic})
+		}
 		group.Bind(controller.NewMembers(deps.Membership))
 		group.Bind(controller.NewPersonalPermissions(deps.PersonalSite, deps.Authorization))
 	})

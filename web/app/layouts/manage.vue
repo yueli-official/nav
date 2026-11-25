@@ -14,6 +14,7 @@ const currentLabel = computed(() => {
   if (route.path.startsWith("/manage/categories")) return "分类与主题";
   if (route.path.startsWith("/manage/tags")) return "标签治理";
   if (route.path.startsWith("/manage/checks")) return "链接检查";
+  if (route.path.startsWith("/manage/traffic")) return "浏览统计";
   if (route.path.startsWith("/manage/settings")) return "站点设置";
   if (route.path.startsWith("/manage/members")) return "成员";
   if (route.path.startsWith("/manage/authorization")) return "权限策略";
@@ -70,6 +71,12 @@ const navigation = computed<readonly AdminNavigationItem[]>(() => [
     : []),
   ...(can("nav.settings.manage")
     ? [
+        {
+          label: "浏览统计",
+          icon: "i-tabler-chart-bar",
+          to: "/manage/traffic",
+          active: active("/manage/traffic"),
+        },
         {
           label: "站点设置",
           icon: "i-tabler-settings",

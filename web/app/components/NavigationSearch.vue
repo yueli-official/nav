@@ -12,25 +12,36 @@ function focus() {
   input.value?.inputRef?.focus();
 }
 
+function clearSearch() {
+  query.value = "";
+  focus();
+}
+
+function submitSearch(event: KeyboardEvent) {
+  if (event.isComposing) return;
+  event.preventDefault();
+  emit("submit");
+}
+
 defineExpose({ focus });
 </script>
 
 <template>
-  <div class="nav-search relative">
+  <div class="nav-search">
     <UInput
       ref="search-input"
       v-model="query"
       :placeholder="placeholder"
-      icon="i-tabler-search"
+      leading-icon="i-tabler-search"
       size="xl"
       autocomplete="off"
-      aria-label="搜索导航站点"
+      aria-label="搜索站群入口"
       class="w-full"
       :ui="{
-        base: 'h-12 rounded-xl bg-default pl-11 pr-12 text-sm shadow-sm ring-1 ring-default focus-visible:ring-2 focus-visible:ring-primary',
+        base: 'h-12 rounded-xl bg-default pl-11 pr-12 text-sm shadow-sm ring-1 ring-default focus-visible:ring-1 focus-visible:ring-primary',
         leadingIcon: 'ml-1 size-5 text-primary',
       }"
-      @keydown.enter.prevent="emit('submit')"
+      @keydown.enter="submitSearch"
     >
       <template #trailing>
         <UButton
@@ -40,20 +51,16 @@ defineExpose({ focus });
           size="sm"
           icon="i-tabler-x"
           aria-label="清空搜索"
-          @click="
-            () => {
-              query = '';
-            }
-          "
+          @click="clearSearch"
         />
       </template>
     </UInput>
     <p
-      v-if="query && resultCount !== undefined"
+      v-if="query.trim() && resultCount"
       class="mt-2 text-sm text-muted"
       aria-live="polite"
     >
-      找到 {{ resultCount }} 个匹配站点
+      找到 {{ resultCount }} 个入口
     </p>
   </div>
 </template>

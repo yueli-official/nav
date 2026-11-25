@@ -7,6 +7,7 @@ import (
 )
 
 type SiteView struct {
+	siteprofile.BrandImageURLs
 	Revision          uint64 `json:"revision"`
 	RuntimeRevision   uint64 `json:"runtimeRevision"`
 	ETag              string `json:"etag"`

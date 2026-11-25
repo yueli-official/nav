@@ -127,9 +127,9 @@ func checkIdentity(ctx context.Context, binding IdentityBinding) error {
 	if err := getJSON(ctx, client, probeURL, &publicUsers); err != nil {
 		return fmt.Errorf("identity public users: %w", err)
 	}
-	users, exists := publicUsers["users"]
+	users, exists := publicUsers["items"]
 	if !exists || len(users) == 0 || users[0] != '[' {
-		return errors.New("identity public users response is missing users array")
+		return errors.New("identity public users response is missing items array")
 	}
 	return nil
 }

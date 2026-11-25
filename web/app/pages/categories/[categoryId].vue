@@ -79,7 +79,7 @@ useSeoMeta({
 
 <template>
   <div class="min-w-0 space-y-7 overflow-x-clip">
-    <nav class="flex items-center gap-2 text-sm text-muted" aria-label="面包屑"><NuxtLink to="/#categories" class="hover:text-primary">分类</NuxtLink><UIcon name="i-tabler-chevron-right" class="size-4" /><span>{{ selectedCategory?.title }}</span></nav>
+    <nav class="flex items-center gap-2 text-sm text-muted" aria-label="面包屑"><NuxtLink to="/#categories" class="hover:text-primary">月离站群</NuxtLink><UIcon name="i-tabler-chevron-right" class="size-4" /><span>{{ selectedCategory?.title }}</span></nav>
     <div
       v-if="error"
       class="rounded-xl border border-error/35 bg-error/5 p-6"

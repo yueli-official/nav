@@ -70,6 +70,7 @@ type personalRoute struct {
 
 var personalRoutes = []personalRoute{
 	{"GET", "/api/v1/nav/catalog", ""},
+	{"GET", "/api/v1/site/branding", ""},
 	{"GET", "/api/v1/nav/groups/{groupId}", ""},
 	{"POST", "/api/v1/nav/links/{id}/click", ""},
 	{"GET", "/api/v1/nav/links/{id}/favicon", ""},
@@ -94,6 +95,7 @@ var personalRoutes = []personalRoute{
 	{"POST", "/api/v1/admin/nav/tags/delete", navauthz.CapabilityStructureManage},
 	{"GET", "/api/v1/admin/nav/settings", navauthz.CapabilitySettingsManage},
 	{"PUT", "/api/v1/admin/nav/settings", navauthz.CapabilitySettingsManage},
+	{"PATCH", "/api/v1/site/branding", navauthz.CapabilitySettingsManage},
 }
 
 func PersonalTokenRoutes(request *ghttp.Request) {

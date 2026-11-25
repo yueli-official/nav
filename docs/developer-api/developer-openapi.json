@@ -1,6 +1,64 @@
 {
   "components": {
     "schemas": {
+      "github.com.yueli-official.foundation.go.problem.Problem": {
+        "properties": {
+          "code": {
+            "format": "string",
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/interface",
+              "description": ""
+            },
+            "format": "problem.Parameters",
+            "type": "object"
+          },
+          "status": {
+            "format": "int",
+            "type": "integer"
+          },
+          "traceId": {
+            "format": "string",
+            "type": "string"
+          },
+          "type": {
+            "format": "string",
+            "type": "string"
+          },
+          "violations": {
+            "format": "[]problem.Violation",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.problem.Violation",
+              "description": ""
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.foundation.go.problem.Violation": {
+        "properties": {
+          "code": {
+            "format": "string",
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/interface",
+              "description": ""
+            },
+            "format": "problem.Parameters",
+            "type": "object"
+          },
+          "pointer": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.foundation.go.siteprofile.Announcement": {
         "properties": {
           "action": {
@@ -44,9 +102,17 @@
             "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
             "description": ""
           },
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
           "logo": {
             "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.siteprofile.Visual",
             "description": ""
+          },
+          "logoUrl": {
+            "format": "string",
+            "type": "string"
           }
         },
         "type": "object"
@@ -435,6 +501,19 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.AdminBulkLinkFailure": {
+        "properties": {
+          "failure": {
+            "$ref": "#/components/schemas/github.com.yueli-official.foundation.go.problem.Problem",
+            "description": ""
+          },
+          "id": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.AdminBulkLinksReq": {
         "properties": {
           "action": {
@@ -473,6 +552,14 @@
             "items": {
               "format": "string",
               "type": "string"
+            },
+            "type": "array"
+          },
+          "failures": {
+            "format": "[]v1.AdminBulkLinkFailure",
+            "items": {
+              "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.AdminBulkLinkFailure",
+              "description": ""
             },
             "type": "array"
           }
@@ -1125,6 +1212,19 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.GetSiteBrandingRes": {
+        "properties": {
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.GroupView": {
         "properties": {
           "categoryId": {
@@ -1329,6 +1429,32 @@
         },
         "type": "object"
       },
+      "github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingReq": {
+        "properties": {
+          "faviconUrl": {
+            "format": "*string",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "*string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingRes": {
+        "properties": {
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
+          "logoUrl": {
+            "format": "string",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "github.com.yueli-official.nav.api.api.v1.RecordClickRes": {
         "properties": {
           "recorded": {
@@ -1348,7 +1474,15 @@
             "format": "string",
             "type": "string"
           },
+          "faviconUrl": {
+            "format": "string",
+            "type": "string"
+          },
           "footerTagline": {
+            "format": "string",
+            "type": "string"
+          },
+          "logoUrl": {
             "format": "string",
             "type": "string"
           },
@@ -1403,6 +1537,10 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "interface": {
+        "properties": {},
         "type": "object"
       }
     },
@@ -2827,8 +2965,81 @@
           []
         ]
       }
+    },
+    "/api/v1/site/branding": {
+      "get": {
+        "operationId": "get_api_v1_site_branding",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.GetSiteBrandingRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {},
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Get public site branding",
+        "tags": [
+          "site"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          []
+        ]
+      },
+      "patch": {
+        "operationId": "patch_api_v1_site_branding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingReq",
+                "description": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/github.com.yueli-official.nav.api.api.v1.PatchSiteBrandingRes",
+                  "description": ""
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "DeveloperSite": [],
+            "DeveloperToken": []
+          }
+        ],
+        "summary": "Update site branding",
+        "tags": [
+          "site"
+        ],
+        "x-yueli-pat-scope-any-of": [
+          [
+            "nav.settings.manage"
+          ]
+        ]
+      }
     }
   },
   "x-yueli-deployment-status": "unknown",
-  "x-yueli-source-digest": "a54fdaf70a6b8dd27ea43ae39519c6796edc048dc019b56ddaf29ee6fad72f54"
+  "x-yueli-source-digest": "4b147835ebd5030a91c9705b522902bd93f18f8345a32d0a18dd11dfd3eea56c"
 }

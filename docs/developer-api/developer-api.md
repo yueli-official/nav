@@ -54,5 +54,7 @@
 | `GET /api/v1/nav/groups/{groupId}` | Get a paginated published navigation topic | 无额外 scope |
 | `POST /api/v1/nav/links/{id}/click` | Record a navigation link visit | 无额外 scope |
 | `GET /api/v1/nav/links/{id}/favicon` | Get a proxied navigation link favicon | 无额外 scope |
+| `GET /api/v1/site/branding` | Get public site branding | 无额外 scope |
+| `PATCH /api/v1/site/branding` | Update site branding | `nav.settings.manage` |
 
 字段、请求体、响应与引用 Schema 见生成的 OpenAPI。未列入的接口不代表允许 PAT 调用。

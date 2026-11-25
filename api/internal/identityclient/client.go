@@ -69,13 +69,13 @@ func (client *HTTPClient) GetMany(ctx context.Context, userKeys []string) (map[s
 			return nil, fmt.Errorf("get public users: %w", err)
 		}
 		decoded, decodeErr := foundationhttpclient.DecodeJSON[struct {
-			Users []PublicUser `json:"users"`
+			Items []PublicUser `json:"items"`
 		}](response, foundationhttpclient.Limits{})
 		response.Body.Close()
 		if decodeErr != nil {
 			return nil, fmt.Errorf("decode public users: %w", decodeErr)
 		}
-		for _, user := range decoded.Users {
+		for _, user := range decoded.Items {
 			if user.UserKey != "" {
 				result[user.UserKey] = user
 			}
