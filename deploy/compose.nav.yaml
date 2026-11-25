@@ -60,6 +60,7 @@ services:
       NAV_BINDING_TIMEOUT: ${NAV_BINDING_TIMEOUT:-3m}
 
   nav-api:
+    networks: [default, traffic]
     image: ${NAV_API_IMAGE:-yueli/nav-api:local}
     pull_policy: build
     build:
@@ -67,6 +68,8 @@ services:
       target: runtime
     restart: unless-stopped
     environment:
+      TRAFFIC_COLLECTOR_URL: http://platform-traffic:8096
+      TRAFFIC_WRITE_TOKEN: ${TRAFFIC_WRITE_TOKEN:?set TRAFFIC_WRITE_TOKEN}
       GF_GCFG_FILE: /app/manifest/config/config.example.yaml
       GF_SERVER_ADDRESS: 0.0.0.0:8090
       NAV_DATABASE_URL: ${NAV_DATABASE_URL:?set NAV_DATABASE_URL}
@@ -139,3 +142,8 @@ services:
 
 volumes:
   nav-postgres:
+
+networks:
+  traffic:
+    external: true
+    name: ${TRAFFIC_NETWORK:?set TRAFFIC_NETWORK}

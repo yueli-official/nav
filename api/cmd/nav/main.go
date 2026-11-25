@@ -9,7 +9,7 @@ import (
 	foundationauth "github.com/yueli-official/foundation/go/auth"
 	"github.com/yueli-official/foundation/go/authorization"
 	authorizationpostgres "github.com/yueli-official/foundation/go/authorization/postgres"
-	trafficpostgres "github.com/yueli-official/foundation/go/traffic/postgres"
+	"github.com/yueli-official/foundation/go/traffic/remote"
 
 	_ "github.com/gogf/gf/contrib/drivers/pgsql/v2"
 
@@ -57,7 +57,7 @@ func main() {
 	}
 	defer profileDB.Close()
 	trafficCatalog := navtraffic.Catalog()
-	trafficStore, err := trafficpostgres.New(ctx, trafficCatalog, trafficpostgres.Options{DB: profileDB, InstanceKey: "nav:" + appconfig.SiteSlug(ctx)})
+	trafficStore, err := remote.FromEnvironment(trafficCatalog)
 	if err != nil {
 		panic(err)
 	}
